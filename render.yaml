@@ -1,10 +1,9 @@
 services:
   - type: web
     name: resell
-    runtime: php
+    env: docker
     plan: free
-    buildCommand: ./build.sh
-    startCommand: php -S 0.0.0.0:$PORT -t public
+    dockerfilePath: ./Dockerfile
     envVars:
       - key: APP_ENV
         value: prod
@@ -14,11 +13,12 @@ services:
         fromDatabase:
           name: resell-db
           property: connectionString
-      - key: PHP_VERSION
-        value: "8.3"
+      - key: PORT
+        value: 8080
 
 databases:
   - name: resell-db
     databaseName: resell
     plan: free
+    user: resell
 
