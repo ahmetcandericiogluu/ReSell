@@ -2,11 +2,14 @@
 
 {% block title %}{{ title }}{% endblock %}
 
+{% block importmap %}{% endblock %}
+
 {% block body %}
-<div style="text-align: center; padding: 50px;">
-    <h1>🎉 {{ title }}</h1>
-    <p>Hoş geldiniz! Proje başarıyla çalışıyor.</p>
+<div style="text-align: center; padding: 50px; font-family: Arial, sans-serif;">
+    <h1 style="color: #333;">🎉 {{ title }}</h1>
+    <p style="font-size: 18px;">Hoş geldiniz! Proje başarıyla çalışıyor.</p>
     <p><strong>Database:</strong> PostgreSQL bağlantısı aktif ✓</p>
+    <p><strong>Environment:</strong> Production ✓</p>
 </div>
 {% endblock %}
 
