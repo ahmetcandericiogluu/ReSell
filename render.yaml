@@ -1,0 +1,24 @@
+services:
+  - type: web
+    name: resell
+    runtime: php
+    plan: free
+    buildCommand: ./build.sh
+    startCommand: php -S 0.0.0.0:$PORT -t public
+    envVars:
+      - key: APP_ENV
+        value: prod
+      - key: APP_SECRET
+        generateValue: true
+      - key: DATABASE_URL
+        fromDatabase:
+          name: resell-db
+          property: connectionString
+      - key: PHP_VERSION
+        value: "8.3"
+
+databases:
+  - name: resell-db
+    databaseName: resell
+    plan: free
+
