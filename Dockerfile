@@ -28,6 +28,9 @@ COPY . .
 # Run post-install scripts
 RUN composer dump-autoload --optimize
 
+# Install importmap assets
+RUN php bin/console importmap:install || true
+
 # Clear cache in production
 RUN APP_ENV=prod php bin/console cache:clear --no-warmup || true
 
