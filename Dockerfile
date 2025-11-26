@@ -32,6 +32,10 @@ RUN composer dump-autoload --optimize
 RUN mkdir -p var/cache var/log && \
     chmod -R 777 var/
 
+# Copy entrypoint script
+COPY docker-entrypoint.sh /usr/local/bin/
+RUN chmod +x /usr/local/bin/docker-entrypoint.sh
+
 # Expose port (will be overridden by PORT env var)
 EXPOSE 8080
 
@@ -39,5 +43,5 @@ ENV PORT=8080
 ENV APP_ENV=prod
 
 # Start command
-CMD php -S 0.0.0.0:${PORT} -t public
+ENTRYPOINT ["docker-entrypoint.sh"]
 
