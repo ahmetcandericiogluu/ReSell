@@ -1,5 +1,5 @@
-import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { useNavigate } from 'react-router-dom';
 import './Dashboard.css';
 
 const Dashboard = () => {
@@ -11,57 +11,44 @@ const Dashboard = () => {
       await logout();
       navigate('/login');
     } catch (error) {
-      console.error('Logout failed:', error);
+      console.error('Logout error:', error);
     }
   };
 
   return (
     <div className="dashboard-container">
-      <nav className="navbar">
-        <div className="nav-content">
-          <h1>🛍️ ReSell</h1>
-          <div className="nav-actions">
-            <span className="user-name">Merhaba, {user?.name}</span>
+      <header className="dashboard-header">
+        <div className="header-content">
+          <h1>🛍️ ReSell Dashboard</h1>
+          <div className="user-info">
+            <span>Hoş geldin, {user?.firstName || user?.email}</span>
             <button onClick={handleLogout} className="btn-logout">
               Çıkış Yap
             </button>
           </div>
         </div>
-      </nav>
+      </header>
 
       <main className="dashboard-main">
         <div className="welcome-card">
           <h2>Hoş Geldiniz! 👋</h2>
-          <div className="user-info">
-            <p><strong>ID:</strong> {user?.id}</p>
-            <p><strong>İsim:</strong> {user?.name}</p>
+          <p>ReSell platformuna başarıyla giriş yaptınız.</p>
+          
+          <div className="user-details">
+            <h3>Kullanıcı Bilgileriniz:</h3>
+            <p><strong>Ad:</strong> {user?.firstName} {user?.lastName}</p>
             <p><strong>E-posta:</strong> {user?.email}</p>
-          </div>
-        </div>
-
-        <div className="feature-grid">
-          <div className="feature-card">
-            <h3>📦 İlanlar</h3>
-            <p>İlanlarınızı yönetin ve yeni ilan ekleyin</p>
-            <button className="btn-secondary" disabled>Yakında</button>
+            <p><strong>Rol:</strong> {user?.roles?.join(', ')}</p>
           </div>
 
-          <div className="feature-card">
-            <h3>💬 Mesajlar</h3>
-            <p>Alıcı ve satıcılarla iletişim kurun</p>
-            <button className="btn-secondary" disabled>Yakında</button>
-          </div>
-
-          <div className="feature-card">
-            <h3>⭐ Değerlendirmeler</h3>
-            <p>Satıcı değerlendirmelerinizi görün</p>
-            <button className="btn-secondary" disabled>Yakında</button>
-          </div>
-
-          <div className="feature-card">
-            <h3>👤 Profil</h3>
-            <p>Profil bilgilerinizi düzenleyin</p>
-            <button className="btn-secondary" disabled>Yakında</button>
+          <div className="quick-actions">
+            <h3>Hızlı İşlemler:</h3>
+            <div className="action-buttons">
+              <button className="btn-action">➕ Yeni İlan Ekle</button>
+              <button className="btn-action">📦 İlanlarım</button>
+              <button className="btn-action">❤️ Favorilerim</button>
+              <button className="btn-action">💬 Mesajlarım</button>
+            </div>
           </div>
         </div>
       </main>
@@ -70,4 +57,3 @@ const Dashboard = () => {
 };
 
 export default Dashboard;
-

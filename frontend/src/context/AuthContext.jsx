@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect } from 'react';
+import { createContext, useContext, useState, useEffect, useRef } from 'react';
 import authApi from '../api/authApi';
 
 const AuthContext = createContext(null);
@@ -6,12 +6,19 @@ const AuthContext = createContext(null);
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const isCheckingAuth = useRef(false);
 
   useEffect(() => {
-    checkAuth();
+    // Prevent multiple simultaneous auth checks
+    if (!isCheckingAuth.current) {
+      checkAuth();
+    }
   }, []);
 
   const checkAuth = async () => {
+    if (isCheckingAuth.current) return;
+    
+    isCheckingAuth.current = true;
     try {
       const userData = await authApi.me();
       setUser(userData);
@@ -19,6 +26,7 @@ export const AuthProvider = ({ children }) => {
       setUser(null);
     } finally {
       setLoading(false);
+      isCheckingAuth.current = false;
     }
   };
 

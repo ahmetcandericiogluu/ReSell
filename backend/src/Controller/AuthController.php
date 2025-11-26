@@ -44,14 +44,22 @@ class AuthController extends AbstractController
     ): JsonResponse {
         $user = $this->userService->login($request);
         
+        // Start session if not started
+        $session = $httpRequest->getSession();
+        if (!$session->isStarted()) {
+            $session->start();
+        }
+        
         // Create authentication token and store in session
         $token = new UsernamePasswordToken($user, 'main', $user->getRoles());
         $this->tokenStorage->setToken($token);
         
         // Save user identifier in session for authenticator
-        $session = $httpRequest->getSession();
         $session->set('_security_main', serialize($token));
         $session->set('_security_user_identifier', $user->getUserIdentifier());
+        
+        // Save session explicitly
+        $session->save();
         
         $response = UserResponse::fromEntity($user);
 
