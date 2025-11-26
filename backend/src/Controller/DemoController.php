@@ -8,7 +8,7 @@ use Symfony\Component\Routing\Attribute\Route;
 
 class DemoController extends AbstractController
 {
-    #[Route('/', name: 'demo_auth')]
+    #[Route('/demo', name: 'demo_auth')]
     public function demo(): Response
     {
         return $this->render('auth/demo.html.twig');

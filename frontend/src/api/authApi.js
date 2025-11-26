@@ -1,6 +1,12 @@
 import axios from 'axios';
 
-const API_BASE_URL = '/api/auth';
+// Use environment variable for API URL, fallback to proxy in development
+const API_BASE_URL = import.meta.env.VITE_API_URL 
+  ? `${import.meta.env.VITE_API_URL}/api/auth`
+  : '/api/auth';
+
+// Configure axios defaults
+axios.defaults.withCredentials = true;
 
 const authApi = {
   register: async (userData) => {
