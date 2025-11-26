@@ -6,13 +6,20 @@ framework:
     session:
         handler_id: null
         cookie_secure: auto
-        cookie_samesite: lax
+        cookie_samesite: none
         cookie_httponly: true
         cookie_lifetime: 86400
         gc_maxlifetime: 86400
+        name: RESELL_SESSION
 
     #esi: true
     #fragments: true
+
+when@prod:
+    framework:
+        session:
+            cookie_secure: true
+            cookie_samesite: none
 
 when@test:
     framework:
