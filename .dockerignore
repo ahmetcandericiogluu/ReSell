@@ -1,8 +1,13 @@
-vendor/
-var/
+var/cache/*
+var/log/*
 .env.local
+.env.local.php
 .env.*.local
+vendor/
+node_modules/
 .git
 .gitignore
-node_modules/
-
+README.md
+tests/
+phpunit.xml.dist
+.editorconfig

@@ -1,16 +1,16 @@
-#!/usr/bin/env bash
-# exit on error
-set -o errexit
+#!/bin/bash
 
-# Install dependencies
-composer install --no-dev --optimize-autoloader
+# Exit on error
+set -e
 
-# Clear cache
-php bin/console cache:clear --env=prod --no-debug
+echo "🔧 Installing dependencies..."
+composer install --no-dev --optimize-autoloader --no-interaction
 
-# Install assets
-php bin/console asset-map:compile
+echo "🗄️ Running database migrations..."
+php bin/console doctrine:migrations:migrate --no-interaction --allow-no-migration
 
-# Run migrations
-php bin/console doctrine:migrations:migrate --no-interaction
+echo "🧹 Clearing cache..."
+php bin/console cache:clear --env=prod --no-warmup
+php bin/console cache:warmup --env=prod
 
+echo "✅ Build completed successfully!"

@@ -1,0 +1,12 @@
+# Genel uygulama mesajları - Türkçe
+auth:
+    user_exists: 'Bu e-posta adresi ile kayıtlı kullanıcı zaten mevcut'
+    invalid_credentials: 'Geçersiz e-posta veya şifre'
+    authentication_required: 'Bu kaynağa erişmek için giriş yapmanız gerekiyor'
+    not_authenticated: 'Giriş yapılmamış'
+    logout_success: 'Başarıyla çıkış yapıldı'
+
+error:
+    validation_failed: 'Doğrulama başarısız'
+    general: 'Bir hata oluştu'
+

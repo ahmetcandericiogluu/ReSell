@@ -16,11 +16,11 @@ COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 # Set working directory
 WORKDIR /app
 
-# Copy composer files
-COPY composer.json composer.lock ./
+# Copy composer files first (for better caching)
+COPY composer.json composer.lock symfony.lock ./
 
 # Install dependencies
-RUN composer install --no-dev --optimize-autoloader --no-scripts
+RUN composer install --no-dev --optimize-autoloader --no-scripts --no-progress
 
 # Copy application files
 COPY . .
@@ -28,21 +28,16 @@ COPY . .
 # Run post-install scripts
 RUN composer dump-autoload --optimize
 
-# Install importmap assets
-RUN php bin/console importmap:install || true
+# Create var directory and set permissions
+RUN mkdir -p var/cache var/log && \
+    chmod -R 777 var/
 
-# Clear cache in production
-RUN APP_ENV=prod php bin/console cache:clear --no-warmup || true
-
-# Set permissions
-RUN chmod -R 777 var/ || true
-
-# Expose port
+# Expose port (will be overridden by PORT env var)
 EXPOSE 8080
 
-# Start script
-COPY docker-entrypoint.sh /usr/local/bin/
-RUN chmod +x /usr/local/bin/docker-entrypoint.sh
+ENV PORT=8080
+ENV APP_ENV=prod
 
-ENTRYPOINT ["docker-entrypoint.sh"]
+# Start command
+CMD php -S 0.0.0.0:${PORT} -t public
 

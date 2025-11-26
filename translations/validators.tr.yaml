@@ -1,0 +1,22 @@
+# Validator mesajları - Türkçe
+# Symfony built-in validation mesajları
+This value should not be blank: 'Bu alan boş bırakılamaz'
+This value is not a valid email address: 'Geçerli bir e-posta adresi giriniz'
+
+# Custom validation mesajları
+validation:
+    email:
+        required: 'E-posta adresi gereklidir'
+        invalid: 'Geçersiz e-posta formatı'
+    password:
+        required: 'Şifre gereklidir'
+        min_length: 'Şifre en az {{ limit }} karakter olmalıdır'
+    name:
+        required: 'İsim gereklidir'
+        min_length: 'İsim en az {{ limit }} karakter olmalıdır'
+        max_length: 'İsim en fazla {{ limit }} karakter olabilir'
+    phone:
+        max_length: 'Telefon numarası en fazla {{ limit }} karakter olabilir'
+    city:
+        max_length: 'Şehir adı en fazla {{ limit }} karakter olabilir'
+
