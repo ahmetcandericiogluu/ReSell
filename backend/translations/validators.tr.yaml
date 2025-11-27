@@ -19,4 +19,21 @@ validation:
         max_length: 'Telefon numarası en fazla {{ limit }} karakter olabilir'
     city:
         max_length: 'Şehir adı en fazla {{ limit }} karakter olabilir'
+    listing:
+        title:
+            required: 'İlan başlığı gereklidir'
+            min_length: 'İlan başlığı en az {{ limit }} karakter olmalıdır'
+            max_length: 'İlan başlığı en fazla {{ limit }} karakter olabilir'
+        description:
+            required: 'İlan açıklaması gereklidir'
+            min_length: 'İlan açıklaması en az {{ limit }} karakter olmalıdır'
+        price:
+            required: 'Fiyat gereklidir'
+            positive: 'Fiyat pozitif bir değer olmalıdır'
+        currency:
+            max_length: 'Para birimi en fazla {{ limit }} karakter olabilir'
+        category_id:
+            positive: 'Kategori ID pozitif bir değer olmalıdır'
+        location:
+            max_length: 'Konum en fazla {{ limit }} karakter olabilir'
 
