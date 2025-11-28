@@ -18,8 +18,13 @@ const listingApi = {
     return response.data;
   },
 
-  getAll: async () => {
-    const response = await apiClient.get('');
+  getAll: async (params = {}) => {
+    const response = await apiClient.get('', { params });
+    return response.data;
+  },
+
+  getMyListings: async () => {
+    const response = await apiClient.get('/me');
     return response.data;
   },
 

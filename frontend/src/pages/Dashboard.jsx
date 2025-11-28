@@ -45,8 +45,8 @@ const Dashboard = () => {
             <h3>Hızlı İşlemler:</h3>
             <div className="action-buttons">
               <button className="btn-action" onClick={() => navigate('/listings/create')}>➕ Yeni İlan Ekle</button>
-              <button className="btn-action">📦 İlanlarım</button>
-              <button className="btn-action">❤️ Favorilerim</button>
+              <button className="btn-action" onClick={() => navigate('/my-listings')}>📦 İlanlarım</button>
+              <button className="btn-action" onClick={() => navigate('/listings')}>🔍 Tüm İlanlar</button>
               <button className="btn-action">💬 Mesajlarım</button>
             </div>
           </div>

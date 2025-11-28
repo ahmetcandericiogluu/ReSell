@@ -29,5 +29,79 @@ class ListingRepository extends ServiceEntityRepository
     {
         $this->getEntityManager()->flush();
     }
+
+    /**
+     * Find all active listings
+     * @return Listing[]
+     */
+    public function findAllActive(): array
+    {
+        return $this->createQueryBuilder('l')
+            ->where('l.status = :status')
+            ->setParameter('status', 'active')
+            ->orderBy('l.createdAt', 'DESC')
+            ->getQuery()
+            ->getResult();
+    }
+
+    /**
+     * Find listings by filters
+     * @return Listing[]
+     */
+    public function findByFilters(
+        ?string $status = null,
+        ?int $categoryId = null,
+        ?string $location = null,
+        ?string $search = null
+    ): array {
+        $qb = $this->createQueryBuilder('l');
+
+        if ($status) {
+            $qb->andWhere('l.status = :status')
+               ->setParameter('status', $status);
+        } else {
+            // Default to active if no status specified
+            $qb->andWhere('l.status = :status')
+               ->setParameter('status', 'active');
+        }
+
+        if ($categoryId) {
+            $qb->andWhere('l.categoryId = :categoryId')
+               ->setParameter('categoryId', $categoryId);
+        }
+
+        if ($location) {
+            $qb->andWhere('l.location LIKE :location')
+               ->setParameter('location', '%' . $location . '%');
+        }
+
+        if ($search) {
+            $qb->andWhere('(l.title LIKE :search OR l.description LIKE :search)')
+               ->setParameter('search', '%' . $search . '%');
+        }
+
+        return $qb->orderBy('l.createdAt', 'DESC')
+                  ->getQuery()
+                  ->getResult();
+    }
+
+    public function findById(int $id): ?Listing
+    {
+        return $this->find($id);
+    }
+
+    /**
+     * Find all listings by seller
+     * @return Listing[]
+     */
+    public function findBySeller(int $sellerId): array
+    {
+        return $this->createQueryBuilder('l')
+            ->where('l.seller = :sellerId')
+            ->setParameter('sellerId', $sellerId)
+            ->orderBy('l.createdAt', 'DESC')
+            ->getQuery()
+            ->getResult();
+    }
 }
 
