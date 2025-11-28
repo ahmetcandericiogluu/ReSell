@@ -51,6 +51,23 @@ const CreateListing = () => {
 
   return (
     <div className="create-listing-container">
+      <header className="listings-header">
+        <div className="header-content">
+          <h1>🛍️ ReSell</h1>
+          <nav className="header-nav">
+            <button onClick={() => navigate('/dashboard')} className="nav-link">Ana Sayfa</button>
+            <button onClick={() => navigate('/listings')} className="nav-link">İlanlar</button>
+            <button onClick={() => navigate('/my-listings')} className="nav-link">İlanlarım</button>
+            <div className="user-menu">
+              <span>{user?.name || user?.email}</span>
+              <button onClick={() => {
+                navigate('/dashboard');
+              }} className="btn-logout">İptal</button>
+            </div>
+          </nav>
+        </div>
+      </header>
+
       <div className="create-listing-card">
         <div className="card-header">
           <h1>📝 Yeni İlan Oluştur</h1>

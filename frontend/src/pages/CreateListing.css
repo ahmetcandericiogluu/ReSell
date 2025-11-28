@@ -1,10 +1,84 @@
 .create-listing-container {
   min-height: 100vh;
   background: #f8f9fa;
+}
+
+.listings-header {
+  background: white;
+  padding: 1.25rem 2rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  border-bottom: 1px solid #e9ecef;
+}
+
+.header-content {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.listings-header h1 {
+  margin: 0 0 1rem 0;
+  color: #212529;
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+
+.header-nav {
   display: flex;
   align-items: center;
-  justify-content: center;
-  padding: 2rem;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.nav-link {
+  padding: 0.5rem 1rem;
+  background: transparent;
+  border: none;
+  color: #6c757d;
+  cursor: pointer;
+  font-weight: 500;
+  font-size: 0.95rem;
+  transition: all 0.2s;
+  border-radius: 6px;
+}
+
+.nav-link:hover {
+  color: #212529;
+  background: #f8f9fa;
+}
+
+.nav-link.active {
+  color: #212529;
+  background: #e9ecef;
+}
+
+.user-menu {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.user-menu span {
+  color: #495057;
+  font-weight: 500;
+  font-size: 0.95rem;
+}
+
+.btn-logout {
+  padding: 0.5rem 1rem;
+  background: white;
+  color: #212529;
+  border: 1px solid #dee2e6;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 500;
+  font-size: 0.9rem;
+  transition: all 0.2s;
+}
+
+.btn-logout:hover {
+  background: #f8f9fa;
+  border-color: #adb5bd;
 }
 
 .create-listing-card {
@@ -15,6 +89,7 @@
   width: 100%;
   max-width: 700px;
   padding: 2.5rem;
+  margin: 2rem auto;
 }
 
 .card-header {
@@ -144,12 +219,19 @@
   cursor: not-allowed;
 }
 
-@media (max-width: 640px) {
-  .create-listing-container {
-    padding: 1rem;
+@media (max-width: 768px) {
+  .header-nav {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .user-menu {
+    margin-left: 0;
+    justify-content: space-between;
   }
 
   .create-listing-card {
+    margin: 1rem;
     padding: 1.5rem;
   }
 

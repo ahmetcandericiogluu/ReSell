@@ -19,13 +19,16 @@ const Dashboard = () => {
     <div className="dashboard-container">
       <header className="dashboard-header">
         <div className="header-content">
-          <h1>🛍️ ReSell Dashboard</h1>
-          <div className="user-info">
-            <span>Hoş geldin, {user?.firstName || user?.email}</span>
-            <button onClick={handleLogout} className="btn-logout">
-              Çıkış Yap
-            </button>
-          </div>
+          <h1>🛍️ ReSell</h1>
+          <nav className="header-nav">
+            <button onClick={() => navigate('/dashboard')} className="nav-link active">Ana Sayfa</button>
+            <button onClick={() => navigate('/listings')} className="nav-link">İlanlar</button>
+            <button onClick={() => navigate('/my-listings')} className="nav-link">İlanlarım</button>
+            <div className="user-menu">
+              <span>{user?.name || user?.email}</span>
+              <button onClick={handleLogout} className="btn-logout">Çıkış</button>
+            </div>
+          </nav>
         </div>
       </header>
 
