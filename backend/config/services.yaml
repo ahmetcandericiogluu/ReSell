@@ -42,4 +42,4 @@ services:
     # Listing Image Service with storage driver parameter
     App\Service\ListingImageService:
         arguments:
-            $storageDriver: 'local'  # Change to 'r2' when using R2
+            $storageDriver: 'r2'  # Change to 'r2' when using R2
