@@ -6,7 +6,9 @@ import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
 import CreateListing from './pages/CreateListing';
 import Listings from './pages/Listings';
+import ListingDetail from './pages/ListingDetail';
 import MyListings from './pages/MyListings';
+import ManageImages from './pages/ManageImages';
 
 function App() {
   return (
@@ -33,6 +35,14 @@ function App() {
             }
           />
           <Route
+            path="/listings/:id"
+            element={
+              <ProtectedRoute>
+                <ListingDetail />
+              </ProtectedRoute>
+            }
+          />
+          <Route
             path="/my-listings"
             element={
               <ProtectedRoute>
@@ -45,6 +55,14 @@ function App() {
             element={
               <ProtectedRoute>
                 <CreateListing />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/listings/:id/images"
+            element={
+              <ProtectedRoute>
+                <ManageImages />
               </ProtectedRoute>
             }
           />

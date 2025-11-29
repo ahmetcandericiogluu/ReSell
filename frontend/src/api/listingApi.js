@@ -41,6 +41,31 @@ const listingApi = {
   delete: async (id) => {
     const response = await apiClient.delete(`/${id}`);
     return response.data;
+  },
+
+  // Image operations
+  uploadImages: async (listingId, files) => {
+    const formData = new FormData();
+    files.forEach(file => {
+      formData.append('images[]', file);
+    });
+
+    const response = await apiClient.post(`/${listingId}/images`, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+    return response.data;
+  },
+
+  deleteImage: async (listingId, imageId) => {
+    const response = await apiClient.delete(`/${listingId}/images/${imageId}`);
+    return response.data;
+  },
+
+  getImages: async (listingId) => {
+    const response = await apiClient.get(`/${listingId}/images`);
+    return response.data;
   }
 };
 

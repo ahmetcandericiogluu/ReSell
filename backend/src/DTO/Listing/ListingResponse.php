@@ -3,6 +3,7 @@
 namespace App\DTO\Listing;
 
 use App\Entity\Listing;
+use App\Entity\ListingImage;
 
 class ListingResponse
 {
@@ -18,8 +19,9 @@ class ListingResponse
     public string $seller_name;
     public string $created_at;
     public string $updated_at;
+    public array $images = [];
 
-    public static function fromEntity(Listing $listing): self
+    public static function fromEntity(Listing $listing, array $images = []): self
     {
         $response = new self();
         $response->id = $listing->getId();
@@ -34,6 +36,18 @@ class ListingResponse
         $response->seller_name = $listing->getSeller()->getName();
         $response->created_at = $listing->getCreatedAt()->format('Y-m-d H:i:s');
         $response->updated_at = $listing->getUpdatedAt()->format('Y-m-d H:i:s');
+        
+        // Format images
+        $response->images = array_map(function (ListingImage $image) {
+            return [
+                'id' => $image->getId(),
+                'url' => $image->getUrl(),
+                'path' => $image->getPath(),
+                'position' => $image->getPosition(),
+                'storage_driver' => $image->getStorageDriver(),
+                'created_at' => $image->getCreatedAt()->format('Y-m-d H:i:s'),
+            ];
+        }, $images);
 
         return $response;
     }

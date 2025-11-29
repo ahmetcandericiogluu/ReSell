@@ -18,3 +18,28 @@ services:
 
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones
+
+    # Storage Services
+    App\Storage\LocalStorageService:
+        arguments:
+            $uploadBasePath: '%kernel.project_dir%/public/uploads'
+            $publicBaseUrl: '/uploads'
+
+    App\Storage\R2StorageService:
+        arguments:
+            $endpoint: '%env(R2_ENDPOINT)%'
+            $region: '%env(R2_REGION)%'
+            $bucket: '%env(R2_BUCKET)%'
+            $accessKeyId: '%env(R2_ACCESS_KEY_ID)%'
+            $secretAccessKey: '%env(R2_SECRET_ACCESS_KEY)%'
+            $publicBaseUrl: '%env(R2_PUBLIC_BASE_URL)%'
+
+    # Storage Interface - change alias to switch storage
+    # Options: App\Storage\LocalStorageService or App\Storage\R2StorageService
+    App\Storage\StorageInterface:
+        alias: App\Storage\R2StorageService
+
+    # Listing Image Service with storage driver parameter
+    App\Service\ListingImageService:
+        arguments:
+            $storageDriver: 'local'  # Change to 'r2' when using R2

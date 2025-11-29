@@ -108,14 +108,18 @@ const MyListings = () => {
               listings.map((listing) => (
                 <div 
                   key={listing.id} 
-                  className="listing-card"
-                  onClick={() => navigate(`/listings/${listing.id}`)}
+                  className="listing-card my-listing-card"
                 >
-                  <div className="listing-image-placeholder">
+                  <div 
+                    className="listing-image-placeholder"
+                    onClick={() => navigate(`/listings/${listing.id}`)}
+                  >
                     📦
                   </div>
                   <div className="listing-info">
-                    <h3>{listing.title}</h3>
+                    <h3 onClick={() => navigate(`/listings/${listing.id}`)} style={{ cursor: 'pointer' }}>
+                      {listing.title}
+                    </h3>
                     <p className="listing-description">
                       {listing.description.substring(0, 100)}
                       {listing.description.length > 100 ? '...' : ''}
@@ -133,6 +137,17 @@ const MyListings = () => {
                       <span className={`listing-status ${getStatusClass(listing.status)}`}>
                         {getStatusLabel(listing.status)}
                       </span>
+                    </div>
+                    <div className="listing-actions">
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          navigate(`/listings/${listing.id}/images`);
+                        }}
+                        className="btn-manage-images"
+                      >
+                        📸 Resimleri Yönet
+                      </button>
                     </div>
                   </div>
                 </div>
