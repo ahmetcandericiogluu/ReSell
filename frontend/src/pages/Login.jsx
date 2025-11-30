@@ -1,8 +1,16 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import './Auth.css';
+import { Button, Input, Card, FormField } from '../components/ui';
 
+/**
+ * Login Page
+ * 
+ * Uses design system components for consistent styling.
+ * - FormField for form inputs with labels
+ * - Card for the auth container
+ * - Button for the submit action
+ */
 const Login = () => {
   const [formData, setFormData] = useState({
     email: '',
@@ -37,48 +45,67 @@ const Login = () => {
   };
 
   return (
-    <div className="auth-container">
-      <div className="auth-card">
-        <h1>🛍️ ReSell</h1>
-        <p className="subtitle">İkinci el pazar yerine hoş geldiniz</p>
-        
-        <h2>Giriş Yap</h2>
-
-        {error && <div className="error-message">{error}</div>}
-
-        <form onSubmit={handleSubmit}>
-          <div className="form-group">
-            <label htmlFor="email">E-posta</label>
-            <input
-              type="email"
-              id="email"
-              name="email"
-              value={formData.email}
-              onChange={handleChange}
-              required
-            />
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 flex items-center justify-center p-4">
+      <div className="w-full max-w-md">
+        {/* Logo */}
+        <div className="text-center mb-8">
+          <div className="inline-flex items-center space-x-2 mb-2">
+            <span className="text-4xl">🛍️</span>
+            <h1 className="text-3xl font-bold text-slate-800">ReSell</h1>
           </div>
+          <p className="text-slate-600">İkinci el pazar yerine hoş geldiniz</p>
+        </div>
 
-          <div className="form-group">
-            <label htmlFor="password">Şifre</label>
-            <input
-              type="password"
-              id="password"
-              name="password"
-              value={formData.password}
-              onChange={handleChange}
-              required
-            />
-          </div>
+        {/* Auth Card */}
+        <Card padding="lg">
+          <h2 className="text-2xl font-semibold text-slate-800 mb-6">Giriş Yap</h2>
 
-          <button type="submit" className="btn-primary" disabled={loading}>
-            {loading ? 'Giriş yapılıyor...' : 'Giriş Yap'}
-          </button>
-        </form>
+          {error && (
+            <div className="mb-4 p-3 bg-red-50 border border-red-200 text-red-700 rounded-lg text-sm">
+              {error}
+            </div>
+          )}
 
-        <p className="auth-link">
-          Hesabınız yok mu? <Link to="/register">Kayıt olun</Link>
-        </p>
+          <form onSubmit={handleSubmit} className="space-y-5">
+            <FormField label="E-posta" required>
+              <Input
+                type="email"
+                name="email"
+                value={formData.email}
+                onChange={handleChange}
+                placeholder="ornek@email.com"
+                required
+              />
+            </FormField>
+
+            <FormField label="Şifre" required>
+              <Input
+                type="password"
+                name="password"
+                value={formData.password}
+                onChange={handleChange}
+                placeholder="••••••••"
+                required
+              />
+            </FormField>
+
+            <Button
+              type="submit"
+              variant="primary"
+              disabled={loading}
+              className="w-full"
+            >
+              {loading ? 'Giriş yapılıyor...' : 'Giriş Yap'}
+            </Button>
+          </form>
+
+          <p className="mt-6 text-center text-sm text-slate-600">
+            Hesabınız yok mu?{' '}
+            <Link to="/register" className="text-primary-600 hover:text-primary-700 font-medium">
+              Kayıt olun
+            </Link>
+          </p>
+        </Card>
       </div>
     </div>
   );

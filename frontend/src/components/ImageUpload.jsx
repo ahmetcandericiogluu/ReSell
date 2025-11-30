@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import './ImageUpload.css';
 
 const ImageUpload = ({ onUpload, maxFiles = 5, accept = 'image/jpeg,image/png,image/webp' }) => {
   const [selectedFiles, setSelectedFiles] = useState([]);
@@ -76,8 +75,9 @@ const ImageUpload = ({ onUpload, maxFiles = 5, accept = 'image/jpeg,image/png,im
   };
 
   return (
-    <div className="image-upload">
-      <div className="upload-area">
+    <div className="space-y-4">
+      {/* Upload Area */}
+      <div className="relative">
         <input
           type="file"
           id="image-upload-input"
@@ -85,32 +85,51 @@ const ImageUpload = ({ onUpload, maxFiles = 5, accept = 'image/jpeg,image/png,im
           accept={accept}
           onChange={handleFileSelect}
           disabled={uploading || selectedFiles.length >= maxFiles}
-          className="upload-input"
+          className="hidden"
         />
-        <label htmlFor="image-upload-input" className="upload-label">
-          <div className="upload-icon">📸</div>
-          <div className="upload-text">
-            <strong>Resim Seçin</strong>
-            <span>veya sürükleyip bırakın</span>
+        <label
+          htmlFor="image-upload-input"
+          className={`block border-2 border-dashed rounded-lg p-8 text-center cursor-pointer transition-colors ${
+            uploading || selectedFiles.length >= maxFiles
+              ? 'border-slate-200 bg-slate-50 cursor-not-allowed'
+              : 'border-slate-300 hover:border-primary-400 hover:bg-primary-50'
+          }`}
+        >
+          <div className="text-5xl mb-3">📸</div>
+          <div className="mb-2">
+            <span className="text-slate-700 font-medium">Resim Seçin</span>
+            <span className="text-slate-500"> veya sürükleyip bırakın</span>
           </div>
-          <div className="upload-hint">
+          <div className="text-sm text-slate-500">
             JPEG, PNG, WebP - En fazla 5MB
           </div>
         </label>
       </div>
 
-      {error && <div className="upload-error">{error}</div>}
+      {/* Error Message */}
+      {error && (
+        <div className="p-3 bg-red-50 border border-red-200 text-red-700 rounded-lg text-sm">
+          {error}
+        </div>
+      )}
 
+      {/* Preview Grid */}
       {previews.length > 0 && (
-        <div className="preview-grid">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
           {previews.map((preview, index) => (
-            <div key={index} className="preview-item">
-              <img src={preview} alt={`Preview ${index + 1}`} />
+            <div key={index} className="relative group">
+              <div className="aspect-square rounded-lg overflow-hidden bg-slate-100 border-2 border-slate-200">
+                <img
+                  src={preview}
+                  alt={`Preview ${index + 1}`}
+                  className="w-full h-full object-cover"
+                />
+              </div>
               <button
                 type="button"
                 onClick={() => handleRemove(index)}
-                className="remove-btn"
                 disabled={uploading}
+                className="absolute -top-2 -right-2 w-8 h-8 bg-red-500 hover:bg-red-600 text-white rounded-full flex items-center justify-center transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-md"
               >
                 ✕
               </button>
@@ -119,13 +138,14 @@ const ImageUpload = ({ onUpload, maxFiles = 5, accept = 'image/jpeg,image/png,im
         </div>
       )}
 
+      {/* Upload Button */}
       {selectedFiles.length > 0 && (
-        <div className="upload-actions">
+        <div className="flex justify-end">
           <button
             type="button"
             onClick={handleUpload}
             disabled={uploading}
-            className="btn-upload"
+            className="px-6 py-2.5 bg-primary-600 hover:bg-primary-700 text-white font-medium rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {uploading ? 'Yükleniyor...' : `${selectedFiles.length} Resim Yükle`}
           </button>

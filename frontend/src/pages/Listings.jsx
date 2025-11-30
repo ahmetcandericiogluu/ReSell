@@ -1,11 +1,18 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
 import listingApi from '../api/listingApi';
-import './Listings.css';
+import Navbar from '../components/Navbar';
+import ListingCard from '../components/ListingCard';
+import { Container, Card, Input, Button } from '../components/ui';
+
+/**
+ * Listings Page
+ * 
+ * Public listing browsing page with search/filter functionality.
+ * Uses design system components for consistent UI.
+ */
 
 const Listings = () => {
-  const { user, logout } = useAuth();
   const navigate = useNavigate();
   const [listings, setListings] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -41,114 +48,96 @@ const Listings = () => {
     fetchListings(params);
   };
 
-  const handleLogout = async () => {
-    try {
-      await logout();
-      navigate('/login');
-    } catch (error) {
-      console.error('Logout error:', error);
-    }
-  };
-
   const formatPrice = (price, currency) => {
     const symbols = { TRY: '₺', USD: '$', EUR: '€' };
     return `${parseFloat(price).toLocaleString('tr-TR')} ${symbols[currency] || currency}`;
   };
 
-  return (
-    <div className="listings-container">
-      <header className="listings-header">
-        <div className="header-content">
-          <h1>🛍️ ReSell</h1>
-          <nav className="header-nav">
-            <button onClick={() => navigate('/dashboard')} className="nav-link">Ana Sayfa</button>
-            <button onClick={() => navigate('/listings')} className="nav-link active">İlanlar</button>
-            <button onClick={() => navigate('/my-listings')} className="nav-link">İlanlarım</button>
-            <div className="user-menu">
-              <span>{user?.name || user?.email}</span>
-              <button onClick={handleLogout} className="btn-logout">Çıkış</button>
-            </div>
-          </nav>
-        </div>
-      </header>
+  const formatDate = (dateString) => {
+    return new Date(dateString).toLocaleDateString('tr-TR', {
+      day: 'numeric',
+      month: 'short',
+    });
+  };
 
-      <main className="listings-main">
-        <div className="search-section">
-          <h2>Tüm İlanlar</h2>
-          <form onSubmit={handleSearch} className="search-form">
-            <input
+  return (
+    <div className="min-h-screen bg-slate-50">
+      <Navbar activePage="listings" />
+
+      <Container className="py-8">
+        {/* Header */}
+        <div className="mb-8">
+          <h1 className="text-3xl font-semibold text-slate-800 mb-2">Tüm İlanlar</h1>
+          <p className="text-slate-600">İkinci el ürünleri keşfedin</p>
+        </div>
+
+        {/* Search Bar */}
+        <Card padding="md" className="mb-8">
+          <form onSubmit={handleSearch} className="flex flex-col sm:flex-row gap-3">
+            <Input
               type="text"
               placeholder="İlan ara..."
               value={filters.search}
               onChange={(e) => setFilters({ ...filters, search: e.target.value })}
-              className="search-input"
+              className="flex-1"
             />
-            <input
+            <Input
               type="text"
               placeholder="Konum..."
               value={filters.location}
               onChange={(e) => setFilters({ ...filters, location: e.target.value })}
-              className="search-input"
+              className="flex-1"
             />
-            <button type="submit" className="btn-search">🔍 Ara</button>
-            <button 
-              type="button" 
+            <Button type="submit" variant="primary">
+              🔍 Ara
+            </Button>
+            <Button
+              type="button"
+              variant="secondary"
               onClick={() => {
                 setFilters({ search: '', location: '' });
                 fetchListings();
               }}
-              className="btn-clear"
             >
               Temizle
-            </button>
+            </Button>
           </form>
-        </div>
+        </Card>
 
-        {error && <div className="error-message">{error}</div>}
-
-        {loading ? (
-          <div className="loading">Yükleniyor...</div>
-        ) : (
-          <div className="listings-grid">
-            {listings.length === 0 ? (
-              <div className="no-listings">
-                <p>Henüz ilan bulunmuyor.</p>
-              </div>
-            ) : (
-              listings.map((listing) => (
-                <div 
-                  key={listing.id} 
-                  className="listing-card"
-                  onClick={() => navigate(`/listings/${listing.id}`)}
-                >
-                  <div className="listing-image-placeholder">
-                    📦
-                  </div>
-                  <div className="listing-info">
-                    <h3>{listing.title}</h3>
-                    <p className="listing-description">
-                      {listing.description.substring(0, 100)}
-                      {listing.description.length > 100 ? '...' : ''}
-                    </p>
-                    <div className="listing-meta">
-                      <span className="listing-price">{formatPrice(listing.price, listing.currency)}</span>
-                      {listing.location && (
-                        <span className="listing-location">📍 {listing.location}</span>
-                      )}
-                    </div>
-                    <div className="listing-footer">
-                      <span className="listing-seller">👤 {listing.seller_name}</span>
-                      <span className="listing-status status-{listing.status}">
-                        {listing.status === 'active' ? '✅ Aktif' : listing.status}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              ))
-            )}
+        {/* Error Message */}
+        {error && (
+          <div className="mb-6 p-4 bg-red-50 border border-red-200 text-red-700 rounded-lg">
+            {error}
           </div>
         )}
-      </main>
+
+        {/* Loading State */}
+        {loading ? (
+          <div className="flex justify-center items-center py-20">
+            <div className="text-slate-600">Yükleniyor...</div>
+          </div>
+        ) : (
+          <>
+            {/* Empty State */}
+            {listings.length === 0 ? (
+              <Card padding="lg" className="text-center">
+                <div className="text-6xl mb-4">📦</div>
+                <h3 className="text-xl font-semibold text-slate-800 mb-2">Henüz ilan bulunmuyor</h3>
+                <p className="text-slate-600">Filtreleri temizleyerek tekrar deneyin</p>
+              </Card>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                {listings.map((listing) => (
+                  <ListingCard 
+                    key={listing.id} 
+                    listing={listing} 
+                  />
+                ))}
+              </div>
+            )}
+          </>
+        )}
+      </Container>
     </div>
   );
 };

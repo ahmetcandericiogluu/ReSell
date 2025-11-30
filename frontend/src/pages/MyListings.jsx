@@ -1,11 +1,17 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
 import listingApi from '../api/listingApi';
-import './Listings.css';
+import Navbar from '../components/Navbar';
+import ListingCard from '../components/ListingCard';
+import { Container, Card, Button } from '../components/ui';
 
+/**
+ * MyListings Page
+ * 
+ * User's personal listing management page.
+ * Shows all listings created by the logged-in user.
+ */
 const MyListings = () => {
-  const { user, logout } = useAuth();
   const navigate = useNavigate();
   const [listings, setListings] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -29,133 +35,67 @@ const MyListings = () => {
     }
   };
 
-  const handleLogout = async () => {
-    try {
-      await logout();
-      navigate('/login');
-    } catch (error) {
-      console.error('Logout error:', error);
-    }
-  };
-
-  const formatPrice = (price, currency) => {
-    const symbols = { TRY: '₺', USD: '$', EUR: '€' };
-    return `${parseFloat(price).toLocaleString('tr-TR')} ${symbols[currency] || currency}`;
-  };
-
-  const getStatusLabel = (status) => {
-    const labels = {
-      draft: '📝 Taslak',
-      active: '✅ Aktif',
-      sold: '✔️ Satıldı',
-      deleted: '🗑️ Silindi'
-    };
-    return labels[status] || status;
-  };
-
-  const getStatusClass = (status) => {
-    return `status-${status}`;
-  };
-
   return (
-    <div className="listings-container">
-      <header className="listings-header">
-        <div className="header-content">
-          <h1>🛍️ ReSell</h1>
-          <nav className="header-nav">
-            <button onClick={() => navigate('/dashboard')} className="nav-link">Ana Sayfa</button>
-            <button onClick={() => navigate('/listings')} className="nav-link">İlanlar</button>
-            <button onClick={() => navigate('/my-listings')} className="nav-link active">İlanlarım</button>
-            <div className="user-menu">
-              <span>{user?.name || user?.email}</span>
-              <button onClick={handleLogout} className="btn-logout">Çıkış</button>
-            </div>
-          </nav>
-        </div>
-      </header>
+    <div className="min-h-screen bg-slate-50">
+      <Navbar activePage="my-listings" />
 
-      <main className="listings-main">
-        <div className="search-section">
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <h2>İlanlarım</h2>
-            <button 
-              onClick={() => navigate('/listings/create')} 
-              className="btn-search"
-            >
-              ➕ Yeni İlan Ekle
-            </button>
+      <Container className="py-8">
+        {/* Header with Add Button */}
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-8">
+          <div>
+            <h1 className="text-3xl font-semibold text-slate-800 mb-2">İlanlarım</h1>
+            <p className="text-slate-600">Tüm ilanlarınızı yönetin</p>
           </div>
+          <Button
+            variant="primary"
+            onClick={() => navigate('/listings/create')}
+            className="mt-4 sm:mt-0"
+          >
+            ➕ Yeni İlan Ekle
+          </Button>
         </div>
 
-        {error && <div className="error-message">{error}</div>}
-
-        {loading ? (
-          <div className="loading">Yükleniyor...</div>
-        ) : (
-          <div className="listings-grid">
-            {listings.length === 0 ? (
-              <div className="no-listings">
-                <p>Henüz ilan oluşturmadınız.</p>
-                <button 
-                  onClick={() => navigate('/listings/create')} 
-                  className="btn-search"
-                  style={{ marginTop: '1rem' }}
-                >
-                  ➕ İlk İlanınızı Oluşturun
-                </button>
-              </div>
-            ) : (
-              listings.map((listing) => (
-                <div 
-                  key={listing.id} 
-                  className="listing-card my-listing-card"
-                >
-                  <div 
-                    className="listing-image-placeholder"
-                    onClick={() => navigate(`/listings/${listing.id}`)}
-                  >
-                    📦
-                  </div>
-                  <div className="listing-info">
-                    <h3 onClick={() => navigate(`/listings/${listing.id}`)} style={{ cursor: 'pointer' }}>
-                      {listing.title}
-                    </h3>
-                    <p className="listing-description">
-                      {listing.description.substring(0, 100)}
-                      {listing.description.length > 100 ? '...' : ''}
-                    </p>
-                    <div className="listing-meta">
-                      <span className="listing-price">{formatPrice(listing.price, listing.currency)}</span>
-                      {listing.location && (
-                        <span className="listing-location">📍 {listing.location}</span>
-                      )}
-                    </div>
-                    <div className="listing-footer">
-                      <span className="listing-date">
-                        🕐 {new Date(listing.created_at).toLocaleDateString('tr-TR')}
-                      </span>
-                      <span className={`listing-status ${getStatusClass(listing.status)}`}>
-                        {getStatusLabel(listing.status)}
-                      </span>
-                    </div>
-                    <div className="listing-actions">
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          navigate(`/listings/${listing.id}/images`);
-                        }}
-                        className="btn-manage-images"
-                      >
-                        📸 Resimleri Yönet
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              ))
-            )}
+        {/* Error Message */}
+        {error && (
+          <div className="mb-6 p-4 bg-red-50 border border-red-200 text-red-700 rounded-lg">
+            {error}
           </div>
         )}
-      </main>
+
+        {/* Loading State */}
+        {loading ? (
+          <div className="flex justify-center items-center py-20">
+            <div className="text-slate-600">Yükleniyor...</div>
+          </div>
+        ) : (
+          <>
+            {/* Empty State */}
+            {listings.length === 0 ? (
+              <Card padding="lg" className="text-center">
+                <div className="text-6xl mb-4">📦</div>
+                <h3 className="text-xl font-semibold text-slate-800 mb-2">Henüz ilan oluşturmadınız</h3>
+                <p className="text-slate-600 mb-6">İlk ilanınızı oluşturarak satışa başlayın</p>
+                <Button
+                  variant="primary"
+                  onClick={() => navigate('/listings/create')}
+                >
+                  ➕ İlk İlanınızı Oluşturun
+                </Button>
+              </Card>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                {listings.map((listing) => (
+                  <ListingCard 
+                    key={listing.id} 
+                    listing={listing}
+                    showActions={true}
+                  />
+                ))}
+              </div>
+            )}
+          </>
+        )}
+      </Container>
     </div>
   );
 };

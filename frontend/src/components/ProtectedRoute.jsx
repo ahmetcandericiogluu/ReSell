@@ -6,8 +6,8 @@ const ProtectedRoute = ({ children }) => {
 
   if (loading) {
     return (
-      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
-        <div>Yükleniyor...</div>
+      <div className="min-h-screen bg-slate-50 flex justify-center items-center">
+        <div className="text-slate-600">Yükleniyor...</div>
       </div>
     );
   }

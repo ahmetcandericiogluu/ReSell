@@ -3,11 +3,19 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import listingApi from '../api/listingApi';
 import ImageUpload from '../components/ImageUpload';
-import './ManageImages.css';
+import Navbar from '../components/Navbar';
+import { Container, Card, Button } from '../components/ui';
+
+/**
+ * ManageImages Page
+ * 
+ * Upload and manage images for a specific listing.
+ * Owner-only page with image upload and delete functionality.
+ */
 
 const ManageImages = () => {
   const { id } = useParams();
-  const { user, logout } = useAuth();
+  const { user } = useAuth();
   const navigate = useNavigate();
   const [listing, setListing] = useState(null);
   const [images, setImages] = useState([]);
@@ -74,27 +82,28 @@ const ManageImages = () => {
     }
   };
 
-  const handleLogout = async () => {
-    try {
-      await logout();
-      navigate('/login');
-    } catch (error) {
-      console.error('Logout error:', error);
-    }
-  };
-
   if (loading) {
     return (
-      <div className="manage-images-container">
-        <div className="loading">Yükleniyor...</div>
+      <div className="min-h-screen bg-slate-50">
+        <Navbar activePage="my-listings" />
+        <Container className="py-8">
+          <div className="flex justify-center items-center py-20">
+            <div className="text-slate-600">Yükleniyor...</div>
+          </div>
+        </Container>
       </div>
     );
   }
 
   if (!listing) {
     return (
-      <div className="manage-images-container">
-        <div className="error-message">İlan bulunamadı</div>
+      <div className="min-h-screen bg-slate-50">
+        <Navbar activePage="my-listings" />
+        <Container className="py-8">
+          <div className="bg-red-50 border border-red-200 text-red-700 rounded-lg p-4">
+            İlan bulunamadı
+          </div>
+        </Container>
       </div>
     );
   }
@@ -102,89 +111,107 @@ const ManageImages = () => {
   // Check if user is the owner
   if (listing.seller_id !== user?.id) {
     return (
-      <div className="manage-images-container">
-        <div className="error-message">Bu ilanın resimlerini yönetme yetkiniz yok</div>
-        <button onClick={() => navigate('/my-listings')} className="btn-back">
-          ← İlanlarıma Dön
-        </button>
+      <div className="min-h-screen bg-slate-50">
+        <Navbar activePage="my-listings" />
+        <Container className="py-8">
+          <div className="bg-red-50 border border-red-200 text-red-700 rounded-lg p-4 mb-4">
+            Bu ilanın resimlerini yönetme yetkiniz yok
+          </div>
+          <Button
+            variant="secondary"
+            onClick={() => navigate('/my-listings')}
+          >
+            ← İlanlarıma Dön
+          </Button>
+        </Container>
       </div>
     );
   }
 
   return (
-    <div className="manage-images-container">
-      <header className="manage-images-header">
-        <div className="header-content">
-          <h1>🛍️ ReSell</h1>
-          <nav className="header-nav">
-            <button onClick={() => navigate('/dashboard')} className="nav-link">Ana Sayfa</button>
-            <button onClick={() => navigate('/listings')} className="nav-link">İlanlar</button>
-            <button onClick={() => navigate('/my-listings')} className="nav-link">İlanlarım</button>
-            <div className="user-menu">
-              <span>{user?.name || user?.email}</span>
-              <button onClick={handleLogout} className="btn-logout">Çıkış</button>
-            </div>
-          </nav>
-        </div>
-      </header>
+    <div className="min-h-screen bg-slate-50">
+      <Navbar activePage="my-listings" />
 
-      <main className="manage-images-main">
-        <button onClick={() => navigate('/my-listings')} className="btn-back">
+      <Container className="py-8">
+        {/* Back Button */}
+        <Button
+          variant="secondary"
+          onClick={() => navigate('/my-listings')}
+          className="mb-6"
+        >
           ← İlanlarıma Dön
-        </button>
+        </Button>
 
-        <div className="manage-images-content">
-          <div className="page-header">
-            <h1>Resim Yönetimi</h1>
-            <p className="listing-title">{listing.title}</p>
-          </div>
-
-          {error && <div className="error-message">{error}</div>}
-          {success && <div className="success-message">{success}</div>}
-
-          <div className="upload-section">
-            <h2>Yeni Resim Ekle</h2>
-            <ImageUpload onUpload={handleUpload} maxFiles={10} />
-          </div>
-
-          <div className="images-section">
-            <h2>Mevcut Resimler ({images.length})</h2>
-            
-            {images.length === 0 ? (
-              <div className="no-images">
-                <p>Henüz resim eklenmemiş</p>
-                <p className="hint">Yukarıdaki alandan resim ekleyebilirsiniz</p>
-              </div>
-            ) : (
-              <div className="images-grid">
-                {images.map((image, index) => (
-                  <div key={image.id} className="image-item">
-                    <div className="image-wrapper">
-                      <img 
-                        src={image.url} 
-                        alt={`${listing.title} - Resim ${index + 1}`}
-                      />
-                      {image.position === 1 && (
-                        <span className="primary-badge">Ana Resim</span>
-                      )}
-                    </div>
-                    <div className="image-actions">
-                      <span className="image-position">#{image.position}</span>
-                      <button
-                        onClick={() => handleDelete(image.id)}
-                        disabled={deleting === image.id}
-                        className="btn-delete"
-                      >
-                        {deleting === image.id ? '⏳' : '🗑️'} Sil
-                      </button>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
+        {/* Header */}
+        <div className="mb-8">
+          <h1 className="text-3xl font-semibold text-slate-800 mb-2">📸 Resim Yönetimi</h1>
+          <p className="text-slate-600">{listing.title}</p>
         </div>
-      </main>
+
+        {/* Messages */}
+        {error && (
+          <div className="mb-6 p-4 bg-red-50 border border-red-200 text-red-700 rounded-lg">
+            {error}
+          </div>
+        )}
+        {success && (
+          <div className="mb-6 p-4 bg-emerald-50 border border-emerald-200 text-emerald-700 rounded-lg">
+            {success}
+          </div>
+        )}
+
+        {/* Upload Section */}
+        <Card padding="md" className="mb-8">
+          <h2 className="text-xl font-semibold text-slate-800 mb-4">Yeni Resim Ekle</h2>
+          <ImageUpload onUpload={handleUpload} maxFiles={10} />
+        </Card>
+
+        {/* Current Images Section */}
+        <Card padding="md">
+          <h2 className="text-xl font-semibold text-slate-800 mb-4">
+            Mevcut Resimler ({images.length})
+          </h2>
+
+          {images.length === 0 ? (
+            <div className="text-center py-12">
+              <div className="text-6xl mb-4">🖼️</div>
+              <p className="text-slate-600 mb-2">Henüz resim eklenmemiş</p>
+              <p className="text-sm text-slate-500">Yukarıdaki alandan resim ekleyebilirsiniz</p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+              {images.map((image, index) => (
+                <div key={image.id} className="group relative">
+                  <div className="aspect-square rounded-lg overflow-hidden bg-slate-100 border-2 border-slate-200 relative">
+                    <img
+                      src={image.url}
+                      alt={`${listing.title} - Resim ${index + 1}`}
+                      className="w-full h-full object-cover"
+                    />
+                    {image.position === 1 && (
+                      <span className="absolute top-2 left-2 px-2 py-1 bg-primary-600 text-white text-xs font-medium rounded">
+                        Ana Resim
+                      </span>
+                    )}
+                    <span className="absolute top-2 right-2 px-2 py-1 bg-black/60 text-white text-xs font-medium rounded">
+                      #{image.position}
+                    </span>
+                  </div>
+                  <Button
+                    variant="danger"
+                    size="sm"
+                    onClick={() => handleDelete(image.id)}
+                    disabled={deleting === image.id}
+                    className="mt-2 w-full"
+                  >
+                    {deleting === image.id ? '⏳ Siliniyor...' : '🗑️ Sil'}
+                  </Button>
+                </div>
+              ))}
+            </div>
+          )}
+        </Card>
+      </Container>
     </div>
   );
 };

@@ -1,11 +1,16 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
 import listingApi from '../api/listingApi';
-import './CreateListing.css';
+import Navbar from '../components/Navbar';
+import { Container, Card, Button, Input, Textarea, FormField } from '../components/ui';
 
+/**
+ * CreateListing Page
+ * 
+ * Form for creating new listings.
+ * Uses design system components for consistent form styling.
+ */
 const CreateListing = () => {
-  const { user } = useAuth();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -50,129 +55,133 @@ const CreateListing = () => {
   };
 
   return (
-    <div className="create-listing-container">
-      <header className="listings-header">
-        <div className="header-content">
-          <h1>🛍️ ReSell</h1>
-          <nav className="header-nav">
-            <button onClick={() => navigate('/dashboard')} className="nav-link">Ana Sayfa</button>
-            <button onClick={() => navigate('/listings')} className="nav-link">İlanlar</button>
-            <button onClick={() => navigate('/my-listings')} className="nav-link">İlanlarım</button>
-            <div className="user-menu">
-              <span>{user?.name || user?.email}</span>
-              <button onClick={() => {
-                navigate('/dashboard');
-              }} className="btn-logout">İptal</button>
-            </div>
-          </nav>
-        </div>
-      </header>
+    <div className="min-h-screen bg-slate-50">
+      <Navbar activePage="my-listings" />
 
-      <div className="create-listing-card">
-        <div className="card-header">
-          <h1>📝 Yeni İlan Oluştur</h1>
-          <p>İkinci el ürününüzü satışa çıkarın</p>
+      <Container size="sm" className="py-8">
+        {/* Header */}
+        <div className="mb-8">
+          <h1 className="text-3xl font-semibold text-slate-800 mb-2">📝 Yeni İlan Oluştur</h1>
+          <p className="text-slate-600">İkinci el ürününüzü satışa çıkarın</p>
         </div>
 
-        {error && (
-          <div className="error-message">
-            {error}
-          </div>
-        )}
+        {/* Form Card */}
+        <Card padding="lg">
+          {error && (
+            <div className="mb-6 p-4 bg-red-50 border border-red-200 text-red-700 rounded-lg">
+              {error}
+            </div>
+          )}
 
-        <form onSubmit={handleSubmit} className="listing-form">
-          <div className="form-group">
-            <label htmlFor="title">İlan Başlığı *</label>
-            <input
-              type="text"
-              id="title"
-              name="title"
-              value={formData.title}
-              onChange={handleChange}
-              placeholder="Örn: Satılık iPhone 12"
-              required
-              minLength={3}
-              maxLength={255}
-            />
-          </div>
+          <form onSubmit={handleSubmit} className="space-y-6">
+            {/* Basic Info Section */}
+            <div>
+              <h2 className="text-lg font-semibold text-slate-800 mb-4 pb-2 border-b border-slate-200">
+                Temel Bilgiler
+              </h2>
+              
+              <div className="space-y-4">
+                <FormField label="İlan Başlığı" required>
+                  <Input
+                    name="title"
+                    value={formData.title}
+                    onChange={handleChange}
+                    placeholder="Örn: Satılık iPhone 12"
+                    required
+                    minLength={3}
+                    maxLength={255}
+                  />
+                </FormField>
 
-          <div className="form-group">
-            <label htmlFor="description">Açıklama *</label>
-            <textarea
-              id="description"
-              name="description"
-              value={formData.description}
-              onChange={handleChange}
-              placeholder="Ürününüz hakkında detaylı bilgi verin..."
-              required
-              minLength={10}
-              rows={6}
-            />
-          </div>
-
-          <div className="form-row">
-            <div className="form-group">
-              <label htmlFor="price">Fiyat *</label>
-              <input
-                type="number"
-                id="price"
-                name="price"
-                value={formData.price}
-                onChange={handleChange}
-                placeholder="0.00"
-                required
-                min="0.01"
-                step="0.01"
-              />
+                <FormField label="Açıklama" required>
+                  <Textarea
+                    name="description"
+                    value={formData.description}
+                    onChange={handleChange}
+                    placeholder="Ürününüz hakkında detaylı bilgi verin..."
+                    required
+                    minLength={10}
+                    rows={6}
+                  />
+                </FormField>
+              </div>
             </div>
 
-            <div className="form-group">
-              <label htmlFor="currency">Para Birimi</label>
-              <select
-                id="currency"
-                name="currency"
-                value={formData.currency}
-                onChange={handleChange}
+            {/* Price Section */}
+            <div>
+              <h2 className="text-lg font-semibold text-slate-800 mb-4 pb-2 border-b border-slate-200">
+                Fiyat
+              </h2>
+              
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <FormField label="Fiyat" required>
+                  <Input
+                    type="number"
+                    name="price"
+                    value={formData.price}
+                    onChange={handleChange}
+                    placeholder="0.00"
+                    required
+                    min="0.01"
+                    step="0.01"
+                  />
+                </FormField>
+
+                <FormField label="Para Birimi">
+                  <select
+                    name="currency"
+                    value={formData.currency}
+                    onChange={handleChange}
+                    className="w-full px-4 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none transition-colors bg-white"
+                  >
+                    <option value="TRY">TRY (₺)</option>
+                    <option value="USD">USD ($)</option>
+                    <option value="EUR">EUR (€)</option>
+                  </select>
+                </FormField>
+              </div>
+            </div>
+
+            {/* Location Section */}
+            <div>
+              <h2 className="text-lg font-semibold text-slate-800 mb-4 pb-2 border-b border-slate-200">
+                Konum
+              </h2>
+              
+              <FormField label="Konum">
+                <Input
+                  name="location"
+                  value={formData.location}
+                  onChange={handleChange}
+                  placeholder="Örn: İstanbul, Kadıköy"
+                  maxLength={255}
+                />
+              </FormField>
+            </div>
+
+            {/* Action Buttons */}
+            <div className="flex flex-col-reverse sm:flex-row gap-3 pt-4">
+              <Button
+                type="button"
+                variant="secondary"
+                onClick={() => navigate('/dashboard')}
+                disabled={loading}
+                className="flex-1"
               >
-                <option value="TRY">TRY (₺)</option>
-                <option value="USD">USD ($)</option>
-                <option value="EUR">EUR (€)</option>
-              </select>
+                İptal
+              </Button>
+              <Button
+                type="submit"
+                variant="primary"
+                disabled={loading}
+                className="flex-1"
+              >
+                {loading ? 'Oluşturuluyor...' : '✅ İlanı Yayınla'}
+              </Button>
             </div>
-          </div>
-
-          <div className="form-group">
-            <label htmlFor="location">Konum</label>
-            <input
-              type="text"
-              id="location"
-              name="location"
-              value={formData.location}
-              onChange={handleChange}
-              placeholder="Örn: İstanbul, Kadıköy"
-              maxLength={255}
-            />
-          </div>
-
-          <div className="form-actions">
-            <button
-              type="button"
-              onClick={() => navigate('/dashboard')}
-              className="btn-cancel"
-              disabled={loading}
-            >
-              İptal
-            </button>
-            <button
-              type="submit"
-              className="btn-submit"
-              disabled={loading}
-            >
-              {loading ? 'Oluşturuluyor...' : '✅ İlanı Yayınla'}
-            </button>
-          </div>
-        </form>
-      </div>
+          </form>
+        </Card>
+      </Container>
     </div>
   );
 };

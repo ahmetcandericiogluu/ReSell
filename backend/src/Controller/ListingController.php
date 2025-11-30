@@ -38,10 +38,14 @@ class ListingController extends AbstractController
 
         $listings = $this->listingService->getListings($status, $categoryId, $location, $search);
         
-        $response = array_map(
-            fn($listing) => ListingResponse::fromEntity($listing),
-            $listings
-        );
+        $response = array_map(function($listing) {
+            // Get images for this listing
+            $images = $this->listingImageRepository->findBy(
+                ['listing' => $listing],
+                ['position' => 'ASC']
+            );
+            return ListingResponse::fromEntity($listing, $images);
+        }, $listings);
 
         return $this->json($response);
     }
@@ -53,10 +57,14 @@ class ListingController extends AbstractController
         $user = $this->getUser();
         $listings = $this->listingService->getMyListings($user);
         
-        $response = array_map(
-            fn($listing) => ListingResponse::fromEntity($listing),
-            $listings
-        );
+        $response = array_map(function($listing) {
+            // Get images for this listing
+            $images = $this->listingImageRepository->findBy(
+                ['listing' => $listing],
+                ['position' => 'ASC']
+            );
+            return ListingResponse::fromEntity($listing, $images);
+        }, $listings);
 
         return $this->json($response);
     }
