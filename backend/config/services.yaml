@@ -19,13 +19,28 @@ services:
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones
 
-    # Storage Services
-    App\Storage\LocalStorageService:
+    # ========================================
+    # SHARED LAYER
+    # ========================================
+    
+    # Exception Listener (auto-registered via #[AsEventListener])
+    # Converts domain exceptions to JSON responses
+    
+    # Current User Provider
+    App\Shared\Security\CurrentUserProvider: ~
+
+    # ========================================
+    # STORAGE (Shared Infrastructure)
+    # ========================================
+    
+    # Local Storage Implementation
+    App\Shared\Storage\LocalStorageService:
         arguments:
             $uploadBasePath: '%kernel.project_dir%/public/uploads'
             $publicBaseUrl: '/uploads'
 
-    App\Storage\R2StorageService:
+    # Cloudflare R2 Storage Implementation
+    App\Shared\Storage\R2StorageService:
         arguments:
             $endpoint: '%env(R2_ENDPOINT)%'
             $region: '%env(R2_REGION)%'
@@ -34,11 +49,22 @@ services:
             $secretAccessKey: '%env(R2_SECRET_ACCESS_KEY)%'
             $publicBaseUrl: '%env(R2_PUBLIC_BASE_URL)%'
 
-    # Storage Interface - change alias to switch storage
-    # Options: App\Storage\LocalStorageService or App\Storage\R2StorageService
-    App\Storage\StorageInterface:
-        alias: App\Storage\R2StorageService
+    # Storage Interface - change alias to switch between local/R2
+    App\Shared\Storage\StorageInterface:
+        alias: App\Shared\Storage\R2StorageService
 
+    # ========================================
+    # LEGACY ALIASES (for backward compatibility)
+    # TODO: Update all references to use Shared\Storage namespace
+    # ========================================
+    
+    App\Storage\StorageInterface:
+        alias: App\Shared\Storage\StorageInterface
+
+    # ========================================
+    # SERVICES
+    # ========================================
+    
     # Listing Image Service with storage driver parameter
     App\Service\ListingImageService:
         arguments:

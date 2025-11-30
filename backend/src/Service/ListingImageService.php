@@ -4,7 +4,7 @@ namespace App\Service;
 
 use App\Entity\Listing;
 use App\Entity\ListingImage;
-use App\Storage\StorageInterface;
+use App\Shared\Storage\StorageInterface;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 

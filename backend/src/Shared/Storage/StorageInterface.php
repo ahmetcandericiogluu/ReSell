@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Storage;
+namespace App\Shared\Storage;
 
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 

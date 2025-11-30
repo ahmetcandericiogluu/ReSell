@@ -1,10 +1,9 @@
 <?php
 
-namespace App\Storage;
+namespace App\Shared\Storage;
 
 use Aws\S3\S3Client;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
-use Symfony\Component\HttpFoundation\File\Exception\FileException;
 
 class R2StorageService implements StorageInterface
 {
