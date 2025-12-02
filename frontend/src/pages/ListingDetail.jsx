@@ -280,15 +280,21 @@ const ListingDetail = () => {
             <Card padding="md">
               <h2 className="text-lg font-semibold text-slate-800 mb-4">Satıcı Bilgileri</h2>
               
-              <div className="flex items-center space-x-3 mb-4">
+              <div 
+                onClick={() => navigate(`/users/${listing.seller_id}`)}
+                className="flex items-center space-x-3 mb-4 cursor-pointer hover:bg-slate-50 -mx-2 px-2 py-2 rounded-lg transition-colors"
+              >
                 <Avatar 
                   name={listing.seller_name}
                   size="md"
                 />
                 <div className="flex-1 min-w-0">
-                  <h3 className="font-semibold text-slate-800 truncate">{listing.seller_name}</h3>
+                  <h3 className="font-semibold text-slate-800 truncate hover:text-primary-600 transition-colors">
+                    {listing.seller_name}
+                  </h3>
                   <p className="text-xs text-slate-500">Satıcı ID: #{listing.seller_id}</p>
                 </div>
+                <span className="text-slate-400">→</span>
               </div>
 
               {listing.status === 'active' && (
