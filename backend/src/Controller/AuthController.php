@@ -78,22 +78,5 @@ class AuthController extends AbstractController
 
         return $this->json(['message' => 'Başarıyla çıkış yapıldı']);
     }
-
-    #[Route('/me', name: 'me', methods: ['GET'])]
-    public function me(): JsonResponse
-    {
-        $user = $this->getUser();
-        
-        if (!$user) {
-            return $this->json(
-                ['error' => 'Giriş yapılmamış'],
-                Response::HTTP_UNAUTHORIZED
-            );
-        }
-
-        $response = UserResponse::fromEntity($user);
-
-        return $this->json($response);
-    }
 }
 

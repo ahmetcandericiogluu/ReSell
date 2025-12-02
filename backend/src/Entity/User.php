@@ -32,6 +32,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(type: 'string', length: 100, nullable: true)]
     private ?string $city = null;
 
+    #[ORM\Column(type: 'decimal', precision: 3, scale: 2, nullable: true)]
+    private ?string $ratingAverage = null;
+
     #[ORM\Column(type: 'datetime_immutable')]
     private ?\DateTimeImmutable $createdAt = null;
 
@@ -102,6 +105,18 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setCity(?string $city): static
     {
         $this->city = $city;
+
+        return $this;
+    }
+
+    public function getRatingAverage(): ?string
+    {
+        return $this->ratingAverage;
+    }
+
+    public function setRatingAverage(?string $ratingAverage): static
+    {
+        $this->ratingAverage = $ratingAverage;
 
         return $this;
     }

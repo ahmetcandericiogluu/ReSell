@@ -4,6 +4,7 @@ namespace App\Service;
 
 use App\DTO\Auth\LoginRequest;
 use App\DTO\Auth\RegisterRequest;
+use App\DTO\User\UpdateProfileRequest;
 use App\Entity\User;
 use App\Repository\UserRepository;
 use Symfony\Component\HttpKernel\Exception\ConflictHttpException;
@@ -61,6 +62,25 @@ class UserService
         if (!$this->passwordHasher->isPasswordValid($user, $request->password)) {
             throw new UnauthorizedHttpException('', 'Geçersiz e-posta veya şifre');
         }
+
+        return $user;
+    }
+
+    public function updateProfile(User $user, UpdateProfileRequest $request): User
+    {
+        if ($request->name !== null) {
+            $user->setName($request->name);
+        }
+
+        if ($request->city !== null) {
+            $user->setCity($request->city);
+        }
+
+        if ($request->phone !== null) {
+            $user->setPhone($request->phone);
+        }
+
+        $this->userRepository->save($user, true);
 
         return $user;
     }

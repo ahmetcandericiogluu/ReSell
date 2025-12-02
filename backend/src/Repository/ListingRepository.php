@@ -103,5 +103,38 @@ class ListingRepository extends ServiceEntityRepository
             ->getQuery()
             ->getResult();
     }
+
+    /**
+     * Find listings by user and status with pagination
+     * @return Listing[]
+     */
+    public function findByUserAndStatus($user, string $status, int $page, int $limit): array
+    {
+        return $this->createQueryBuilder('l')
+            ->where('l.seller = :user')
+            ->andWhere('l.status = :status')
+            ->setParameter('user', $user)
+            ->setParameter('status', $status)
+            ->orderBy('l.createdAt', 'DESC')
+            ->setFirstResult(($page - 1) * $limit)
+            ->setMaxResults($limit)
+            ->getQuery()
+            ->getResult();
+    }
+
+    /**
+     * Count listings by user and status
+     */
+    public function countByUserAndStatus($user, string $status): int
+    {
+        return $this->createQueryBuilder('l')
+            ->select('COUNT(l.id)')
+            ->where('l.seller = :user')
+            ->andWhere('l.status = :status')
+            ->setParameter('user', $user)
+            ->setParameter('status', $status)
+            ->getQuery()
+            ->getSingleScalarResult();
+    }
 }
 

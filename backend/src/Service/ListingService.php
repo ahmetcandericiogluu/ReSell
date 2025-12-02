@@ -78,5 +78,22 @@ class ListingService
     {
         return $this->listingRepository->findBySeller($seller->getId());
     }
+
+    /**
+     * Get listings by user with filters
+     * @return Listing[]
+     */
+    public function getUserListings(User $user, string $status = 'active', int $page = 1, int $limit = 10): array
+    {
+        return $this->listingRepository->findByUserAndStatus($user, $status, $page, $limit);
+    }
+
+    /**
+     * Count listings by user
+     */
+    public function countUserListings(User $user, string $status = 'active'): int
+    {
+        return $this->listingRepository->countByUserAndStatus($user, $status);
+    }
 }
 

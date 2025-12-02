@@ -4,8 +4,10 @@ namespace App\Controller;
 
 use App\DTO\Listing\CreateListingRequest;
 use App\DTO\Listing\ListingResponse;
+use App\DTO\User\UserListingResponse;
 use App\Entity\ListingImage;
 use App\Repository\ListingImageRepository;
+use App\Repository\UserRepository;
 use App\Service\ListingImageService;
 use App\Service\ListingService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -22,7 +24,8 @@ class ListingController extends AbstractController
     public function __construct(
         private readonly ListingService $listingService,
         private readonly ListingImageService $listingImageService,
-        private readonly ListingImageRepository $listingImageRepository
+        private readonly ListingImageRepository $listingImageRepository,
+        private readonly UserRepository $userRepository
     ) {
     }
 
@@ -217,6 +220,43 @@ class ListingController extends AbstractController
                 Response::HTTP_INTERNAL_SERVER_ERROR
             );
         }
+    }
+
+    #[Route('/users/{id}/listings', name: 'user_listings', methods: ['GET'])]
+    public function getUserListings(int $id, Request $request): JsonResponse
+    {
+        $user = $this->userRepository->find($id);
+        
+        if (!$user) {
+            return $this->json(
+                ['error' => 'Kullanıcı bulunamadı'],
+                Response::HTTP_NOT_FOUND
+            );
+        }
+
+        $status = $request->query->get('status', 'active');
+        $page = max(1, (int) $request->query->get('page', 1));
+        $limit = min(50, max(1, (int) $request->query->get('limit', 10)));
+
+        $listings = $this->listingService->getUserListings($user, $status, $page, $limit);
+        $total = $this->listingService->countUserListings($user, $status);
+
+        $items = array_map(function($listing) {
+            $images = $this->listingImageRepository->findBy(
+                ['listing' => $listing],
+                ['position' => 'ASC'],
+                1
+            );
+            $thumbnail = !empty($images) ? $images[0] : null;
+            return UserListingResponse::fromEntity($listing, $thumbnail);
+        }, $listings);
+
+        return $this->json([
+            'items' => $items,
+            'page' => $page,
+            'limit' => $limit,
+            'total' => $total,
+        ]);
     }
 }
 

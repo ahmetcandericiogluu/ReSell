@@ -61,7 +61,10 @@ const Navbar = ({ activePage = '' }) => {
 
           {/* User menu */}
           <div className="flex items-center space-x-4">
-            <div className="hidden sm:flex items-center space-x-2 text-sm text-slate-600">
+            <div 
+              onClick={() => navigate('/profile')}
+              className="hidden sm:flex items-center space-x-2 text-sm text-slate-600 cursor-pointer hover:opacity-75 transition-opacity"
+            >
               <Avatar 
                 name={user?.name || user?.email}
                 size="sm"

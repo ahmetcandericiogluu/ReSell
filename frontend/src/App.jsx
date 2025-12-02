@@ -9,6 +9,7 @@ import Listings from './pages/Listings';
 import ListingDetail from './pages/ListingDetail';
 import MyListings from './pages/MyListings';
 import ManageImages from './pages/ManageImages';
+import ProfilePage from './pages/ProfilePage';
 
 function App() {
   return (
@@ -63,6 +64,22 @@ function App() {
             element={
               <ProtectedRoute>
                 <ManageImages />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/profile"
+            element={
+              <ProtectedRoute>
+                <ProfilePage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/users/:id"
+            element={
+              <ProtectedRoute>
+                <ProfilePage />
               </ProtectedRoute>
             }
           />
