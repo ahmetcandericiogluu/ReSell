@@ -24,11 +24,8 @@ WORKDIR /var/www/html
 # Copy application files
 COPY . .
 
-# Install PHP dependencies
+# Install PHP dependencies (production only)
 RUN composer install --no-dev --optimize-autoloader --no-interaction
-
-# Set permissions
-RUN chown -R www-data:www-data /var/www/html/var
 
 # Apache configuration
 RUN a2enmod rewrite headers && \
@@ -42,16 +39,16 @@ RUN echo '<Directory /var/www/html/public>\n\
     Require all granted\n\
 </Directory>' >> /etc/apache2/sites-available/000-default.conf
 
-# Expose port
-EXPOSE 8080
-
 # Update Apache to listen on PORT env variable (Render requirement)
 RUN echo 'Listen ${PORT}' > /etc/apache2/ports.conf && \
     sed -i 's/<VirtualHost \*:80>/<VirtualHost *:${PORT}>/g' /etc/apache2/sites-available/000-default.conf
 
-# Clear cache and warm up
-RUN php bin/console cache:clear --env=prod --no-debug && \
-    php bin/console cache:warmup --env=prod --no-debug
+# Expose port
+EXPOSE 8080
+
+# Set permissions (must be after composer install)
+RUN mkdir -p /var/www/html/var/cache /var/www/html/var/log && \
+    chown -R www-data:www-data /var/www/html/var
 
 # Start Apache
 CMD ["apache2-foreground"]
