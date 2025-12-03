@@ -21,3 +21,9 @@ messaging_controllers:
         path: ../src/Messaging/Controller/
         namespace: App\Messaging\Controller
     type: attribute
+
+shared_controllers:
+    resource:
+        path: ../src/Shared/Controller/
+        namespace: App\Shared\Controller
+    type: attribute
