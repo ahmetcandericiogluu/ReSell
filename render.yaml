@@ -5,7 +5,7 @@ services:
     env: docker
     plan: free
     rootDir: auth-service
-    dockerfilePath: ./Dockerfile
+    dockerfilePath: auth-service/Dockerfile
     envVars:
       - key: APP_ENV
         value: prod
