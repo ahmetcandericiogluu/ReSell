@@ -1,5 +1,23 @@
-controllers:
+user_controllers:
     resource:
-        path: ../src/Controller/
-        namespace: App\Controller
+        path: ../src/User/Controller/
+        namespace: App\User\Controller
+    type: attribute
+
+listing_controllers:
+    resource:
+        path: ../src/Listing/Controller/
+        namespace: App\Listing\Controller
+    type: attribute
+
+review_controllers:
+    resource:
+        path: ../src/Review/Controller/
+        namespace: App\Review\Controller
+    type: attribute
+
+messaging_controllers:
+    resource:
+        path: ../src/Messaging/Controller/
+        namespace: App\Messaging\Controller
     type: attribute

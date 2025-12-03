@@ -66,6 +66,6 @@ services:
     # ========================================
     
     # Listing Image Service with storage driver parameter
-    App\Service\ListingImageService:
+    App\Listing\Service\ListingImageService:
         arguments:
             $storageDriver: 'r2'  # Change to 'r2' when using R2

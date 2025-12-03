@@ -18,12 +18,24 @@ doctrine:
             Doctrine\DBAL\Platforms\PostgreSQLPlatform: identity
         auto_mapping: true
         mappings:
-            App:
+            User:
                 type: attribute
                 is_bundle: false
-                dir: '%kernel.project_dir%/src/Entity'
-                prefix: 'App\Entity'
-                alias: App
+                dir: '%kernel.project_dir%/src/User/Entity'
+                prefix: 'App\User\Entity'
+                alias: User
+            Listing:
+                type: attribute
+                is_bundle: false
+                dir: '%kernel.project_dir%/src/Listing/Entity'
+                prefix: 'App\Listing\Entity'
+                alias: Listing
+            Review:
+                type: attribute
+                is_bundle: false
+                dir: '%kernel.project_dir%/src/Review/Entity'
+                prefix: 'App\Review\Entity'
+                alias: Review
         controller_resolver:
             auto_mapping: false
 
