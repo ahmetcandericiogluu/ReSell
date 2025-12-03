@@ -58,18 +58,16 @@ services:
   # Frontend Service
   - type: web
     name: resell-frontend
-    env: node
+    env: static
     plan: free
     rootDir: frontend
     buildCommand: npm install && npm run build
-    startCommand: npm run preview -- --host 0.0.0.0 --port $PORT
+    staticPublishPath: ./dist
     envVars:
       - key: VITE_AUTH_SERVICE_URL
         value: https://resell-auth-service.onrender.com/auth
       - key: VITE_API_URL
         value: https://resell-backend.onrender.com/api
-      - key: PORT
-        value: 3000
 
 databases:
   - name: resell-db
