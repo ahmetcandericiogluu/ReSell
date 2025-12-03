@@ -1,17 +1,16 @@
 <?php
 
-namespace App\User\Service;
+namespace App\Auth\Service;
 
-use App\User\DTO\LoginRequest;
-use App\User\DTO\RegisterRequest;
-use App\User\DTO\UpdateProfileRequest;
-use App\User\Entity\User;
-use App\User\Repository\UserRepository;
+use App\Auth\DTO\LoginRequest;
+use App\Auth\DTO\RegisterRequest;
+use App\Auth\Entity\User;
+use App\Auth\Repository\UserRepository;
 use Symfony\Component\HttpKernel\Exception\ConflictHttpException;
 use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
-class UserService
+class AuthService
 {
     public function __construct(
         private readonly UserRepository $userRepository,
@@ -62,25 +61,6 @@ class UserService
         if (!$this->passwordHasher->isPasswordValid($user, $request->password)) {
             throw new UnauthorizedHttpException('', 'Geçersiz e-posta veya şifre');
         }
-
-        return $user;
-    }
-
-    public function updateProfile(User $user, UpdateProfileRequest $request): User
-    {
-        if ($request->name !== null) {
-            $user->setName($request->name);
-        }
-
-        if ($request->city !== null) {
-            $user->setCity($request->city);
-        }
-
-        if ($request->phone !== null) {
-            $user->setPhone($request->phone);
-        }
-
-        $this->userRepository->save($user, true);
 
         return $user;
     }

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\User\DTO;
+namespace App\Auth\DTO;
 
 use Symfony\Component\Validator\Constraints as Assert;
 

@@ -1,0 +1,14 @@
+parameters:
+
+services:
+    _defaults:
+        autowire: true
+        autoconfigure: true
+
+    App\:
+        resource: '../src/'
+
+    # JWT Token Manager with secret from env
+    App\Auth\Service\JwtTokenManager:
+        arguments:
+            $secret: '%env(APP_SECRET)%'

@@ -69,3 +69,8 @@ services:
     App\Listing\Service\ListingImageService:
         arguments:
             $storageDriver: 'r2'  # Change to 'r2' when using R2
+    
+    # JWT Authenticator with secret
+    App\User\Security\JwtAuthenticator:
+        arguments:
+            $jwtSecret: '%env(APP_SECRET)%'

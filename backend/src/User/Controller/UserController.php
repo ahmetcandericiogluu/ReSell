@@ -5,7 +5,6 @@ namespace App\User\Controller;
 use App\User\DTO\UpdateProfileRequest;
 use App\User\DTO\UserProfileResponse;
 use App\User\Repository\UserRepository;
-use App\User\Service\UserService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
@@ -17,7 +16,6 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 class UserController extends AbstractController
 {
     public function __construct(
-        private readonly UserService $userService,
         private readonly UserRepository $userRepository
     ) {
     }
@@ -71,8 +69,21 @@ class UserController extends AbstractController
             );
         }
 
-        $updatedUser = $this->userService->updateProfile($user, $request);
-        $response = UserProfileResponse::fromEntity($updatedUser);
+        // Update user directly
+        if ($request->name !== null) {
+            $user->setName($request->name);
+        }
+
+        if ($request->city !== null) {
+            $user->setCity($request->city);
+        }
+
+        if ($request->phone !== null) {
+            $user->setPhone($request->phone);
+        }
+
+        $this->userRepository->save($user, true);
+        $response = UserProfileResponse::fromEntity($user);
 
         return $this->json($response);
     }

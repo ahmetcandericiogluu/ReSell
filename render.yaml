@@ -1,5 +1,27 @@
 services:
-  # Backend API Service
+  # Auth Service (Mikroservis)
+  - type: web
+    name: resell-auth-service
+    env: docker
+    plan: free
+    rootDir: auth-service
+    dockerfilePath: ./Dockerfile
+    envVars:
+      - key: APP_ENV
+        value: prod
+      - key: APP_SECRET
+        sync: false
+      - key: DATABASE_URL
+        fromDatabase:
+          name: resell-db
+          property: connectionString
+      - key: CORS_ALLOW_ORIGIN
+        value: "*"
+      - key: PORT
+        value: 8080
+    healthCheckPath: /health
+
+  # Backend API Service (Monolith)
   - type: web
     name: resell-backend
     env: docker
@@ -10,13 +32,25 @@ services:
       - key: APP_ENV
         value: prod
       - key: APP_SECRET
-        generateValue: true
+        sync: false
       - key: DATABASE_URL
         fromDatabase:
           name: resell-db
           property: connectionString
       - key: CORS_ALLOW_ORIGIN
-        value: ^https://.*\.onrender\.com$
+        value: "*"
+      - key: R2_ENDPOINT
+        sync: false
+      - key: R2_REGION
+        sync: false
+      - key: R2_BUCKET
+        sync: false
+      - key: R2_ACCESS_KEY_ID
+        sync: false
+      - key: R2_SECRET_ACCESS_KEY
+        sync: false
+      - key: R2_PUBLIC_BASE_URL
+        sync: false
       - key: PORT
         value: 8080
     healthCheckPath: /
@@ -30,8 +64,10 @@ services:
     buildCommand: npm install && npm run build
     startCommand: npm run preview -- --host 0.0.0.0 --port $PORT
     envVars:
+      - key: VITE_AUTH_SERVICE_URL
+        value: https://resell-auth-service.onrender.com/auth
       - key: VITE_API_URL
-        value: https://resell-backend.onrender.com
+        value: https://resell-backend.onrender.com/api
       - key: PORT
         value: 3000
 

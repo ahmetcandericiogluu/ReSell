@@ -1,49 +1,76 @@
 import axios from 'axios';
 
-// Use environment variable for API URL, fallback to proxy in development
-const API_AUTH_URL = import.meta.env.VITE_API_URL 
-  ? `${import.meta.env.VITE_API_URL}/api/auth`
-  : '/api/auth';
+// Auth service URL (separate microservice)
+const AUTH_SERVICE_URL = import.meta.env.VITE_AUTH_SERVICE_URL || 'http://localhost:8001/auth';
 
-const API_BASE_URL = import.meta.env.VITE_API_URL 
-  ? `${import.meta.env.VITE_API_URL}/api`
-  : '/api';
+// Main API URL (monolith)
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api';
 
-// Create axios instance with credentials
-const apiClient = axios.create({
-  baseURL: API_AUTH_URL,
-  withCredentials: true,
+// Get token from localStorage
+const getToken = () => localStorage.getItem('token');
+
+// Set token in localStorage
+const setToken = (token) => localStorage.setItem('token', token);
+
+// Remove token from localStorage
+const removeToken = () => localStorage.removeItem('token');
+
+// Create axios instance for auth service
+const authClient = axios.create({
+  baseURL: AUTH_SERVICE_URL,
   headers: {
     'Content-Type': 'application/json',
   }
 });
 
+// Create axios instance for main API with JWT
+const apiClient = axios.create({
+  baseURL: API_BASE_URL,
+  headers: {
+    'Content-Type': 'application/json',
+  }
+});
+
+// Add JWT token to requests
+apiClient.interceptors.request.use((config) => {
+  const token = getToken();
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
+});
+
 const authApi = {
   register: async (userData) => {
-    const response = await apiClient.post('/register', userData);
+    const response = await authClient.post('/register', userData);
+    if (response.data.token) {
+      setToken(response.data.token);
+    }
     return response.data;
   },
 
   login: async (credentials) => {
-    const response = await apiClient.post('/login', credentials);
+    const response = await authClient.post('/login', credentials);
+    if (response.data.token) {
+      setToken(response.data.token);
+    }
     return response.data;
   },
 
   logout: async () => {
-    const response = await apiClient.post('/logout');
-    return response.data;
+    removeToken();
+    return { message: 'Logged out successfully' };
   },
 
   me: async () => {
-    const response = await axios.get(`${API_BASE_URL}/me`, {
-      withCredentials: true,
-      headers: {
-        'Content-Type': 'application/json',
-      }
-    });
+    const response = await apiClient.get('/me');
     return response.data;
-  }
+  },
+
+  getToken,
+  setToken,
+  removeToken,
+  isAuthenticated: () => !!getToken(),
 };
 
 export default authApi;
-

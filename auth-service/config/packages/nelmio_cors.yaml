@@ -5,13 +5,13 @@ nelmio_cors:
         allow_methods: ['GET', 'OPTIONS', 'POST', 'PUT', 'PATCH', 'DELETE']
         allow_headers: ['Content-Type', 'Authorization', 'X-Requested-With']
         expose_headers: ['Link']
-        allow_credentials: false  # JWT-based auth, no cookies
         max_age: 3600
+        allow_credentials: false
     paths:
-        '^/api':
+        '^/auth':
             allow_origin: ['*']
             allow_headers: ['Content-Type', 'Authorization', 'X-Requested-With']
-            allow_methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS']
+            allow_methods: ['POST', 'GET', 'OPTIONS']
             max_age: 3600
 
 when@prod:
