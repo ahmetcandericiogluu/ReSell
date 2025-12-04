@@ -3,6 +3,12 @@ set -e
 
 echo "🚀 Starting ReSell application..."
 
+# Ensure environment variables are exported
+export DATABASE_URL="${DATABASE_URL}"
+export APP_ENV="${APP_ENV:-prod}"
+export APP_SECRET="${APP_SECRET}"
+export PORT="${PORT:-8080}"
+
 # Debug: Print environment
 echo "📋 Environment Debug:"
 echo "DATABASE_URL: ${DATABASE_URL:0:30}... (truncated for security)"
@@ -31,16 +37,27 @@ php bin/console cache:clear --env=prod --no-warmup || true
 
 # Wait for database to be ready via Doctrine
 echo "⏳ Testing Doctrine connection..."
+echo "📋 Checking if Symfony can see DATABASE_URL..."
+php bin/console debug:container --parameters | grep -i database || echo "⚠️  DATABASE_URL not found in container"
+echo ""
+echo "📋 Checking Doctrine configuration before connection..."
+php bin/console debug:config doctrine dbal 2>&1 | head -30
+
 MAX_RETRIES=10
 RETRY_COUNT=0
 until php bin/console doctrine:query:sql "SELECT 1" 2>&1; do
   RETRY_COUNT=$((RETRY_COUNT+1))
   if [ $RETRY_COUNT -ge $MAX_RETRIES ]; then
     echo "❌ Doctrine connection failed after $MAX_RETRIES attempts"
+    echo ""
     echo "📋 Re-running connection test for debugging..."
     php /app/test-db-connection.php
-    echo "📋 Checking Doctrine configuration..."
-    php bin/console debug:config doctrine dbal || true
+    echo ""
+    echo "📋 Full Doctrine DBAL configuration:"
+    php bin/console debug:config doctrine dbal
+    echo ""
+    echo "📋 Trying verbose connection..."
+    php bin/console doctrine:query:sql "SELECT 1" -vvv
     exit 1
   fi
   echo "⚠️  Doctrine unavailable - sleeping (attempt $RETRY_COUNT/$MAX_RETRIES)"
