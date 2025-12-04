@@ -24,6 +24,11 @@ fi
 
 echo ""
 
+# Clear cache FIRST (before database check)
+echo "🧹 Clearing Symfony cache..."
+rm -rf var/cache/prod/*
+php bin/console cache:clear --env=prod --no-warmup || true
+
 # Wait for database to be ready via Doctrine
 echo "⏳ Testing Doctrine connection..."
 MAX_RETRIES=10
@@ -34,6 +39,8 @@ until php bin/console doctrine:query:sql "SELECT 1" 2>&1; do
     echo "❌ Doctrine connection failed after $MAX_RETRIES attempts"
     echo "📋 Re-running connection test for debugging..."
     php /app/test-db-connection.php
+    echo "📋 Checking Doctrine configuration..."
+    php bin/console debug:config doctrine dbal || true
     exit 1
   fi
   echo "⚠️  Doctrine unavailable - sleeping (attempt $RETRY_COUNT/$MAX_RETRIES)"
@@ -46,9 +53,8 @@ echo "✅ Database is ready!"
 echo "🗄️ Running migrations..."
 php bin/console doctrine:migrations:migrate --no-interaction --allow-no-migration
 
-# Clear and warm up cache
-echo "🧹 Clearing cache..."
-php bin/console cache:clear --env=prod
+# Warm up cache
+echo "🔥 Warming up cache..."
 php bin/console cache:warmup --env=prod
 
 # Start PHP built-in server

@@ -9,9 +9,10 @@ RUN apt-get update && apt-get install -y \
     libonig-dev \
     libxml2-dev \
     libpq-dev \
+    libicu-dev \
     zip \
     unzip \
-    && docker-php-ext-install pdo pdo_pgsql pgsql \
+    && docker-php-ext-install pdo pdo_pgsql pgsql intl \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 

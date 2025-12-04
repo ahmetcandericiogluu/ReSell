@@ -1,6 +1,6 @@
 doctrine:
     dbal:
-        url: '%env(resolve:DATABASE_URL)%?sslmode=prefer&charset=utf8'
+        url: '%env(DATABASE_URL)%'
         server_version: '18'
         profiling_collect_backtrace: '%kernel.debug%'
         use_savepoints: true
