@@ -32,23 +32,30 @@ echo ""
 
 # Create .env.local.php for Symfony to read runtime environment variables
 echo "📝 Creating .env.local.php for runtime environment..."
-cat > .env.local.php << ENVEOF
+
+# Ensure we're in the app directory
+cd /app
+
+cat > .env.local.php << 'ENVEOF'
 <?php
-return [
-    'APP_ENV' => '${APP_ENV:-prod}',
-    'APP_SECRET' => '${APP_SECRET}',
-    'DATABASE_URL' => '${DATABASE_URL}',
-    'CORS_ALLOW_ORIGIN' => '${CORS_ALLOW_ORIGIN:-*}',
-    'R2_ENDPOINT' => '${R2_ENDPOINT}',
-    'R2_REGION' => '${R2_REGION}',
-    'R2_BUCKET' => '${R2_BUCKET}',
-    'R2_ACCESS_KEY_ID' => '${R2_ACCESS_KEY_ID}',
-    'R2_SECRET_ACCESS_KEY' => '${R2_SECRET_ACCESS_KEY}',
-    'R2_PUBLIC_BASE_URL' => '${R2_PUBLIC_BASE_URL}',
-];
+return array_filter([
+    'APP_ENV' => $_SERVER['APP_ENV'] ?? $_ENV['APP_ENV'] ?? getenv('APP_ENV') ?: 'prod',
+    'APP_SECRET' => $_SERVER['APP_SECRET'] ?? $_ENV['APP_SECRET'] ?? getenv('APP_SECRET') ?: '',
+    'DATABASE_URL' => $_SERVER['DATABASE_URL'] ?? $_ENV['DATABASE_URL'] ?? getenv('DATABASE_URL') ?: '',
+    'CORS_ALLOW_ORIGIN' => $_SERVER['CORS_ALLOW_ORIGIN'] ?? $_ENV['CORS_ALLOW_ORIGIN'] ?? getenv('CORS_ALLOW_ORIGIN') ?: '*',
+    'R2_ENDPOINT' => $_SERVER['R2_ENDPOINT'] ?? $_ENV['R2_ENDPOINT'] ?? getenv('R2_ENDPOINT') ?: '',
+    'R2_REGION' => $_SERVER['R2_REGION'] ?? $_ENV['R2_REGION'] ?? getenv('R2_REGION') ?: '',
+    'R2_BUCKET' => $_SERVER['R2_BUCKET'] ?? $_ENV['R2_BUCKET'] ?? getenv('R2_BUCKET') ?: '',
+    'R2_ACCESS_KEY_ID' => $_SERVER['R2_ACCESS_KEY_ID'] ?? $_ENV['R2_ACCESS_KEY_ID'] ?? getenv('R2_ACCESS_KEY_ID') ?: '',
+    'R2_SECRET_ACCESS_KEY' => $_SERVER['R2_SECRET_ACCESS_KEY'] ?? $_ENV['R2_SECRET_ACCESS_KEY'] ?? getenv('R2_SECRET_ACCESS_KEY') ?: '',
+    'R2_PUBLIC_BASE_URL' => $_SERVER['R2_PUBLIC_BASE_URL'] ?? $_ENV['R2_PUBLIC_BASE_URL'] ?? getenv('R2_PUBLIC_BASE_URL') ?: '',
+]);
 ENVEOF
 
-echo "📝 Created .env.local.php - DATABASE_URL length: ${#DATABASE_URL}"
+echo "📝 Created .env.local.php at: $(pwd)/.env.local.php"
+echo "📝 File exists: $(test -f .env.local.php && echo 'YES' || echo 'NO')"
+echo "📝 Testing PHP can read it..."
+php -r "var_dump(require('.env.local.php'));" | head -3
 
 # Clear cache FIRST (before database check)
 echo "🧹 Clearing Symfony cache..."

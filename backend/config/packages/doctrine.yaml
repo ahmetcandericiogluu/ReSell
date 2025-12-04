@@ -2,9 +2,6 @@ doctrine:
     dbal:
         url: '%env(DATABASE_URL)%'
         server_version: '18'
-        driver: 'pdo_pgsql'
-        port: 5432
-        charset: 'utf8'
         profiling_collect_backtrace: '%kernel.debug%'
         use_savepoints: true
     orm:
