@@ -30,6 +30,24 @@ fi
 
 echo ""
 
+# Create .env.local.php for Symfony to read runtime environment variables
+echo "📝 Creating .env.local.php for runtime environment..."
+cat > .env.local.php << 'EOF'
+<?php
+return [
+    'APP_ENV' => $_ENV['APP_ENV'] ?? 'prod',
+    'APP_SECRET' => $_ENV['APP_SECRET'] ?? '',
+    'DATABASE_URL' => $_ENV['DATABASE_URL'] ?? '',
+    'CORS_ALLOW_ORIGIN' => $_ENV['CORS_ALLOW_ORIGIN'] ?? '*',
+    'R2_ENDPOINT' => $_ENV['R2_ENDPOINT'] ?? '',
+    'R2_REGION' => $_ENV['R2_REGION'] ?? '',
+    'R2_BUCKET' => $_ENV['R2_BUCKET'] ?? '',
+    'R2_ACCESS_KEY_ID' => $_ENV['R2_ACCESS_KEY_ID'] ?? '',
+    'R2_SECRET_ACCESS_KEY' => $_ENV['R2_SECRET_ACCESS_KEY'] ?? '',
+    'R2_PUBLIC_BASE_URL' => $_ENV['R2_PUBLIC_BASE_URL'] ?? '',
+];
+EOF
+
 # Clear cache FIRST (before database check)
 echo "🧹 Clearing Symfony cache..."
 rm -rf var/cache/prod/*
