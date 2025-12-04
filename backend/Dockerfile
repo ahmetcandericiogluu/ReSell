@@ -20,8 +20,11 @@ WORKDIR /app
 # Copy composer files first (for better caching)
 COPY composer.json composer.lock symfony.lock ./
 
-# Install dependencies
+# Install dependencies (keep dotenv for prod to load .env.local.php)
 RUN composer install --no-dev --optimize-autoloader --no-scripts --no-progress
+
+# Ensure symfony/runtime and dotenv are installed
+RUN composer require symfony/runtime symfony/dotenv --no-scripts || true
 
 # Copy application files
 COPY . .

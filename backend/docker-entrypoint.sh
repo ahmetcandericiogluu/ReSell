@@ -32,26 +32,29 @@ echo ""
 
 # Create .env.local.php for Symfony to read runtime environment variables
 echo "📝 Creating .env.local.php for runtime environment..."
-cat > .env.local.php << 'EOF'
+cat > .env.local.php << ENVEOF
 <?php
 return [
-    'APP_ENV' => $_ENV['APP_ENV'] ?? 'prod',
-    'APP_SECRET' => $_ENV['APP_SECRET'] ?? '',
-    'DATABASE_URL' => $_ENV['DATABASE_URL'] ?? '',
-    'CORS_ALLOW_ORIGIN' => $_ENV['CORS_ALLOW_ORIGIN'] ?? '*',
-    'R2_ENDPOINT' => $_ENV['R2_ENDPOINT'] ?? '',
-    'R2_REGION' => $_ENV['R2_REGION'] ?? '',
-    'R2_BUCKET' => $_ENV['R2_BUCKET'] ?? '',
-    'R2_ACCESS_KEY_ID' => $_ENV['R2_ACCESS_KEY_ID'] ?? '',
-    'R2_SECRET_ACCESS_KEY' => $_ENV['R2_SECRET_ACCESS_KEY'] ?? '',
-    'R2_PUBLIC_BASE_URL' => $_ENV['R2_PUBLIC_BASE_URL'] ?? '',
+    'APP_ENV' => '${APP_ENV:-prod}',
+    'APP_SECRET' => '${APP_SECRET}',
+    'DATABASE_URL' => '${DATABASE_URL}',
+    'CORS_ALLOW_ORIGIN' => '${CORS_ALLOW_ORIGIN:-*}',
+    'R2_ENDPOINT' => '${R2_ENDPOINT}',
+    'R2_REGION' => '${R2_REGION}',
+    'R2_BUCKET' => '${R2_BUCKET}',
+    'R2_ACCESS_KEY_ID' => '${R2_ACCESS_KEY_ID}',
+    'R2_SECRET_ACCESS_KEY' => '${R2_SECRET_ACCESS_KEY}',
+    'R2_PUBLIC_BASE_URL' => '${R2_PUBLIC_BASE_URL}',
 ];
-EOF
+ENVEOF
+
+echo "📝 Created .env.local.php - DATABASE_URL length: ${#DATABASE_URL}"
 
 # Clear cache FIRST (before database check)
 echo "🧹 Clearing Symfony cache..."
 rm -rf var/cache/prod/*
-php bin/console cache:clear --env=prod --no-warmup || true
+# Don't warmup - let Symfony build cache at runtime with actual env vars
+php bin/console cache:clear --env=prod --no-warmup --no-optional-warmers 2>&1 || true
 
 # Wait for database to be ready via Doctrine
 echo "⏳ Testing Doctrine connection..."
@@ -88,9 +91,8 @@ echo "✅ Database is ready!"
 echo "🗄️ Running migrations..."
 php bin/console doctrine:migrations:migrate --no-interaction --allow-no-migration
 
-# Warm up cache
-echo "🔥 Warming up cache..."
-php bin/console cache:warmup --env=prod
+# Skip cache warmup - runtime will handle it with correct env vars
+echo "✅ Skipping cache warmup - will build at runtime"
 
 # Start PHP built-in server
 echo "🌐 Starting web server on port ${PORT:-8080}..."

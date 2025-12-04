@@ -28,6 +28,9 @@ COPY . .
 # Install PHP dependencies (production only)
 RUN composer install --no-dev --optimize-autoloader --no-interaction
 
+# Ensure symfony/runtime and dotenv are installed
+RUN composer require symfony/runtime symfony/dotenv --no-scripts --no-interaction || true
+
 # Apache configuration
 RUN a2enmod rewrite headers && \
     sed -i 's!/var/www/html!/var/www/html/public!g' /etc/apache2/sites-available/000-default.conf && \

@@ -32,20 +32,23 @@ echo ""
 
 # Create .env.local.php for Symfony to read runtime environment variables
 echo "📝 Creating .env.local.php for runtime environment..."
-cat > .env.local.php << 'EOF'
+cat > .env.local.php << ENVEOF
 <?php
 return [
-    'APP_ENV' => $_ENV['APP_ENV'] ?? 'prod',
-    'APP_SECRET' => $_ENV['APP_SECRET'] ?? '',
-    'DATABASE_URL' => $_ENV['DATABASE_URL'] ?? '',
-    'CORS_ALLOW_ORIGIN' => $_ENV['CORS_ALLOW_ORIGIN'] ?? '*',
+    'APP_ENV' => '${APP_ENV:-prod}',
+    'APP_SECRET' => '${APP_SECRET}',
+    'DATABASE_URL' => '${DATABASE_URL}',
+    'CORS_ALLOW_ORIGIN' => '${CORS_ALLOW_ORIGIN:-*}',
 ];
-EOF
+ENVEOF
+
+echo "📝 Created .env.local.php - DATABASE_URL length: ${#DATABASE_URL}"
 
 # Clear cache FIRST (before database check)
 echo "🧹 Clearing Symfony cache..."
 rm -rf var/cache/prod/*
-php bin/console cache:clear --env=prod --no-warmup || true
+# Don't warmup - let Symfony build cache at runtime with actual env vars
+php bin/console cache:clear --env=prod --no-warmup --no-optional-warmers 2>&1 || true
 
 # Wait for database to be ready via Doctrine
 echo "⏳ Testing Doctrine connection..."
@@ -82,9 +85,8 @@ echo "✅ Database is ready!"
 echo "🗄️ Running migrations..."
 php bin/console doctrine:migrations:migrate --no-interaction --allow-no-migration
 
-# Warm up cache
-echo "🔥 Warming up cache..."
-php bin/console cache:warmup --env=prod
+# Skip cache warmup - runtime will build at runtime with correct env vars
+echo "✅ Skipping cache warmup - will build at runtime"
 
 # Set correct permissions
 chown -R www-data:www-data /var/www/html/var
