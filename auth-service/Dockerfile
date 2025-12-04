@@ -50,6 +50,10 @@ EXPOSE 8080
 RUN mkdir -p /var/www/html/var/cache /var/www/html/var/log && \
     chown -R www-data:www-data /var/www/html/var
 
-# Start Apache
-CMD ["apache2-foreground"]
+# Copy and set entrypoint
+COPY docker-entrypoint.sh /usr/local/bin/
+RUN chmod +x /usr/local/bin/docker-entrypoint.sh
+
+# Start with entrypoint
+ENTRYPOINT ["docker-entrypoint.sh"]
 

@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 
-echo "🚀 Starting ReSell application..."
+echo "🚀 Starting Auth Service..."
 
 # Wait for database to be ready
 echo "⏳ Waiting for database..."
@@ -28,6 +28,10 @@ echo "🧹 Clearing cache..."
 php bin/console cache:clear --env=prod
 php bin/console cache:warmup --env=prod
 
-# Start PHP built-in server
-echo "🌐 Starting web server on port ${PORT:-8080}..."
-exec php -S 0.0.0.0:${PORT:-8080} -t public
+# Set correct permissions
+chown -R www-data:www-data /var/www/html/var
+
+# Start Apache
+echo "🌐 Starting Apache on port ${PORT:-8080}..."
+exec apache2-foreground
+
