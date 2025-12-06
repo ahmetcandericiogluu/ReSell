@@ -41,9 +41,8 @@ const profileApi = {
 
   // Get user's listings
   getUserListings: async (userId, params = {}) => {
-    const response = await axios.get(`${API_BASE_URL}/listings/users/${userId}/listings`, { 
-      params,
-      withCredentials: true 
+    const response = await apiClient.get(`/listings/users/${userId}/listings`, { 
+      params
     });
     return response.data;
   },
