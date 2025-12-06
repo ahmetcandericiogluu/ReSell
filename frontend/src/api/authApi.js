@@ -1,10 +1,14 @@
 import axios from 'axios';
 
-// Auth service URL (separate microservice)
-const AUTH_SERVICE_URL = import.meta.env.VITE_AUTH_SERVICE_URL || 'http://localhost:8001/auth';
+// Auth service URL (separate microservice) - append /auth path
+const AUTH_SERVICE_URL = import.meta.env.VITE_AUTH_SERVICE_URL 
+  ? `${import.meta.env.VITE_AUTH_SERVICE_URL}/auth`
+  : 'http://localhost:8001/auth';
 
-// Main API URL (monolith)
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api';
+// Main API URL (monolith) - already includes /api in the path
+const API_BASE_URL = import.meta.env.VITE_API_URL 
+  ? `${import.meta.env.VITE_API_URL}/api`
+  : 'http://localhost:8000/api';
 
 // Get token from localStorage
 const getToken = () => localStorage.getItem('token');

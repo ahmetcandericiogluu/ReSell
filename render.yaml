@@ -65,9 +65,9 @@ services:
     staticPublishPath: ./dist
     envVars:
       - key: VITE_AUTH_SERVICE_URL
-        value: https://resell-auth-service.onrender.com/auth
+        value: https://resell-auth-service.onrender.com
       - key: VITE_API_URL
-        value: https://resell-backend.onrender.com/api
+        value: https://resell-backend.onrender.com
 
 databases:
   - name: resell-db
