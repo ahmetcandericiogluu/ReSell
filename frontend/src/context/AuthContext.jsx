@@ -31,14 +31,15 @@ export const AuthProvider = ({ children }) => {
   };
 
   const login = async (credentials) => {
-    const userData = await authApi.login(credentials);
-    setUser(userData);
-    return userData;
+    const response = await authApi.login(credentials);
+    setUser(response.user);
+    return response;
   };
 
   const register = async (userData) => {
-    const newUser = await authApi.register(userData);
-    return newUser;
+    const response = await authApi.register(userData);
+    setUser(response.user);
+    return response;
   };
 
   const logout = async () => {

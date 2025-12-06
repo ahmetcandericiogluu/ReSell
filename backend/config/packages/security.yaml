@@ -29,6 +29,7 @@ security:
         - { path: ^/$, roles: PUBLIC_ACCESS }
         - { path: ^/api/listings$, roles: PUBLIC_ACCESS }
         - { path: ^/api/listings/\d+$, roles: PUBLIC_ACCESS }
+        - { path: ^/api/listings/users/\d+/listings, roles: PUBLIC_ACCESS }
         - { path: ^/api/users/\d+$, roles: PUBLIC_ACCESS }
         - { path: ^/api/users/\d+/reviews$, roles: PUBLIC_ACCESS }
         - { path: ^/api, roles: ROLE_USER }
