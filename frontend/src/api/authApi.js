@@ -1,9 +1,9 @@
 import axios from 'axios';
 
-// Auth service URL (separate microservice) - append /auth path
+// Auth service URL (separate microservice) - append /api/auth path
 const AUTH_SERVICE_URL = import.meta.env.VITE_AUTH_SERVICE_URL 
-  ? `${import.meta.env.VITE_AUTH_SERVICE_URL}/auth`
-  : 'http://localhost:8001/auth';
+  ? `${import.meta.env.VITE_AUTH_SERVICE_URL}/api/auth`
+  : 'http://localhost:8001/api/auth';
 
 // Main API URL (monolith) - already includes /api in the path
 const API_BASE_URL = import.meta.env.VITE_API_URL 
