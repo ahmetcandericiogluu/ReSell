@@ -1,77 +1,128 @@
-services:
-  # Auth Service (Mikroservis)
-  - type: web
-    name: resell-auth-service
-    env: docker
-    plan: free
-    rootDir: auth-service
-    dockerfilePath: ./Dockerfile
-    envVars:
-      - key: APP_ENV
-        value: prod
-      - key: APP_SECRET
-        sync: false
-      - key: DATABASE_URL
-        fromDatabase:
-          name: resell-db
-          property: connectionString
-      - key: CORS_ALLOW_ORIGIN
-        value: "*"
-      - key: PORT
-        value: 8080
-    healthCheckPath: /health
-
-  # Backend API Service (Monolith)
-  - type: web
-    name: resell-backend
-    env: docker
-    plan: free
-    rootDir: backend
-    dockerfilePath: ./Dockerfile
-    envVars:
-      - key: APP_ENV
-        value: prod
-      - key: APP_SECRET
-        sync: false
-      - key: DATABASE_URL
-        fromDatabase:
-          name: resell-db
-          property: connectionString
-      - key: CORS_ALLOW_ORIGIN
-        value: "*"
-      - key: R2_ENDPOINT
-        sync: false
-      - key: R2_REGION
-        sync: false
-      - key: R2_BUCKET
-        sync: false
-      - key: R2_ACCESS_KEY_ID
-        sync: false
-      - key: R2_SECRET_ACCESS_KEY
-        sync: false
-      - key: R2_PUBLIC_BASE_URL
-        sync: false
-      - key: PORT
-        value: 8080
-    healthCheckPath: /
-
-  # Frontend Service
-  - type: web
-    name: resell-frontend
-    env: static
-    plan: free
-    rootDir: frontend
-    buildCommand: npm install && npm run build
-    staticPublishPath: ./dist
-    envVars:
-      - key: VITE_AUTH_SERVICE_URL
-        value: https://resell-auth-service.onrender.com
-      - key: VITE_API_URL
-        value: https://resell-backend.onrender.com
+# Render Blueprint for ReSell Marketplace
+# https://render.com/docs/blueprint-spec
 
 databases:
-  - name: resell-db
-    databaseName: resell
+  - name: auth-db
+    databaseName: auth_service
+    user: auth_user
     plan: free
-    user: resell
+    region: frankfurt
+    ipAllowList: []
 
+  - name: listing-db
+    databaseName: listing_service
+    user: listing_user
+    plan: free
+    region: frankfurt
+    ipAllowList: []
+
+  - name: backend-db
+    databaseName: resell_db
+    user: resell_user
+    plan: free
+    region: frankfurt
+    ipAllowList: []
+
+services:
+  # Auth Service
+  - type: web
+    name: resell-auth-service
+    runtime: docker
+    region: frankfurt
+    plan: free
+    dockerfilePath: ./auth-service/Dockerfile.render
+    envVars:
+      - key: APP_ENV
+        value: prod
+      - key: APP_DEBUG
+        value: 0
+      - key: APP_SECRET
+        generateValue: true
+      - key: DATABASE_URL
+        fromDatabase:
+          name: auth-db
+          property: connectionString
+      - key: CORS_ALLOW_ORIGIN
+        value: ^https?://(localhost|127\.0\.0\.1|.*\.onrender\.com)(:\d+)?$
+    buildCommand: |
+      composer install --no-dev --optimize-autoloader
+      php bin/console doctrine:migrations:migrate --no-interaction
+      php bin/console cache:clear --no-warmup
+      php bin/console cache:warmup
+    healthCheckPath: /health
+
+  # Listing Service
+  - type: web
+    name: resell-listing-service
+    runtime: docker
+    region: frankfurt
+    plan: free
+    dockerfilePath: ./services/listing/Dockerfile.render
+    envVars:
+      - key: APP_ENV
+        value: prod
+      - key: APP_DEBUG
+        value: 0
+      - key: APP_SECRET
+        sync: false # Aynı secret'i auth service ile paylaşacağız
+      - key: DATABASE_URL
+        fromDatabase:
+          name: listing-db
+          property: connectionString
+      - key: CORS_ALLOW_ORIGIN
+        value: ^https?://(localhost|127\.0\.0\.1|.*\.onrender\.com)(:\d+)?$
+      - key: DEFAULT_URI
+        value: https://resell-listing-service.onrender.com
+    buildCommand: |
+      composer install --no-dev --optimize-autoloader
+      php bin/console doctrine:migrations:migrate --no-interaction
+      php bin/console doctrine:fixtures:load --no-interaction --append
+      php bin/console cache:clear --no-warmup
+      php bin/console cache:warmup
+    healthCheckPath: /health
+
+  # Backend Monolith
+  - type: web
+    name: resell-backend
+    runtime: docker
+    region: frankfurt
+    plan: free
+    dockerfilePath: ./backend/Dockerfile.render
+    envVars:
+      - key: APP_ENV
+        value: prod
+      - key: APP_DEBUG
+        value: 0
+      - key: APP_SECRET
+        generateValue: true
+      - key: DATABASE_URL
+        fromDatabase:
+          name: backend-db
+          property: connectionString
+      - key: CORS_ALLOW_ORIGIN
+        value: ^https?://(localhost|127\.0\.0\.1|.*\.onrender\.com)(:\d+)?$
+      - key: FRONTEND_URL
+        value: https://resell-frontend.onrender.com
+    buildCommand: |
+      composer install --no-dev --optimize-autoloader
+      php bin/console doctrine:migrations:migrate --no-interaction
+      php bin/console cache:clear --no-warmup
+      php bin/console cache:warmup
+    healthCheckPath: /
+
+  # Frontend
+  - type: web
+    name: resell-frontend
+    runtime: node
+    region: frankfurt
+    plan: free
+    buildCommand: cd frontend && npm ci && npm run build
+    startCommand: cd frontend && npm run preview -- --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: VITE_API_URL
+        value: https://resell-backend.onrender.com
+      - key: VITE_AUTH_SERVICE_URL
+        value: https://resell-auth-service.onrender.com
+      - key: VITE_LISTING_SERVICE_URL
+        value: https://resell-listing-service.onrender.com
+    healthCheckPath: /

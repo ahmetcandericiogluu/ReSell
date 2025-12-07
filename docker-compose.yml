@@ -1,0 +1,49 @@
+version: '3.8'
+
+services:
+  # Listing Service Database
+  listing-db:
+    image: postgres:16
+    container_name: listing-db
+    environment:
+      POSTGRES_DB: listing_service
+      POSTGRES_USER: listing_user
+      POSTGRES_PASSWORD: listing_password
+    ports:
+      - "5434:5432"
+    volumes:
+      - listing_db_data:/var/lib/postgresql/data
+    networks:
+      - microservices
+
+  # Listing Service API
+  listing-service:
+    build:
+      context: ./services/listing
+      dockerfile: Dockerfile
+    container_name: listing-service
+    depends_on:
+      - listing-db
+    environment:
+      APP_ENV: dev
+      DATABASE_URL: postgresql://listing_user:listing_password@listing-db:5432/listing_service?serverVersion=16&charset=utf8
+      JWT_SECRET: your-jwt-secret-key-must-match-auth-service
+      JWT_ALGORITHM: HS256
+      CORS_ALLOW_ORIGIN: "^https?://(localhost|127\\.0\\.0\\.1)(:[0-9]+)?$$"
+    ports:
+      - "8082:8000"
+    volumes:
+      - ./services/listing:/var/www/listing
+    networks:
+      - microservices
+    entrypoint: ["/bin/sh", "/var/www/listing/docker-entrypoint.sh"]
+    command: ["php", "-S", "0.0.0.0:8000", "-t", "public/"]
+
+volumes:
+  listing_db_data:
+    driver: local
+
+networks:
+  microservices:
+    driver: bridge
+

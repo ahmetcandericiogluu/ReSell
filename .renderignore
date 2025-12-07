@@ -1,16 +1,15 @@
+# Render ignore file
 .git
 .gitignore
+*.md
+!README.md
+!DEPLOYMENT.md
 .env.local
 .env.*.local
-var/cache/*
-var/log/*
-vendor
-.idea
-.vscode
-*.md
 tests
 .phpunit.result.cache
-compose.yaml
 docker-compose.yml
-Dockerfile
-render.yaml
+compose.yaml
+.idea
+.vscode
+

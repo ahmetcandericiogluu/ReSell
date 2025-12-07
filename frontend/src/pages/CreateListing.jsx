@@ -1,6 +1,7 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import listingApi from '../api/listingApi';
+import categoryApi from '../api/categoryApi';
 import Navbar from '../components/Navbar';
 import { Container, Card, Button, Input, Textarea, FormField } from '../components/ui';
 
@@ -14,14 +15,29 @@ const CreateListing = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [categories, setCategories] = useState([]);
   
   const [formData, setFormData] = useState({
     title: '',
     description: '',
     price: '',
     currency: 'TRY',
+    categoryId: '',
     location: '',
   });
+
+  useEffect(() => {
+    fetchCategories();
+  }, []);
+
+  const fetchCategories = async () => {
+    try {
+      const data = await categoryApi.getAll();
+      setCategories(data);
+    } catch (err) {
+      console.error('Kategoriler yüklenirken hata:', err);
+    }
+  };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -42,13 +58,14 @@ const CreateListing = () => {
         description: formData.description,
         price: parseFloat(formData.price),
         currency: formData.currency,
+        categoryId: parseInt(formData.categoryId),
         location: formData.location || null,
       };
 
       await listingApi.create(listingData);
       navigate('/dashboard');
     } catch (err) {
-      setError(err.response?.data?.message || 'İlan oluşturulurken bir hata oluştu');
+      setError(err.response?.data?.message || err.response?.data?.error || 'İlan oluşturulurken bir hata oluştu');
     } finally {
       setLoading(false);
     }
@@ -105,6 +122,30 @@ const CreateListing = () => {
                   />
                 </FormField>
               </div>
+            </div>
+
+            {/* Category Section */}
+            <div>
+              <h2 className="text-lg font-semibold text-slate-800 mb-4 pb-2 border-b border-slate-200">
+                Kategori
+              </h2>
+              
+              <FormField label="Kategori" required>
+                <select
+                  name="categoryId"
+                  value={formData.categoryId}
+                  onChange={handleChange}
+                  required
+                  className="w-full px-4 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none transition-colors bg-white"
+                >
+                  <option value="">Kategori Seçin</option>
+                  {categories.map(category => (
+                    <option key={category.id} value={category.id}>
+                      {category.name}
+                    </option>
+                  ))}
+                </select>
+              </FormField>
             </div>
 
             {/* Price Section */}

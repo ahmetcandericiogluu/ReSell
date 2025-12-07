@@ -2,6 +2,7 @@
 .gitignore
 .env.local
 .env.*.local
+.env.dev
 var/cache/*
 var/log/*
 vendor
@@ -13,4 +14,4 @@ tests
 compose.yaml
 docker-compose.yml
 Dockerfile
-render.yaml
+README.md

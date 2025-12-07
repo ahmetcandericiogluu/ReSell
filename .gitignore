@@ -5,6 +5,21 @@ backend/.env.local
 backend/.env.local.php
 backend/.env.*.local
 
+# Auth Service
+auth-service/var/
+auth-service/vendor/
+auth-service/.env.local
+auth-service/.env.local.php
+auth-service/.env.*.local
+
+# Listing Service
+services/listing/var/
+services/listing/vendor/
+services/listing/.env.local
+services/listing/.env.local.php
+services/listing/.env.*.local
+services/listing/.env.dev
+
 # Frontend (React)
 frontend/node_modules/
 frontend/dist/

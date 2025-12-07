@@ -328,7 +328,7 @@ namespace Symfony\Component\DependencyInjection\Loader\Configurator;
  *         }>,
  *     },
  *     validation?: bool|array{ // Validation configuration
- *         enabled?: bool, // Default: false
+ *         enabled?: bool, // Default: true
  *         cache?: scalar|null, // Deprecated: Setting the "framework.validation.cache.cache" configuration option is deprecated. It will be removed in version 8.0.
  *         enable_attributes?: bool, // Default: true
  *         static_method?: list<scalar|null>,
@@ -687,11 +687,6 @@ namespace Symfony\Component\DependencyInjection\Loader\Configurator;
  *     json_streamer?: bool|array{ // JSON streamer configuration
  *         enabled?: bool, // Default: false
  *     },
- * }
- * @psalm-type MakerConfig = array{
- *     root_namespace?: scalar|null, // Default: "App"
- *     generate_final_classes?: bool, // Default: true
- *     generate_final_entities?: bool, // Default: false
  * }
  * @psalm-type DoctrineConfig = array{
  *     dbal?: array{
@@ -1299,7 +1294,6 @@ namespace Symfony\Component\DependencyInjection\Loader\Configurator;
  *         parameters?: ParametersConfig,
  *         services?: ServicesConfig,
  *         framework?: FrameworkConfig,
- *         maker?: MakerConfig,
  *         doctrine?: DoctrineConfig,
  *         doctrine_migrations?: DoctrineMigrationsConfig,
  *         security?: SecurityConfig,
@@ -1402,8 +1396,7 @@ namespace Symfony\Component\Routing\Loader\Configurator;
  * @psalm-type AliasConfig = array{
  *     alias: string,
  *     deprecated?: array{package:string, version:string, message?:string},
- * }
-
+ * }
  * @psalm-type RoutesConfig = array{
  *     "when@dev"?: array<string, RouteConfig|ImportConfig|AliasConfig>,
  *     "when@prod"?: array<string, RouteConfig|ImportConfig|AliasConfig>,
