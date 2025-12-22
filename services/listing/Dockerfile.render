@@ -22,8 +22,8 @@ WORKDIR /var/www/html
 # Copy application files from services/listing (context is repo root)
 COPY services/listing/ .
 
-# Install dependencies with retry mechanism
-RUN for i in 1 2 3; do composer install --no-dev --optimize-autoloader --no-interaction && break || sleep 5; done
+# Install dependencies with retry mechanism (--no-scripts to skip cache:clear during build)
+RUN for i in 1 2 3; do composer install --no-dev --optimize-autoloader --no-interaction --no-scripts && break || sleep 5; done
 
 # Set permissions
 RUN chown -R www-data:www-data var
@@ -75,10 +75,10 @@ RUN printf '%s\n' \
     '  sleep 2' \
     'done' \
     '' \
-    '# Sync migrations and update schema (skip migrations to avoid duplicate table errors)' \
+    '# Sync migration versions only (do not run migrations or schema update to avoid conflicts)' \
     'php bin/console doctrine:migrations:sync-metadata-storage --no-interaction 2>&1 || true' \
     'php bin/console doctrine:migrations:version --add --all --no-interaction 2>&1 || true' \
-    'php bin/console doctrine:schema:update --force --no-interaction 2>&1 || true' \
+    'echo "Schema sync completed, skipping schema:update to avoid table conflicts"' \
     '' \
     'chown -R www-data:www-data /var/www/html/var' \
     'exec apache2-foreground' \
