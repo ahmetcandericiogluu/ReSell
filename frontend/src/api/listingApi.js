@@ -2,12 +2,12 @@ import axios from 'axios';
 
 // Use new Listing Service microservice
 const LISTING_SERVICE_URL = import.meta.env.VITE_LISTING_SERVICE_URL 
-  || 'http://localhost:8082';
+  || 'https://resell-listing-service.onrender.com';
 
 // Fallback to monolith for backward compatibility
 const MONOLITH_URL = import.meta.env.VITE_API_URL 
   ? `${import.meta.env.VITE_API_URL}/api/listings`
-  : 'http://localhost:8000/api/listings';
+  : 'https://resell-backend.onrender.com/api/listings';
 
 const listingClient = axios.create({
   baseURL: `${LISTING_SERVICE_URL}/api/listings`,

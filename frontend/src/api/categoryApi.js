@@ -2,7 +2,7 @@ import axios from 'axios';
 
 // Use new Listing Service microservice for categories
 const LISTING_SERVICE_URL = import.meta.env.VITE_LISTING_SERVICE_URL 
-  || 'http://localhost:8082';
+  || 'https://resell-listing-service.onrender.com';
 
 const categoryClient = axios.create({
   baseURL: `${LISTING_SERVICE_URL}/api/categories`,
