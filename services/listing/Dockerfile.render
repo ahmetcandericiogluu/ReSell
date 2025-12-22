@@ -19,11 +19,8 @@ RUN a2enmod rewrite headers
 # Set working directory
 WORKDIR /var/www/html
 
-# Copy application files
-COPY . .
-
-# Debug: List files to verify context
-RUN echo "=== Files in /var/www/html ===" && ls -la && echo "=== End of file list ==="
+# Copy application files from services/listing (context is repo root)
+COPY services/listing/ .
 
 # Install dependencies with retry mechanism
 RUN for i in 1 2 3; do composer install --no-dev --optimize-autoloader --no-interaction && break || sleep 5; done
