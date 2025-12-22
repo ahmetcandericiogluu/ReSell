@@ -40,7 +40,8 @@ echo "Database is ready!"
 # Run migrations
 php bin/console doctrine:migrations:migrate --no-interaction --allow-no-migration 2>&1 || true
 
-# Set permissions
+# Ensure var directory exists and set permissions
+mkdir -p /var/www/html/var/cache /var/www/html/var/log
 chown -R www-data:www-data /var/www/html/var
 
 echo "Starting Apache..."
