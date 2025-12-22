@@ -29,10 +29,12 @@ RUN for i in 1 2 3; do composer install --no-dev --optimize-autoloader --no-inte
 RUN chown -R www-data:www-data var
 RUN chmod -R 775 var
 
-# Configure Apache document root
+# Configure Apache document root and port 8080 for Render
 ENV APACHE_DOCUMENT_ROOT=/var/www/html/public
 RUN sed -ri -e 's!/var/www/html!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/sites-available/*.conf
 RUN sed -ri -e 's!/var/www/!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/apache2.conf /etc/apache2/conf-available/*.conf
+RUN sed -ri -e 's/Listen 80/Listen 8080/g' /etc/apache2/ports.conf
+RUN sed -ri -e 's/:80>/:8080>/g' /etc/apache2/sites-available/*.conf
 
 # Production PHP config
 RUN mv "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php.ini"
@@ -73,16 +75,16 @@ RUN printf '%s\n' \
     '  sleep 2' \
     'done' \
     '' \
+    '# Sync migrations and update schema (skip migrations to avoid duplicate table errors)' \
     'php bin/console doctrine:migrations:sync-metadata-storage --no-interaction 2>&1 || true' \
     'php bin/console doctrine:migrations:version --add --all --no-interaction 2>&1 || true' \
     'php bin/console doctrine:schema:update --force --no-interaction 2>&1 || true' \
-    'php bin/console doctrine:fixtures:load --no-interaction --append 2>&1 || true' \
     '' \
     'chown -R www-data:www-data /var/www/html/var' \
     'exec apache2-foreground' \
     > /usr/local/bin/docker-entrypoint.sh && chmod +x /usr/local/bin/docker-entrypoint.sh
 
-EXPOSE 80
+EXPOSE 8080
 
 ENTRYPOINT ["docker-entrypoint.sh"]
 CMD []
