@@ -22,8 +22,8 @@ WORKDIR /var/www/html
 # Copy application files
 COPY . .
 
-# Install dependencies
-RUN composer install --no-dev --optimize-autoloader --no-interaction
+# Install dependencies with retry mechanism
+RUN for i in 1 2 3; do composer install --no-dev --optimize-autoloader --no-interaction && break || sleep 5; done
 
 # Set permissions
 RUN chown -R www-data:www-data var
