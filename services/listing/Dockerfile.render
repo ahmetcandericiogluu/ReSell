@@ -25,7 +25,8 @@ COPY services/listing/ .
 # Install dependencies with retry mechanism (--no-scripts to skip cache:clear during build)
 RUN for i in 1 2 3; do composer install --no-dev --optimize-autoloader --no-interaction --no-scripts && break || sleep 5; done
 
-# Set permissions
+# Create var directory and set permissions
+RUN mkdir -p var/cache var/log
 RUN chown -R www-data:www-data var
 RUN chmod -R 775 var
 
