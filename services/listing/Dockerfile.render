@@ -22,6 +22,9 @@ WORKDIR /var/www/html
 # Copy application files
 COPY . .
 
+# Debug: List files to verify context
+RUN echo "=== Files in /var/www/html ===" && ls -la && echo "=== End of file list ==="
+
 # Install dependencies with retry mechanism
 RUN for i in 1 2 3; do composer install --no-dev --optimize-autoloader --no-interaction && break || sleep 5; done
 
