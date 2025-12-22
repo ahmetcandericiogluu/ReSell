@@ -68,8 +68,10 @@ until php bin/console doctrine:query:sql "SELECT 1" > /dev/null 2>&1; do\n\
   fi\n\
   sleep 2\n\
 done\n\
-php bin/console doctrine:migrations:migrate --no-interaction --allow-no-migration || true\n\
-php bin/console doctrine:fixtures:load --no-interaction --append || true\n\
+php bin/console doctrine:migrations:sync-metadata-storage --no-interaction 2>&1 || true\n\
+php bin/console doctrine:migrations:version --add --all --no-interaction 2>&1 || true\n\
+php bin/console doctrine:schema:update --force --no-interaction 2>&1 || true\n\
+php bin/console doctrine:fixtures:load --no-interaction --append 2>&1 || true\n\
 chown -R www-data:www-data /var/www/html/var\n\
 exec apache2-foreground\n\
 ' > /usr/local/bin/docker-entrypoint.sh && chmod +x /usr/local/bin/docker-entrypoint.sh
