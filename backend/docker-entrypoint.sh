@@ -18,7 +18,7 @@ echo ""
 
 # Run detailed connection test first
 echo "🔍 Running detailed connection test..."
-php /app/test-db-connection.php
+php /var/www/html/test-db-connection.php
 TEST_RESULT=$?
 
 if [ $TEST_RESULT -eq 0 ]; then
@@ -34,7 +34,7 @@ echo ""
 echo "📝 Creating .env.local for runtime environment..."
 
 # Ensure we're in the app directory
-cd /app
+cd /var/www/html
 
 # Create .env.local file (Symfony DotEnv will read this)
 cat > .env.local << ENVEOF
@@ -78,7 +78,7 @@ until php bin/console doctrine:query:sql "SELECT 1" 2>&1; do
     echo "❌ Doctrine connection failed after $MAX_RETRIES attempts"
     echo ""
     echo "📋 Re-running connection test for debugging..."
-    php /app/test-db-connection.php
+    php /var/www/html/test-db-connection.php
     echo ""
     echo "📋 Full Doctrine DBAL configuration:"
     php bin/console debug:config doctrine dbal
@@ -100,6 +100,9 @@ php bin/console doctrine:migrations:migrate --no-interaction --allow-no-migratio
 # Skip cache warmup - runtime will handle it with correct env vars
 echo "✅ Skipping cache warmup - will build at runtime"
 
-# Start PHP built-in server
-echo "🌐 Starting web server on port ${PORT:-8080}..."
-exec php -S 0.0.0.0:${PORT:-8080} -t public
+# Set correct permissions
+chown -R www-data:www-data /var/www/html/var
+
+# Start Apache
+echo "🌐 Starting Apache..."
+exec apache2-foreground

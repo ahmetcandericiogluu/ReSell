@@ -208,7 +208,7 @@ const ListingDetail = () => {
               <Card padding="lg" className="text-center">
                 <div className="text-6xl mb-4">📦</div>
                 <p className="text-slate-600 mb-4">Henüz Resim Eklenmemiş</p>
-                {listing && user?.id === listing.seller_id && (
+                {listing && user?.id === (listing.sellerId || listing.seller_id) && (
                   <Button
                     variant="primary"
                     onClick={() => navigate(`/listings/${id}/images`)}
@@ -246,23 +246,23 @@ const ListingDetail = () => {
                     <span>{listing.location}</span>
                   </div>
                 )}
-                {listing.category_id && (
+                {(listing.categoryId || listing.categoryName) && (
                   <div className="flex items-center text-sm text-slate-600">
                     <span className="mr-2">🏷️</span>
                     <span className="font-medium mr-2">Kategori:</span>
-                    <span>Kategori #{listing.category_id}</span>
+                    <span>{listing.categoryName || `Kategori #${listing.categoryId}`}</span>
                   </div>
                 )}
                 <div className="flex items-center text-sm text-slate-600">
                   <span className="mr-2">📅</span>
                   <span className="font-medium mr-2">Yayınlanma:</span>
-                  <span>{formatDate(listing.created_at)}</span>
+                  <span>{formatDate(listing.createdAt || listing.created_at)}</span>
                 </div>
-                {listing.created_at !== listing.updated_at && (
+                {(listing.createdAt || listing.created_at) !== (listing.updatedAt || listing.updated_at) && (
                   <div className="flex items-center text-sm text-slate-600">
                     <span className="mr-2">🔄</span>
                     <span className="font-medium mr-2">Güncellenme:</span>
-                    <span>{formatDate(listing.updated_at)}</span>
+                    <span>{formatDate(listing.updatedAt || listing.updated_at)}</span>
                   </div>
                 )}
               </div>
@@ -281,18 +281,18 @@ const ListingDetail = () => {
               <h2 className="text-lg font-semibold text-slate-800 mb-4">Satıcı Bilgileri</h2>
               
               <div 
-                onClick={() => navigate(`/users/${listing.seller_id}`)}
+                onClick={() => navigate(`/users/${listing.sellerId || listing.seller_id}`)}
                 className="flex items-center space-x-3 mb-4 cursor-pointer hover:bg-slate-50 -mx-2 px-2 py-2 rounded-lg transition-colors"
               >
                 <Avatar 
-                  name={listing.seller_name}
+                  name={listing.sellerName || listing.seller_name || `Satıcı ${listing.sellerId || listing.seller_id}`}
                   size="md"
                 />
                 <div className="flex-1 min-w-0">
                   <h3 className="font-semibold text-slate-800 truncate hover:text-primary-600 transition-colors">
-                    {listing.seller_name}
+                    {listing.sellerName || listing.seller_name || `Satıcı #${listing.sellerId || listing.seller_id}`}
                   </h3>
-                  <p className="text-xs text-slate-500">Satıcı ID: #{listing.seller_id}</p>
+                  <p className="text-xs text-slate-500">Satıcı ID: #{listing.sellerId || listing.seller_id}</p>
                 </div>
                 <span className="text-slate-400">→</span>
               </div>

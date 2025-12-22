@@ -1,34 +1,42 @@
-version: '3.8'
-
 services:
-  # Listing Service Database
-  listing-db:
-    image: postgres:16
-    container_name: listing-db
+  # ========== SERVICES ==========
+  # Database: Local PostgreSQL (Docker Desktop'tan çalışıyor)
+  # Host: host.docker.internal, DB: resell, User: postgres, Pass: postgres
+
+  # Auth Service
+  auth-service:
+    build:
+      context: ./auth-service
+      dockerfile: Dockerfile.dev
+    container_name: auth-service
+    working_dir: /var/www/html
+    entrypoint: ["/bin/sh", "/var/www/html/docker-entrypoint-dev.sh"]
     environment:
-      POSTGRES_DB: listing_service
-      POSTGRES_USER: listing_user
-      POSTGRES_PASSWORD: listing_password
+      APP_ENV: dev
+      APP_SECRET: dev-secret-key-12345
+      DATABASE_URL: postgresql://postgres:postgres@host.docker.internal:5432/resell?serverVersion=16&charset=utf8
+      CORS_ALLOW_ORIGIN: "^https?://(localhost|127\\.0\\.0\\.1)(:[0-9]+)?$$"
     ports:
-      - "5434:5432"
+      - "8001:8000"
     volumes:
-      - listing_db_data:/var/lib/postgresql/data
+      - ./auth-service:/var/www/html
     networks:
       - microservices
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
 
-  # Listing Service API
+  # Listing Service
   listing-service:
     build:
       context: ./services/listing
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile.dev
     container_name: listing-service
-    depends_on:
-      - listing-db
+    working_dir: /var/www/listing
+    entrypoint: ["/bin/sh", "/var/www/listing/docker-entrypoint-dev.sh"]
     environment:
       APP_ENV: dev
-      DATABASE_URL: postgresql://listing_user:listing_password@listing-db:5432/listing_service?serverVersion=16&charset=utf8
-      JWT_SECRET: your-jwt-secret-key-must-match-auth-service
-      JWT_ALGORITHM: HS256
+      APP_SECRET: dev-secret-key-12345
+      DATABASE_URL: postgresql://postgres:postgres@host.docker.internal:5432/resell?serverVersion=16&charset=utf8
       CORS_ALLOW_ORIGIN: "^https?://(localhost|127\\.0\\.0\\.1)(:[0-9]+)?$$"
     ports:
       - "8082:8000"
@@ -36,14 +44,60 @@ services:
       - ./services/listing:/var/www/listing
     networks:
       - microservices
-    entrypoint: ["/bin/sh", "/var/www/listing/docker-entrypoint.sh"]
-    command: ["php", "-S", "0.0.0.0:8000", "-t", "public/"]
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+  # Backend Monolith
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.dev
+    container_name: backend
+    working_dir: /app
+    entrypoint: ["/bin/sh", "/app/docker-entrypoint-dev.sh"]
+    environment:
+      APP_ENV: dev
+      APP_SECRET: dev-secret-key-12345
+      DATABASE_URL: postgresql://postgres:postgres@host.docker.internal:5432/resell?serverVersion=16&charset=utf8
+      CORS_ALLOW_ORIGIN: "^https?://(localhost|127\\.0\\.0\\.1)(:[0-9]+)?$$"
+      FRONTEND_URL: http://localhost:3000
+      # Cloudflare R2 Storage
+      R2_ENDPOINT: https://56751b8361542d95b3c6aa19e5807694.r2.cloudflarestorage.com
+      R2_REGION: auto
+      R2_BUCKET: resell-uploads-dev
+      R2_ACCESS_KEY_ID: ad8fbcac1bc20e2be3f659d0678078ab
+      R2_SECRET_ACCESS_KEY: 054281a76b2b91d8ef736a332460b44932443b21b09c629019820141cff48c76
+      R2_PUBLIC_BASE_URL: https://pub-f04ef83f9e1f46f2a18b4f27db086b8e.r2.dev
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./backend:/app
+    networks:
+      - microservices
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+  # Frontend
+  frontend:
+    image: node:20-alpine
+    container_name: frontend
+    working_dir: /app
+    command: sh -c "npm install && npm run dev -- --host 0.0.0.0 --port 3000"
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./frontend:/app
+      - frontend_node_modules:/app/node_modules
+    networks:
+      - microservices
+    environment:
+      VITE_API_URL: http://localhost:8000
+      VITE_AUTH_SERVICE_URL: http://localhost:8001
+      VITE_LISTING_SERVICE_URL: http://localhost:8082
 
 volumes:
-  listing_db_data:
-    driver: local
+  frontend_node_modules:
 
 networks:
   microservices:
     driver: bridge
-

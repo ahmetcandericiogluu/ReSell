@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import profileApi from '../../api/profileApi';
+import listingApi from '../../api/listingApi';
 import { Card, Button, Badge } from '../ui';
 
 const ProfileListingsTab = ({ userId, isOwnProfile }) => {
@@ -8,26 +8,24 @@ const ProfileListingsTab = ({ userId, isOwnProfile }) => {
   const [listings, setListings] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [page, setPage] = useState(1);
-  const [total, setTotal] = useState(0);
-  const limit = 12;
 
   useEffect(() => {
-    fetchListings();
-  }, [userId, page]);
+    if (isOwnProfile) {
+      fetchListings();
+    }
+  }, [userId, isOwnProfile]);
 
   const fetchListings = async () => {
+    if (!isOwnProfile) return;
+    
     setLoading(true);
     setError(null);
     
     try {
-      const data = await profileApi.getUserListings(userId, {
-        status: 'active',
-        page,
-        limit,
-      });
-      setListings(data.items);
-      setTotal(data.total);
+      const data = await listingApi.getMyListings();
+      // getMyListings listing service'den array döner
+      const items = Array.isArray(data) ? data : (data.data || []);
+      setListings(items);
     } catch (err) {
       setError('İlanlar yüklenemedi');
       console.error('Listings fetch error:', err);
@@ -88,6 +86,23 @@ const ProfileListingsTab = ({ userId, isOwnProfile }) => {
     );
   }
 
+  // Başka kullanıcı profili için henüz destek yok
+  if (!isOwnProfile) {
+    return (
+      <Card>
+        <div className="text-center py-12">
+          <div className="text-6xl mb-4">🔒</div>
+          <h3 className="text-xl font-semibold text-slate-800 mb-2">
+            İlanlar görüntülenemiyor
+          </h3>
+          <p className="text-slate-600">
+            Şu an sadece kendi ilanlarınızı görüntüleyebilirsiniz.
+          </p>
+        </div>
+      </Card>
+    );
+  }
+
   if (listings.length === 0) {
     return (
       <Card>
@@ -97,15 +112,11 @@ const ProfileListingsTab = ({ userId, isOwnProfile }) => {
             Henüz ilan yok
           </h3>
           <p className="text-slate-600 mb-6">
-            {isOwnProfile 
-              ? 'İlk ilanınızı oluşturarak başlayın!'
-              : 'Bu kullanıcının henüz aktif ilanı bulunmuyor.'}
+            İlk ilanınızı oluşturarak başlayın!
           </p>
-          {isOwnProfile && (
-            <Button onClick={() => navigate('/listings/create')}>
-              İlan Oluştur
-            </Button>
-          )}
+          <Button onClick={() => navigate('/listings/create')}>
+            İlan Oluştur
+          </Button>
         </div>
       </Card>
     );
@@ -124,7 +135,13 @@ const ProfileListingsTab = ({ userId, isOwnProfile }) => {
           >
             {/* Thumbnail */}
             <div className="aspect-[4/3] bg-slate-100 flex items-center justify-center overflow-hidden group">
-              {listing.thumbnailUrl ? (
+              {listing.images && listing.images.length > 0 ? (
+                <img
+                  src={listing.images[0].url}
+                  alt={listing.title}
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                />
+              ) : listing.thumbnailUrl ? (
                 <img
                   src={listing.thumbnailUrl}
                   alt={listing.title}
@@ -158,30 +175,6 @@ const ProfileListingsTab = ({ userId, isOwnProfile }) => {
         ))}
       </div>
 
-      {/* Pagination */}
-      {total > limit && (
-        <div className="flex justify-center gap-2">
-          <Button
-            variant="secondary"
-            size="sm"
-            onClick={() => setPage(p => Math.max(1, p - 1))}
-            disabled={page === 1}
-          >
-            Önceki
-          </Button>
-          <span className="px-4 py-2 text-sm text-slate-600">
-            Sayfa {page} / {Math.ceil(total / limit)}
-          </span>
-          <Button
-            variant="secondary"
-            size="sm"
-            onClick={() => setPage(p => p + 1)}
-            disabled={page >= Math.ceil(total / limit)}
-          >
-            Sonraki
-          </Button>
-        </div>
-      )}
     </div>
   );
 };

@@ -68,7 +68,7 @@ services:
     # Listing Image Service with storage driver parameter
     App\Listing\Service\ListingImageService:
         arguments:
-            $storageDriver: 'r2'  # Change to 'r2' when using R2
+            $storageDriver: 'r2'  # Use 'local' for local storage, 'r2' for Cloudflare R2
     
     # JWT Authenticator with secret
     App\User\Security\JwtAuthenticator:

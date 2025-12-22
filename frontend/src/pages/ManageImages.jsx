@@ -108,8 +108,9 @@ const ManageImages = () => {
     );
   }
 
-  // Check if user is the owner
-  if (listing.seller_id !== user?.id) {
+  // Check if user is the owner (support both camelCase and snake_case)
+  const sellerId = listing.sellerId || listing.seller_id;
+  if (parseInt(sellerId) !== parseInt(user?.id)) {
     return (
       <div className="min-h-screen bg-slate-50">
         <Navbar activePage="my-listings" />

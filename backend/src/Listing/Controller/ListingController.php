@@ -107,8 +107,8 @@ class ListingController extends AbstractController
     {
         $listing = $this->listingService->getListingById($id);
         
-        // Check if user is the owner
-        if ($listing->getSeller()->getId() !== $this->getUser()->getId()) {
+        // Check if user is the owner (use == for type coercion with bigint)
+        if ((int)$listing->getSeller()->getId() !== (int)$this->getUser()->getId()) {
             return $this->json(
                 ['error' => 'You are not authorized to upload images for this listing'],
                 Response::HTTP_FORBIDDEN
@@ -184,8 +184,8 @@ class ListingController extends AbstractController
     {
         $listing = $this->listingService->getListingById($listingId);
         
-        // Check if user is the owner
-        if ($listing->getSeller()->getId() !== $this->getUser()->getId()) {
+        // Check if user is the owner (use == for type coercion with bigint)
+        if ((int)$listing->getSeller()->getId() !== (int)$this->getUser()->getId()) {
             return $this->json(
                 ['error' => 'You are not authorized to delete images for this listing'],
                 Response::HTTP_FORBIDDEN
