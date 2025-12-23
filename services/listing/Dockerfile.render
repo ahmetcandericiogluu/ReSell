@@ -28,9 +28,8 @@ RUN echo "=== Files in /var/www/html ===" && ls -la && echo "=== docker-entrypoi
 # Install dependencies with retry
 RUN for i in 1 2 3; do composer install --no-dev --optimize-autoloader --no-interaction && break || sleep 5; done
 
-# Set permissions
-RUN chown -R www-data:www-data var
-RUN chmod -R 775 var
+# Create var directory and set permissions
+RUN mkdir -p var/cache var/log && chown -R www-data:www-data var && chmod -R 775 var
 
 # Configure Apache document root
 ENV APACHE_DOCUMENT_ROOT=/var/www/html/public
