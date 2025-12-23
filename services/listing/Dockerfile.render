@@ -19,11 +19,11 @@ RUN a2enmod rewrite headers
 # Set working directory
 WORKDIR /var/www/html
 
-# Copy application files
-COPY . .
+# Copy application files (Render uses repo root as context)
+COPY services/listing/ .
 
 # Debug: List files
-RUN echo "=== Files in /var/www/html ===" && ls -la && echo "=== docker-entrypoint.sh exists? ===" && ls -la docker-entrypoint.sh 2>/dev/null || echo "NOT FOUND!"
+RUN echo "=== Files in /var/www/html ===" && ls -la
 
 # Install dependencies with retry
 RUN for i in 1 2 3; do composer install --no-dev --optimize-autoloader --no-interaction && break || sleep 5; done
@@ -46,7 +46,7 @@ RUN echo "opcache.enable=1" >> "$PHP_INI_DIR/conf.d/opcache.ini" \
     && echo "realpath_cache_size=4096K" >> "$PHP_INI_DIR/conf.d/opcache.ini" \
     && echo "realpath_cache_ttl=600" >> "$PHP_INI_DIR/conf.d/opcache.ini"
 
-# Copy entrypoint from already copied files and set permissions
+# Copy entrypoint and set permissions
 RUN cp docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh && chmod +x /usr/local/bin/docker-entrypoint.sh
 
 EXPOSE 80
