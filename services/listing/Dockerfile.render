@@ -25,8 +25,8 @@ COPY . .
 # Debug: List files
 RUN echo "=== Files in /var/www/html ===" && ls -la && echo "=== docker-entrypoint.sh exists? ===" && ls -la docker-entrypoint.sh 2>/dev/null || echo "NOT FOUND!"
 
-# Install dependencies
-RUN composer install --no-dev --optimize-autoloader --no-interaction
+# Install dependencies with retry
+RUN for i in 1 2 3; do composer install --no-dev --optimize-autoloader --no-interaction && break || sleep 5; done
 
 # Set permissions
 RUN chown -R www-data:www-data var
