@@ -21,7 +21,9 @@ class JwtAuthenticator extends AbstractAuthenticator
 
     public function supports(Request $request): ?bool
     {
-        return $request->headers->has('Authorization');
+        $hasAuth = $request->headers->has('Authorization');
+        error_log('[JwtAuth] supports() called, hasAuth: ' . ($hasAuth ? 'yes' : 'no'));
+        return $hasAuth;
     }
 
     public function authenticate(Request $request): Passport
@@ -35,10 +37,13 @@ class JwtAuthenticator extends AbstractAuthenticator
         $token = substr($authHeader, 7); // Remove 'Bearer ' prefix
 
         try {
+            error_log('[JwtAuth] Attempting to decode token...');
             $payload = $this->jwtTokenManager->decodeToken($token);
+            error_log('[JwtAuth] Token decoded successfully, payload: ' . json_encode($payload));
             
             // Extract user ID from JWT payload
             $userId = $payload['sub'] ?? null;
+            error_log('[JwtAuth] userId: ' . ($userId ?? 'null'));
             
             if (!$userId) {
                 throw new AuthenticationException('Invalid token payload');
@@ -55,6 +60,7 @@ class JwtAuthenticator extends AbstractAuthenticator
                 })
             );
         } catch (\Exception $e) {
+            error_log('[JwtAuth] Token decode FAILED: ' . $e->getMessage());
             throw new AuthenticationException('Invalid token: ' . $e->getMessage());
         }
     }
