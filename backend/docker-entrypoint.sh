@@ -61,8 +61,11 @@ chown -R www-data:www-data "$APP_DIR/var" 2>/dev/null || true
 
 # Update Apache config if using /app
 if [ "$APP_DIR" = "/app" ]; then
-    sed -ri -e 's|/var/www/html|/app|g' /etc/apache2/sites-available/*.conf
-    sed -ri -e 's|/var/www/html|/app|g' /etc/apache2/apache2.conf
+    sed -ri -e 's|/var/www/html|/app|g' /etc/apache2/sites-available/*.conf 2>/dev/null || true
+    sed -ri -e 's|/var/www/html|/app|g' /etc/apache2/apache2.conf 2>/dev/null || true
+    sed -ri -e 's|/var/www/html|/app|g' /etc/apache2/sites-enabled/*.conf 2>/dev/null || true
+    # Set DocumentRoot via environment
+    export APACHE_DOCUMENT_ROOT="$APP_DIR/public"
 fi
 
 echo "Starting Apache..."
