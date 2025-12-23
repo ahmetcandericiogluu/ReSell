@@ -50,9 +50,6 @@ echo "Database is ready!"
 # Run migrations
 php bin/console doctrine:migrations:migrate --no-interaction --allow-no-migration 2>&1 || true
 
-# Load fixtures (categories)
-php bin/console doctrine:fixtures:load --no-interaction --append 2>&1 || true
-
 # Set permissions
 chown -R www-data:www-data "$APP_DIR/var" 2>/dev/null || true
 
