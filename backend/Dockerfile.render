@@ -19,29 +19,20 @@ RUN a2enmod rewrite headers
 # Set working directory
 WORKDIR /var/www/html
 
-# Copy application files (context is ./backend)
+# Copy application files
 COPY . .
 
-# Debug: Show what was copied
-RUN echo "=== Files copied ===" && ls -la && echo "=== bin/ ===" && ls -la bin/ 2>/dev/null || echo "No bin/"
+# Install dependencies
+RUN composer install --no-dev --optimize-autoloader --no-interaction
 
-# Fix line endings for shell scripts
-RUN sed -i 's/\r$//' docker-entrypoint.sh && chmod +x docker-entrypoint.sh
+# Set permissions
+RUN chown -R www-data:www-data var
+RUN chmod -R 775 var
 
-# Install dependencies with retry mechanism (skip scripts)
-RUN for i in 1 2 3; do composer install --no-dev --optimize-autoloader --no-interaction --no-scripts && break || sleep 5; done
-
-# Create var directory and set permissions
-RUN mkdir -p var/cache var/log && \
-    chown -R www-data:www-data var && \
-    chmod -R 775 var
-
-# Configure Apache document root and port 8080 for Render
+# Configure Apache document root
 ENV APACHE_DOCUMENT_ROOT=/var/www/html/public
 RUN sed -ri -e 's!/var/www/html!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/sites-available/*.conf
 RUN sed -ri -e 's!/var/www/!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/apache2.conf /etc/apache2/conf-available/*.conf
-RUN sed -ri -e 's/Listen 80/Listen 8080/g' /etc/apache2/ports.conf
-RUN sed -ri -e 's/:80>/:8080>/g' /etc/apache2/sites-available/*.conf
 
 # Production PHP config
 RUN mv "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php.ini"
@@ -53,10 +44,10 @@ RUN echo "opcache.enable=1" >> "$PHP_INI_DIR/conf.d/opcache.ini" \
     && echo "realpath_cache_size=4096K" >> "$PHP_INI_DIR/conf.d/opcache.ini" \
     && echo "realpath_cache_ttl=600" >> "$PHP_INI_DIR/conf.d/opcache.ini"
 
-# Copy entrypoint to /usr/local/bin
-RUN cp docker-entrypoint.sh /usr/local/bin/ && chmod +x /usr/local/bin/docker-entrypoint.sh
+# Copy and set entrypoint
+COPY docker-entrypoint.sh /usr/local/bin/
+RUN chmod +x /usr/local/bin/docker-entrypoint.sh
 
-EXPOSE 8080
+EXPOSE 80
 
-ENTRYPOINT ["/usr/local/bin/docker-entrypoint.sh"]
-CMD []
+ENTRYPOINT ["docker-entrypoint.sh"]

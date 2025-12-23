@@ -3,21 +3,9 @@ set -e
 
 echo "Starting Backend Service..."
 
-# Render copies files to /app, not /var/www/html
-APP_DIR="/app"
-if [ -d "/app/bin" ]; then
-    APP_DIR="/app"
-elif [ -d "/var/www/html/bin" ]; then
-    APP_DIR="/var/www/html"
-else
-    echo "ERROR: Cannot find application directory!"
-    exit 1
-fi
+cd /var/www/html
 
-echo "Using APP_DIR: $APP_DIR"
-cd "$APP_DIR"
-
-# Create .env.local from environment variables
+# Create .env.local file for Symfony
 cat > .env.local << ENVEOF
 APP_ENV=${APP_ENV:-prod}
 APP_SECRET=${APP_SECRET}
@@ -34,8 +22,8 @@ ENVEOF
 echo "Created .env.local"
 
 # Clear cache
-rm -rf var/cache/prod/* 2>/dev/null || true
-php bin/console cache:clear --env=prod --no-warmup 2>&1 || echo "Cache clear skipped"
+rm -rf var/cache/prod/*
+php bin/console cache:clear --env=prod --no-warmup 2>&1 || true
 
 # Wait for database
 max_retries=15
@@ -50,20 +38,13 @@ until php bin/console doctrine:query:sql "SELECT 1" > /dev/null 2>&1; do
   sleep 2
 done
 
-echo "Database check complete!"
+echo "Database is ready!"
 
 # Run migrations
-php bin/console doctrine:migrations:sync-metadata-storage --no-interaction 2>&1 || true
-php bin/console doctrine:migrations:version --add --all --no-interaction 2>&1 || true
-php bin/console doctrine:schema:update --force --no-interaction 2>&1 || true
+php bin/console doctrine:migrations:migrate --no-interaction --allow-no-migration 2>&1 || true
 
-# Ensure var directory exists and set permissions
-mkdir -p "$APP_DIR/var/cache" "$APP_DIR/var/log"
-chown -R www-data:www-data "$APP_DIR/var" 2>/dev/null || true
-
-# Update Apache document root to APP_DIR/public
-sed -ri -e "s|/var/www/html/public|$APP_DIR/public|g" /etc/apache2/sites-available/*.conf 2>/dev/null || true
-sed -ri -e "s|/var/www/html|$APP_DIR|g" /etc/apache2/apache2.conf /etc/apache2/conf-available/*.conf 2>/dev/null || true
+# Set permissions
+chown -R www-data:www-data /var/www/html/var
 
 echo "Starting Apache..."
 exec apache2-foreground
