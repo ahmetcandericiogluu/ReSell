@@ -24,7 +24,7 @@ class ListingController extends AbstractController
     ) {
     }
 
-    #[Route('/me', name: 'listings_me', methods: ['GET'])]
+    #[Route('/my-listings', name: 'listings_my', methods: ['GET'])]
     #[IsGranted('ROLE_USER')]
     #[OA\Get(summary: 'Get current user listings', security: [['Bearer' => []]])]
     #[OA\Response(response: 200, description: 'Returns user listings')]

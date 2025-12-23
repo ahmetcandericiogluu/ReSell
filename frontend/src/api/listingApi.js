@@ -54,7 +54,7 @@ const listingApi = {
 
   // Get my listings using new microservice
   getMyListings: async () => {
-    const response = await listingClient.get('/me');
+    const response = await listingClient.get('/my-listings');
     return response.data;
   },
 
