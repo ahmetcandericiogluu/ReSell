@@ -15,6 +15,12 @@ class ExceptionListener
     public function onKernelException(ExceptionEvent $event): void
     {
         $exception = $event->getThrowable();
+        
+        // Log the exception for debugging
+        error_log('[ExceptionListener] Exception: ' . get_class($exception));
+        error_log('[ExceptionListener] Message: ' . $exception->getMessage());
+        error_log('[ExceptionListener] File: ' . $exception->getFile() . ':' . $exception->getLine());
+        
         $response = new JsonResponse();
 
         if ($exception instanceof NotFoundHttpException) {
@@ -50,7 +56,9 @@ class ExceptionListener
             // For non-HTTP exceptions, return 500
             $response->setData([
                 'error' => 'Internal Server Error',
-                'message' => $_ENV['APP_ENV'] === 'dev' ? $exception->getMessage() : 'An error occurred',
+                'message' => $exception->getMessage(),
+                'type' => get_class($exception),
+                'file' => $exception->getFile() . ':' . $exception->getLine(),
             ]);
             $response->setStatusCode(Response::HTTP_INTERNAL_SERVER_ERROR);
         }
