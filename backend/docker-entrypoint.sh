@@ -1,21 +1,23 @@
 #!/bin/bash
 set -e
 
-echo "=== DEBUG: Starting Backend Service ==="
-echo "PWD: $(pwd)"
-echo "Files in current dir:"
-ls -la
-echo "=== END DEBUG ==="
+echo "Starting Backend Service..."
 
-cd /var/www/html
+# Render copies files to /app, not /var/www/html
+APP_DIR="/app"
+if [ -d "/app/bin" ]; then
+    APP_DIR="/app"
+elif [ -d "/var/www/html/bin" ]; then
+    APP_DIR="/var/www/html"
+else
+    echo "ERROR: Cannot find application directory!"
+    echo "Checking /app:" && ls -la /app 2>/dev/null || echo "/app not found"
+    echo "Checking /var/www/html:" && ls -la /var/www/html 2>/dev/null || echo "/var/www/html not found"
+    exit 1
+fi
 
-echo "=== DEBUG: After cd /var/www/html ==="
-echo "PWD: $(pwd)"
-echo "Files:"
-ls -la
-echo "bin/ contents:"
-ls -la bin/ 2>/dev/null || echo "bin/ not found"
-echo "=== END DEBUG ==="
+echo "Using APP_DIR: $APP_DIR"
+cd "$APP_DIR"
 
 # Create .env.local from environment variables
 echo "APP_ENV=${APP_ENV:-prod}" > .env.local
@@ -33,7 +35,7 @@ echo "Created .env.local"
 
 # Clear cache
 rm -rf var/cache/prod/* 2>/dev/null || true
-php bin/console cache:clear --env=prod --no-warmup 2>&1 || echo "Cache clear failed, continuing..."
+php bin/console cache:clear --env=prod --no-warmup 2>&1 || echo "Cache clear skipped"
 
 # Wait for database
 max_retries=15
@@ -56,8 +58,12 @@ php bin/console doctrine:migrations:version --add --all --no-interaction 2>&1 ||
 php bin/console doctrine:schema:update --force --no-interaction 2>&1 || true
 
 # Ensure var directory exists and set permissions
-mkdir -p /var/www/html/var/cache /var/www/html/var/log
-chown -R www-data:www-data /var/www/html/var
+mkdir -p "$APP_DIR/var/cache" "$APP_DIR/var/log"
+chown -R www-data:www-data "$APP_DIR/var" 2>/dev/null || true
 
-echo "Starting Apache..."
+# Update Apache document root to /app/public
+sed -ri -e "s|/var/www/html/public|$APP_DIR/public|g" /etc/apache2/sites-available/*.conf 2>/dev/null || true
+sed -ri -e "s|/var/www/html|$APP_DIR|g" /etc/apache2/apache2.conf /etc/apache2/conf-available/*.conf 2>/dev/null || true
+
+echo "Starting Apache on port 8080..."
 exec /usr/sbin/apache2ctl -D FOREGROUND
