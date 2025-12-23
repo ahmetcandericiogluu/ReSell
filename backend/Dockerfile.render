@@ -19,8 +19,8 @@ RUN a2enmod rewrite headers
 # Set working directory
 WORKDIR /var/www/html
 
-# Copy application files from backend (context is repo root)
-COPY backend/ .
+# Copy application files (context is ./backend)
+COPY . .
 
 # Install dependencies with retry mechanism (skip scripts)
 RUN for i in 1 2 3; do composer install --no-dev --optimize-autoloader --no-interaction --no-scripts && break || sleep 5; done

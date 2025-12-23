@@ -19,8 +19,8 @@ RUN a2enmod rewrite headers
 # Set working directory
 WORKDIR /var/www/html
 
-# Copy application files from services/listing (context is repo root)
-COPY services/listing/ .
+# Copy application files (context is ./services/listing)
+COPY . .
 
 # Install dependencies with retry mechanism (--no-scripts to skip cache:clear during build)
 RUN for i in 1 2 3; do composer install --no-dev --optimize-autoloader --no-interaction --no-scripts && break || sleep 5; done
@@ -83,7 +83,7 @@ RUN printf '%s\n' \
     '' \
     'mkdir -p /var/www/html/var/cache /var/www/html/var/log' \
     'chown -R www-data:www-data /var/www/html/var' \
-    'exec apache2-foreground' \
+    'exec /usr/sbin/apache2ctl -D FOREGROUND' \
     > /usr/local/bin/docker-entrypoint.sh && chmod +x /usr/local/bin/docker-entrypoint.sh
 
 EXPOSE 8080
