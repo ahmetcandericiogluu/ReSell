@@ -58,8 +58,15 @@ if [ "$APP_DIR" = "/app" ]; then
     sed -ri -e 's|/var/www/html|/app|g' /etc/apache2/sites-available/*.conf 2>/dev/null || true
     sed -ri -e 's|/var/www/html|/app|g' /etc/apache2/apache2.conf 2>/dev/null || true
     sed -ri -e 's|/var/www/html|/app|g' /etc/apache2/sites-enabled/*.conf 2>/dev/null || true
-    # Set DocumentRoot via environment
     export APACHE_DOCUMENT_ROOT="$APP_DIR/public"
+fi
+
+# Configure Apache to listen on PORT (default 80)
+if [ -n "$PORT" ] && [ "$PORT" != "80" ]; then
+    echo "Configuring Apache to listen on port $PORT..."
+    sed -ri -e "s/Listen 80/Listen $PORT/g" /etc/apache2/ports.conf 2>/dev/null || true
+    sed -ri -e "s/:80>/:$PORT>/g" /etc/apache2/sites-available/*.conf 2>/dev/null || true
+    sed -ri -e "s/:80>/:$PORT>/g" /etc/apache2/sites-enabled/*.conf 2>/dev/null || true
 fi
 
 echo "Starting web server on port ${PORT:-8080}..."
