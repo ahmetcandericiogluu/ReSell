@@ -47,9 +47,8 @@ RUN echo "opcache.enable=1" >> "$PHP_INI_DIR/conf.d/opcache.ini" \
     && echo "realpath_cache_size=4096K" >> "$PHP_INI_DIR/conf.d/opcache.ini" \
     && echo "realpath_cache_ttl=600" >> "$PHP_INI_DIR/conf.d/opcache.ini"
 
-# Copy and set entrypoint - v2
-COPY docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
-RUN chmod +x /usr/local/bin/docker-entrypoint.sh
+# Copy entrypoint from already copied files and set permissions
+RUN cp docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh && chmod +x /usr/local/bin/docker-entrypoint.sh
 
 EXPOSE 80
 
