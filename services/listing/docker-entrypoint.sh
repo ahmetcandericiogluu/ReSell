@@ -3,7 +3,20 @@ set -e
 
 echo "Starting Listing Service..."
 
-cd /var/www/html
+# Detect app directory (Render uses /app, Docker uses /var/www/html)
+if [ -f "/app/bin/console" ]; then
+    APP_DIR="/app"
+elif [ -f "/var/www/html/bin/console" ]; then
+    APP_DIR="/var/www/html"
+else
+    echo "ERROR: Cannot find application!"
+    echo "Checking /app:" && ls -la /app 2>/dev/null || echo "/app not found"
+    echo "Checking /var/www/html:" && ls -la /var/www/html 2>/dev/null || echo "/var/www/html not found"
+    exit 1
+fi
+
+echo "Using APP_DIR: $APP_DIR"
+cd "$APP_DIR"
 
 # Create .env.local file for Symfony
 cat > .env.local << ENVEOF
@@ -41,7 +54,13 @@ php bin/console doctrine:migrations:migrate --no-interaction --allow-no-migratio
 php bin/console doctrine:fixtures:load --no-interaction --append 2>&1 || true
 
 # Set permissions
-chown -R www-data:www-data /var/www/html/var
+chown -R www-data:www-data "$APP_DIR/var" 2>/dev/null || true
+
+# Update Apache config if using /app
+if [ "$APP_DIR" = "/app" ]; then
+    sed -ri -e 's|/var/www/html|/app|g' /etc/apache2/sites-available/*.conf
+    sed -ri -e 's|/var/www/html|/app|g' /etc/apache2/apache2.conf
+fi
 
 echo "Starting Apache..."
 exec apache2-foreground
