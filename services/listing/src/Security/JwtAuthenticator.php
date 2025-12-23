@@ -73,10 +73,12 @@ class JwtAuthenticator extends AbstractAuthenticator
 
     public function onAuthenticationFailure(Request $request, AuthenticationException $exception): ?Response
     {
-        return new JsonResponse([
-            'error' => 'Authentication failed',
-            'message' => $exception->getMessage()
-        ], Response::HTTP_UNAUTHORIZED);
+        // Log the failure
+        error_log('[JwtAuth] onAuthenticationFailure: ' . $exception->getMessage());
+        
+        // Return null to let the request continue (for PUBLIC_ACCESS routes)
+        // The access_control will handle authorization
+        return null;
     }
 }
 
