@@ -47,9 +47,13 @@ done
 
 echo "Database is ready!"
 
-# Run migrations and update schema
+# Run migrations only (no schema:update to avoid dropping shared tables)
 php bin/console doctrine:migrations:migrate --no-interaction --allow-no-migration 2>&1 || true
-php bin/console doctrine:schema:update --force --no-interaction 2>&1 || true
+
+# Add missing columns manually (safe approach for microservices)
+echo "Checking for missing columns..."
+php bin/console doctrine:query:sql "ALTER TABLE listings ADD COLUMN IF NOT EXISTS deleted_at TIMESTAMP DEFAULT NULL" 2>&1 || true
+php bin/console doctrine:query:sql "ALTER TABLE listings ADD COLUMN IF NOT EXISTS location VARCHAR(255) DEFAULT NULL" 2>&1 || true
 
 # Set permissions
 chown -R www-data:www-data "$APP_DIR/var" 2>/dev/null || true
