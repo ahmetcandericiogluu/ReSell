@@ -69,4 +69,20 @@ if [ "$APP_DIR" = "/app" ]; then
 fi
 
 echo "Starting Apache..."
-exec apache2-foreground
+# Find and run apache
+if command -v apache2-foreground >/dev/null 2>&1; then
+    exec apache2-foreground
+elif [ -x /usr/local/bin/apache2-foreground ]; then
+    exec /usr/local/bin/apache2-foreground
+elif command -v apachectl >/dev/null 2>&1; then
+    exec apachectl -D FOREGROUND
+elif command -v httpd >/dev/null 2>&1; then
+    exec httpd -D FOREGROUND
+elif [ -x /usr/sbin/apache2 ]; then
+    . /etc/apache2/envvars
+    exec /usr/sbin/apache2 -D FOREGROUND
+else
+    echo "ERROR: No Apache found!"
+    which apache2 httpd apachectl 2>/dev/null || true
+    exit 1
+fi
