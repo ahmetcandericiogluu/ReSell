@@ -11,8 +11,6 @@ elif [ -d "/var/www/html/bin" ]; then
     APP_DIR="/var/www/html"
 else
     echo "ERROR: Cannot find application directory!"
-    echo "Checking /app:" && ls -la /app 2>/dev/null || echo "/app not found"
-    echo "Checking /var/www/html:" && ls -la /var/www/html 2>/dev/null || echo "/var/www/html not found"
     exit 1
 fi
 
@@ -20,16 +18,18 @@ echo "Using APP_DIR: $APP_DIR"
 cd "$APP_DIR"
 
 # Create .env.local from environment variables
-echo "APP_ENV=${APP_ENV:-prod}" > .env.local
-echo "APP_SECRET=${APP_SECRET}" >> .env.local
-echo "DATABASE_URL=${DATABASE_URL}" >> .env.local
-echo "CORS_ALLOW_ORIGIN=${CORS_ALLOW_ORIGIN:-*}" >> .env.local
-echo "R2_ENDPOINT=${R2_ENDPOINT}" >> .env.local
-echo "R2_REGION=${R2_REGION}" >> .env.local
-echo "R2_BUCKET=${R2_BUCKET}" >> .env.local
-echo "R2_ACCESS_KEY_ID=${R2_ACCESS_KEY_ID}" >> .env.local
-echo "R2_SECRET_ACCESS_KEY=${R2_SECRET_ACCESS_KEY}" >> .env.local
-echo "R2_PUBLIC_BASE_URL=${R2_PUBLIC_BASE_URL}" >> .env.local
+cat > .env.local << ENVEOF
+APP_ENV=${APP_ENV:-prod}
+APP_SECRET=${APP_SECRET}
+DATABASE_URL=${DATABASE_URL}
+CORS_ALLOW_ORIGIN=${CORS_ALLOW_ORIGIN:-*}
+R2_ENDPOINT=${R2_ENDPOINT}
+R2_REGION=${R2_REGION}
+R2_BUCKET=${R2_BUCKET}
+R2_ACCESS_KEY_ID=${R2_ACCESS_KEY_ID}
+R2_SECRET_ACCESS_KEY=${R2_SECRET_ACCESS_KEY}
+R2_PUBLIC_BASE_URL=${R2_PUBLIC_BASE_URL}
+ENVEOF
 
 echo "Created .env.local"
 
@@ -61,9 +61,9 @@ php bin/console doctrine:schema:update --force --no-interaction 2>&1 || true
 mkdir -p "$APP_DIR/var/cache" "$APP_DIR/var/log"
 chown -R www-data:www-data "$APP_DIR/var" 2>/dev/null || true
 
-# Update Apache document root to /app/public
+# Update Apache document root to APP_DIR/public
 sed -ri -e "s|/var/www/html/public|$APP_DIR/public|g" /etc/apache2/sites-available/*.conf 2>/dev/null || true
 sed -ri -e "s|/var/www/html|$APP_DIR|g" /etc/apache2/apache2.conf /etc/apache2/conf-available/*.conf 2>/dev/null || true
 
-echo "Starting Apache on port 8080..."
-exec /usr/sbin/apache2ctl -D FOREGROUND
+echo "Starting Apache..."
+exec apache2-foreground

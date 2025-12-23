@@ -18,10 +18,12 @@ echo "Using APP_DIR: $APP_DIR"
 cd "$APP_DIR"
 
 # Create .env.local file for Symfony
-echo "APP_ENV=${APP_ENV:-prod}" > .env.local
-echo "APP_SECRET=${APP_SECRET}" >> .env.local
-echo "DATABASE_URL=${DATABASE_URL}" >> .env.local
-echo "CORS_ALLOW_ORIGIN=${CORS_ALLOW_ORIGIN:-*}" >> .env.local
+cat > .env.local << ENVEOF
+APP_ENV=${APP_ENV:-prod}
+APP_SECRET=${APP_SECRET}
+DATABASE_URL=${DATABASE_URL}
+CORS_ALLOW_ORIGIN=${CORS_ALLOW_ORIGIN:-*}
+ENVEOF
 
 echo "Created .env.local"
 
@@ -60,5 +62,5 @@ chown -R www-data:www-data "$APP_DIR/var" 2>/dev/null || true
 sed -ri -e "s|/var/www/html/public|$APP_DIR/public|g" /etc/apache2/sites-available/*.conf 2>/dev/null || true
 sed -ri -e "s|/var/www/html|$APP_DIR|g" /etc/apache2/apache2.conf /etc/apache2/conf-available/*.conf 2>/dev/null || true
 
-echo "Starting Apache on port 8080..."
-exec /usr/sbin/apache2ctl -D FOREGROUND
+echo "Starting Apache..."
+exec apache2-foreground
