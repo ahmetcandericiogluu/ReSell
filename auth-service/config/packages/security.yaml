@@ -19,4 +19,5 @@ security:
             stateless: true
 
     access_control:
+        - { path: ^/auth/doc, roles: PUBLIC_ACCESS }
         - { path: ^/auth, roles: PUBLIC_ACCESS }

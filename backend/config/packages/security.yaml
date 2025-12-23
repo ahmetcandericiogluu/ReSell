@@ -27,6 +27,7 @@ security:
     # Note: Only the *first* access control that matches will be used
     access_control:
         - { path: ^/$, roles: PUBLIC_ACCESS }
+        - { path: ^/api/doc, roles: PUBLIC_ACCESS }
         - { path: ^/api/listings$, roles: PUBLIC_ACCESS }
         - { path: ^/api/listings/\d+$, roles: PUBLIC_ACCESS }
         - { path: ^/api/listings/users/\d+/listings, roles: PUBLIC_ACCESS }

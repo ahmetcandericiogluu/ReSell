@@ -10,12 +10,15 @@
         "ext-ctype": "*",
         "ext-iconv": "*",
         "doctrine/doctrine-bundle": "^2.18",
+        "doctrine/doctrine-fixtures-bundle": "^3.7",
         "doctrine/doctrine-migrations-bundle": "^3.7",
         "doctrine/orm": "^3.5",
         "firebase/php-jwt": "^6.11",
+        "nelmio/api-doc-bundle": "^5.8",
         "nelmio/cors-bundle": "^2.6",
         "phpdocumentor/reflection-docblock": "^5.6",
         "phpstan/phpdoc-parser": "^2.3",
+        "symfony/asset": "7.3.*",
         "symfony/console": "7.3.*",
         "symfony/dotenv": "7.3.*",
         "symfony/flex": "^2",
@@ -25,9 +28,9 @@
         "symfony/runtime": "7.3.*",
         "symfony/security-bundle": "7.3.*",
         "symfony/serializer": "7.3.*",
+        "symfony/twig-bundle": "7.3.*",
         "symfony/validator": "7.3.*",
-        "symfony/yaml": "7.3.*",
-        "doctrine/doctrine-fixtures-bundle": "^3.7"
+        "symfony/yaml": "7.3.*"
     },
     "config": {
         "allow-plugins": {
@@ -78,7 +81,5 @@
             "allow-contrib": false,
             "require": "7.3.*"
         }
-    },
-    "require-dev": {
     }
 }

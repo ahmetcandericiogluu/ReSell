@@ -13,8 +13,10 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Attribute\MapRequestPayload;
 use Symfony\Component\Routing\Attribute\Route;
+use OpenApi\Attributes as OA;
 
 #[Route('/api/auth', name: 'auth_')]
+#[OA\Tag(name: 'Authentication')]
 class AuthController extends AbstractController
 {
     public function __construct(
@@ -24,6 +26,17 @@ class AuthController extends AbstractController
     }
 
     #[Route('/register', name: 'register', methods: ['POST'])]
+    #[OA\Post(summary: 'Register a new user')]
+    #[OA\RequestBody(required: true, content: new OA\JsonContent(
+        required: ['email', 'password', 'name'],
+        properties: [
+            new OA\Property(property: 'email', type: 'string', format: 'email'),
+            new OA\Property(property: 'password', type: 'string', minLength: 6),
+            new OA\Property(property: 'name', type: 'string')
+        ]
+    ))]
+    #[OA\Response(response: 201, description: 'User registered successfully')]
+    #[OA\Response(response: 400, description: 'Validation error')]
     public function register(
         #[MapRequestPayload] RegisterRequest $request
     ): JsonResponse {
@@ -39,6 +52,16 @@ class AuthController extends AbstractController
     }
 
     #[Route('/login', name: 'login', methods: ['POST'])]
+    #[OA\Post(summary: 'Login user')]
+    #[OA\RequestBody(required: true, content: new OA\JsonContent(
+        required: ['email', 'password'],
+        properties: [
+            new OA\Property(property: 'email', type: 'string', format: 'email'),
+            new OA\Property(property: 'password', type: 'string')
+        ]
+    ))]
+    #[OA\Response(response: 200, description: 'Login successful, returns JWT token')]
+    #[OA\Response(response: 401, description: 'Invalid credentials')]
     public function login(
         #[MapRequestPayload] LoginRequest $request
     ): JsonResponse {
@@ -54,6 +77,9 @@ class AuthController extends AbstractController
     }
 
     #[Route('/me', name: 'me', methods: ['GET'])]
+    #[OA\Get(summary: 'Get current user info', security: [['Bearer' => []]])]
+    #[OA\Response(response: 200, description: 'Returns current user info')]
+    #[OA\Response(response: 401, description: 'Unauthorized')]
     public function me(Request $request): JsonResponse
     {
         // Get token from Authorization header

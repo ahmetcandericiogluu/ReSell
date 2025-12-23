@@ -1,0 +1,21 @@
+nelmio_api_doc:
+    documentation:
+        info:
+            title: ReSell Listing Service API
+            description: API for managing listings and categories
+            version: 1.0.0
+        servers:
+            - url: /
+              description: Current Server
+        components:
+            securitySchemes:
+                Bearer:
+                    type: http
+                    scheme: bearer
+                    bearerFormat: JWT
+        security:
+            - Bearer: []
+    areas:
+        path_patterns:
+            - ^/api(?!/doc)
+

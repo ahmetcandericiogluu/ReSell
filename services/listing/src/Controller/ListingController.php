@@ -13,8 +13,10 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Attribute\MapRequestPayload;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
+use OpenApi\Attributes as OA;
 
 #[Route('/api/listings')]
+#[OA\Tag(name: 'Listings')]
 class ListingController extends AbstractController
 {
     public function __construct(
@@ -24,6 +26,8 @@ class ListingController extends AbstractController
 
     #[Route('/me', name: 'listings_me', methods: ['GET'])]
     #[IsGranted('ROLE_USER')]
+    #[OA\Get(summary: 'Get current user listings', security: [['Bearer' => []]])]
+    #[OA\Response(response: 200, description: 'Returns user listings')]
     public function getMyListings(Request $httpRequest): JsonResponse
     {
         $userId = $httpRequest->attributes->get('user_id');
@@ -39,6 +43,12 @@ class ListingController extends AbstractController
     }
 
     #[Route('', name: 'listings_index', methods: ['GET'])]
+    #[OA\Get(summary: 'Get all listings')]
+    #[OA\Parameter(name: 'status', in: 'query', description: 'Filter by status', schema: new OA\Schema(type: 'string'))]
+    #[OA\Parameter(name: 'category_id', in: 'query', description: 'Filter by category', schema: new OA\Schema(type: 'integer'))]
+    #[OA\Parameter(name: 'page', in: 'query', description: 'Page number', schema: new OA\Schema(type: 'integer'))]
+    #[OA\Parameter(name: 'limit', in: 'query', description: 'Items per page', schema: new OA\Schema(type: 'integer'))]
+    #[OA\Response(response: 200, description: 'Returns paginated listings')]
     public function index(Request $request): JsonResponse
     {
         $status = $request->query->get('status', 'active');
@@ -90,6 +100,9 @@ class ListingController extends AbstractController
     }
 
     #[Route('/{id}', name: 'listings_show', methods: ['GET'], requirements: ['id' => '\d+'])]
+    #[OA\Get(summary: 'Get single listing by ID')]
+    #[OA\Response(response: 200, description: 'Returns listing details')]
+    #[OA\Response(response: 404, description: 'Listing not found')]
     public function show(int $id): JsonResponse
     {
         $listing = $this->listingService->getListingById($id);
@@ -100,6 +113,10 @@ class ListingController extends AbstractController
 
     #[Route('', name: 'listings_create', methods: ['POST'])]
     #[IsGranted('ROLE_USER')]
+    #[OA\Post(summary: 'Create a new listing', security: [['Bearer' => []]])]
+    #[OA\RequestBody(required: true, content: new OA\JsonContent(ref: '#/components/schemas/ListingCreateRequest'))]
+    #[OA\Response(response: 201, description: 'Listing created')]
+    #[OA\Response(response: 401, description: 'Unauthorized')]
     public function create(
         #[MapRequestPayload] ListingCreateRequest $request,
         Request $httpRequest
@@ -114,6 +131,9 @@ class ListingController extends AbstractController
 
     #[Route('/{id}', name: 'listings_update', methods: ['PUT'], requirements: ['id' => '\d+'])]
     #[IsGranted('ROLE_USER')]
+    #[OA\Put(summary: 'Update a listing', security: [['Bearer' => []]])]
+    #[OA\Response(response: 200, description: 'Listing updated')]
+    #[OA\Response(response: 403, description: 'Not owner')]
     public function update(
         int $id,
         #[MapRequestPayload] ListingUpdateRequest $request,
@@ -129,6 +149,9 @@ class ListingController extends AbstractController
 
     #[Route('/{id}', name: 'listings_delete', methods: ['DELETE'], requirements: ['id' => '\d+'])]
     #[IsGranted('ROLE_USER')]
+    #[OA\Delete(summary: 'Delete a listing', security: [['Bearer' => []]])]
+    #[OA\Response(response: 204, description: 'Listing deleted')]
+    #[OA\Response(response: 403, description: 'Not owner')]
     public function delete(int $id, Request $httpRequest): JsonResponse
     {
         $userId = $httpRequest->attributes->get('user_id');
