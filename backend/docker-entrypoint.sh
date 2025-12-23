@@ -1,8 +1,21 @@
 #!/bin/bash
 set -e
 
-echo "Starting ReSell Backend..."
+echo "=== DEBUG: Starting Backend Service ==="
+echo "PWD: $(pwd)"
+echo "Files in current dir:"
+ls -la
+echo "=== END DEBUG ==="
+
 cd /var/www/html
+
+echo "=== DEBUG: After cd /var/www/html ==="
+echo "PWD: $(pwd)"
+echo "Files:"
+ls -la
+echo "bin/ contents:"
+ls -la bin/ 2>/dev/null || echo "bin/ not found"
+echo "=== END DEBUG ==="
 
 # Create .env.local from environment variables
 echo "APP_ENV=${APP_ENV:-prod}" > .env.local
@@ -19,8 +32,8 @@ echo "R2_PUBLIC_BASE_URL=${R2_PUBLIC_BASE_URL}" >> .env.local
 echo "Created .env.local"
 
 # Clear cache
-rm -rf var/cache/prod/*
-php bin/console cache:clear --env=prod --no-warmup 2>&1 || true
+rm -rf var/cache/prod/* 2>/dev/null || true
+php bin/console cache:clear --env=prod --no-warmup 2>&1 || echo "Cache clear failed, continuing..."
 
 # Wait for database
 max_retries=15
@@ -35,14 +48,16 @@ until php bin/console doctrine:query:sql "SELECT 1" > /dev/null 2>&1; do
   sleep 2
 done
 
-echo "Database is ready!"
+echo "Database check complete!"
 
 # Run migrations
-php bin/console doctrine:migrations:migrate --no-interaction --allow-no-migration 2>&1 || true
+php bin/console doctrine:migrations:sync-metadata-storage --no-interaction 2>&1 || true
+php bin/console doctrine:migrations:version --add --all --no-interaction 2>&1 || true
+php bin/console doctrine:schema:update --force --no-interaction 2>&1 || true
 
 # Ensure var directory exists and set permissions
 mkdir -p /var/www/html/var/cache /var/www/html/var/log
 chown -R www-data:www-data /var/www/html/var
 
 echo "Starting Apache..."
-exec apache2-foreground
+exec /usr/sbin/apache2ctl -D FOREGROUND
