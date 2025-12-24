@@ -8,11 +8,13 @@
     "require": {
         "php": ">=8.2",
         "ext-ctype": "*",
+        "ext-curl": "*",
         "ext-iconv": "*",
         "doctrine/doctrine-bundle": "^2.18",
         "doctrine/doctrine-fixtures-bundle": "^3.7",
         "doctrine/doctrine-migrations-bundle": "^3.7",
         "doctrine/orm": "^3.5",
+        "elasticsearch/elasticsearch": "^8.11",
         "firebase/php-jwt": "^6.11",
         "nelmio/api-doc-bundle": "^5.8",
         "nelmio/cors-bundle": "^2.6",

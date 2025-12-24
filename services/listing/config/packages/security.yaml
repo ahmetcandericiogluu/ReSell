@@ -26,6 +26,7 @@ security:
         - { path: ^/health, roles: PUBLIC_ACCESS }
         - { path: ^/api/doc, roles: PUBLIC_ACCESS }
         - { path: ^/api/categories, roles: PUBLIC_ACCESS }
+        - { path: ^/api/listings/search, roles: PUBLIC_ACCESS, methods: [GET] }
         - { path: ^/api/listings/\d+$, roles: PUBLIC_ACCESS, methods: [GET] }
         - { path: ^/api/listings$, roles: PUBLIC_ACCESS, methods: [GET] }
         - { path: ^/api, roles: ROLE_USER }

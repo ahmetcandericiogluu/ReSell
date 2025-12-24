@@ -70,6 +70,11 @@ services:
         value: ^https?://(localhost|127\.0\.0\.1|.*\.onrender\.com)(:\d+)?$
       - key: DEFAULT_URI
         value: https://resell-listing-service.onrender.com
+      # Elasticsearch - Set manually in Render Dashboard
+      - key: ELASTICSEARCH_URL
+        sync: false
+      - key: ELASTICSEARCH_API_KEY
+        sync: false
     healthCheckPath: /health
 
   # Backend Monolith

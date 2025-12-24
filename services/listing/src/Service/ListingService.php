@@ -4,11 +4,13 @@ namespace App\Service;
 
 use App\DTO\Listing\ListingCreateRequest;
 use App\DTO\Listing\ListingUpdateRequest;
+use App\Elasticsearch\ListingIndexer;
 use App\Entity\Listing;
 use App\Entity\ListingImage;
 use App\Repository\CategoryRepository;
 use App\Repository\ListingRepository;
 use App\Repository\ListingImageRepository;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 
@@ -18,6 +20,8 @@ class ListingService
         private readonly ListingRepository $listingRepository,
         private readonly CategoryRepository $categoryRepository,
         private readonly ListingImageRepository $imageRepository,
+        private readonly ?ListingIndexer $listingIndexer = null,
+        private readonly ?LoggerInterface $logger = null,
     ) {
     }
 
@@ -49,6 +53,9 @@ class ListingService
         }
 
         $this->listingRepository->save($listing, true);
+
+        // Sync to Elasticsearch
+        $this->syncToElasticsearch($listing);
 
         return $listing;
     }
@@ -107,6 +114,9 @@ class ListingService
 
         $this->listingRepository->save($listing, true);
 
+        // Sync to Elasticsearch
+        $this->syncToElasticsearch($listing);
+
         return $listing;
     }
 
@@ -121,6 +131,9 @@ class ListingService
 
         $listing->softDelete();
         $this->listingRepository->save($listing, true);
+
+        // Remove from Elasticsearch
+        $this->removeFromElasticsearch($listing);
     }
 
     public function getListings(
@@ -162,6 +175,44 @@ class ListingService
     public function getListingsByUserId(int $userId): array
     {
         return $this->listingRepository->findBySellerIdAndNotDeleted($userId);
+    }
+
+    /**
+     * Sync listing to Elasticsearch (write-through strategy)
+     */
+    private function syncToElasticsearch(Listing $listing): void
+    {
+        if ($this->listingIndexer === null) {
+            return;
+        }
+
+        try {
+            $this->listingIndexer->indexListing($listing);
+        } catch (\Exception $e) {
+            // Log but don't fail - ES sync can be retried later
+            $this->logger?->error('Failed to sync listing to ES: ' . $e->getMessage(), [
+                'listing_id' => $listing->getId()
+            ]);
+        }
+    }
+
+    /**
+     * Remove listing from Elasticsearch
+     */
+    private function removeFromElasticsearch(Listing $listing): void
+    {
+        if ($this->listingIndexer === null) {
+            return;
+        }
+
+        try {
+            $this->listingIndexer->removeListing($listing);
+        } catch (\Exception $e) {
+            // Log but don't fail
+            $this->logger?->warning('Failed to remove listing from ES: ' . $e->getMessage(), [
+                'listing_id' => $listing->getId()
+            ]);
+        }
     }
 }
 

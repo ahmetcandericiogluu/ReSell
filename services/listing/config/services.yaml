@@ -4,6 +4,8 @@
 # Put parameters here that don't need to change on each machine where the app is deployed
 # https://symfony.com/doc/current/best_practices.html#use-parameters-for-application-configuration
 parameters:
+    elasticsearch_url: '%env(ELASTICSEARCH_URL)%'
+    elasticsearch_api_key: '%env(default::ELASTICSEARCH_API_KEY)%'
 
 services:
     # default configuration for services in *this* file
@@ -40,3 +42,17 @@ services:
 
     App\Security\AuthenticationEntryPoint:
         public: true
+
+    # Elasticsearch Services
+    App\Elasticsearch\ElasticsearchClient:
+        arguments:
+            $elasticsearchUrl: '%elasticsearch_url%'
+            $elasticsearchApiKey: '%elasticsearch_api_key%'
+
+    App\Elasticsearch\ListingIndexer:
+        arguments:
+            $esClient: '@App\Elasticsearch\ElasticsearchClient'
+
+    App\Elasticsearch\ListingSearchService:
+        arguments:
+            $esClient: '@App\Elasticsearch\ElasticsearchClient'

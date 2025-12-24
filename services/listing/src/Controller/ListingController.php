@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\DTO\Listing\ListingCreateRequest;
 use App\DTO\Listing\ListingResponse;
 use App\DTO\Listing\ListingUpdateRequest;
+use App\Elasticsearch\ListingSearchService;
 use App\Service\ListingService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -20,8 +21,38 @@ use OpenApi\Attributes as OA;
 class ListingController extends AbstractController
 {
     public function __construct(
-        private readonly ListingService $listingService
+        private readonly ListingService $listingService,
+        private readonly ListingSearchService $searchService
     ) {
+    }
+
+    #[Route('/search', name: 'listings_search', methods: ['GET'])]
+    #[OA\Get(summary: 'Search listings using Elasticsearch')]
+    #[OA\Parameter(name: 'q', in: 'query', description: 'Full-text search query', schema: new OA\Schema(type: 'string'))]
+    #[OA\Parameter(name: 'categoryId', in: 'query', description: 'Filter by category ID', schema: new OA\Schema(type: 'integer'))]
+    #[OA\Parameter(name: 'minPrice', in: 'query', description: 'Minimum price', schema: new OA\Schema(type: 'number'))]
+    #[OA\Parameter(name: 'maxPrice', in: 'query', description: 'Maximum price', schema: new OA\Schema(type: 'number'))]
+    #[OA\Parameter(name: 'location', in: 'query', description: 'Location filter', schema: new OA\Schema(type: 'string'))]
+    #[OA\Parameter(name: 'sort', in: 'query', description: 'Sort by (created_at, price)', schema: new OA\Schema(type: 'string'))]
+    #[OA\Parameter(name: 'order', in: 'query', description: 'Sort order (asc, desc)', schema: new OA\Schema(type: 'string'))]
+    #[OA\Parameter(name: 'page', in: 'query', description: 'Page number', schema: new OA\Schema(type: 'integer'))]
+    #[OA\Parameter(name: 'limit', in: 'query', description: 'Items per page', schema: new OA\Schema(type: 'integer'))]
+    #[OA\Response(response: 200, description: 'Search results from Elasticsearch')]
+    public function search(Request $request): JsonResponse
+    {
+        $results = $this->searchService->search(
+            query: $request->query->get('q'),
+            categoryId: $request->query->get('categoryId') ? (int) $request->query->get('categoryId') : null,
+            minPrice: $request->query->get('minPrice') ? (float) $request->query->get('minPrice') : null,
+            maxPrice: $request->query->get('maxPrice') ? (float) $request->query->get('maxPrice') : null,
+            location: $request->query->get('location'),
+            sort: $request->query->get('sort', 'created_at'),
+            order: $request->query->get('order', 'desc'),
+            page: max(1, (int) $request->query->get('page', 1)),
+            limit: min(100, max(1, (int) $request->query->get('limit', 20)))
+        );
+
+        return $this->json($results);
     }
 
     #[Route('/my-listings', name: 'listings_my', methods: ['GET'])]

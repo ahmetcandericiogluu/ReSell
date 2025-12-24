@@ -38,6 +38,7 @@ services:
       APP_SECRET: dev-secret-key-12345
       DATABASE_URL: postgresql://postgres:postgres@host.docker.internal:5432/resell?serverVersion=16&charset=utf8
       CORS_ALLOW_ORIGIN: "^https?://(localhost|127\\.0\\.0\\.1)(:[0-9]+)?$$"
+      ELASTICSEARCH_URL: http://elasticsearch:9200
     ports:
       - "8082:8000"
     volumes:
@@ -46,6 +47,8 @@ services:
       - microservices
     extra_hosts:
       - "host.docker.internal:host-gateway"
+    depends_on:
+      - elasticsearch
 
   # Backend Monolith
   backend:
@@ -95,8 +98,44 @@ services:
       VITE_AUTH_SERVICE_URL: http://localhost:8001
       VITE_LISTING_SERVICE_URL: http://localhost:8082
 
+  # ========== INFRASTRUCTURE ==========
+  
+  # Elasticsearch
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.11.3
+    container_name: elasticsearch
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    ports:
+      - "9200:9200"
+    volumes:
+      - elasticsearch_data:/usr/share/elasticsearch/data
+    networks:
+      - microservices
+    healthcheck:
+      test: ["CMD-SHELL", "curl -s http://localhost:9200 >/dev/null || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  # Kibana (debug için - opsiyonel)
+  kibana:
+    image: docker.elastic.co/kibana/kibana:8.11.3
+    container_name: kibana
+    environment:
+      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+    ports:
+      - "5601:5601"
+    networks:
+      - microservices
+    depends_on:
+      - elasticsearch
+
 volumes:
   frontend_node_modules:
+  elasticsearch_data:
 
 networks:
   microservices:

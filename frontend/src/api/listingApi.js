@@ -52,6 +52,13 @@ const listingApi = {
     return response.data.data || response.data;
   },
 
+  // Search listings using Elasticsearch
+  search: async (params = {}) => {
+    const response = await listingClient.get('/search', { params });
+    // Returns {data: [...], meta: {page, limit, total, totalPages}}
+    return response.data;
+  },
+
   // Get my listings using new microservice
   getMyListings: async () => {
     const response = await listingClient.get('/my-listings');
