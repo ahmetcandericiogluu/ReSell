@@ -24,6 +24,8 @@ APP_ENV=${APP_ENV:-prod}
 APP_SECRET=${APP_SECRET}
 DATABASE_URL=${DATABASE_URL}
 CORS_ALLOW_ORIGIN=${CORS_ALLOW_ORIGIN:-*}
+ELASTICSEARCH_URL=${ELASTICSEARCH_URL:-}
+ELASTICSEARCH_API_KEY=${ELASTICSEARCH_API_KEY:-}
 ENVEOF
 
 echo "Created .env.local"
@@ -54,6 +56,14 @@ php bin/console doctrine:migrations:migrate --no-interaction --allow-no-migratio
 echo "Checking for missing columns..."
 php bin/console doctrine:query:sql "ALTER TABLE listings ADD COLUMN IF NOT EXISTS deleted_at TIMESTAMP DEFAULT NULL" 2>&1 || true
 php bin/console doctrine:query:sql "ALTER TABLE listings ADD COLUMN IF NOT EXISTS location VARCHAR(255) DEFAULT NULL" 2>&1 || true
+
+# Elasticsearch reindex (only if ELASTICSEARCH_URL is set)
+if [ -n "$ELASTICSEARCH_URL" ]; then
+    echo "Elasticsearch URL detected, running reindex..."
+    php bin/console listings:reindex 2>&1 || echo "Reindex failed, will retry on next deploy"
+else
+    echo "ELASTICSEARCH_URL not set, skipping reindex"
+fi
 
 # Set permissions
 chown -R www-data:www-data "$APP_DIR/var" 2>/dev/null || true
