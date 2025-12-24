@@ -60,18 +60,25 @@ php bin/console doctrine:query:sql "ALTER TABLE listings ADD COLUMN IF NOT EXIST
 # Elasticsearch: Check if index exists, create only if missing
 if [ -n "$ELASTICSEARCH_URL" ]; then
     echo "Checking Elasticsearch index..."
-    # Extract host from URL (remove credentials if present)
-    ES_HOST=$(echo "$ELASTICSEARCH_URL" | sed -E 's|https?://([^@]*@)?||' | sed 's|/.*||')
-    ES_PROTOCOL=$(echo "$ELASTICSEARCH_URL" | grep -oE '^https?')
     
-    # Check if index exists
-    INDEX_EXISTS=$(curl -s -o /dev/null -w "%{http_code}" -u "elastic:$(echo $ELASTICSEARCH_URL | sed -E 's|.*://[^:]*:([^@]*)@.*|\1|')" "${ES_PROTOCOL}://${ES_HOST}/listings_v1" 2>/dev/null || echo "000")
-    
-    if [ "$INDEX_EXISTS" = "200" ]; then
-        echo "Elasticsearch index already exists, skipping reindex"
+    # Force reindex if FORCE_REINDEX is set
+    if [ "$FORCE_REINDEX" = "true" ]; then
+        echo "FORCE_REINDEX=true, recreating index..."
+        php bin/console listings:reindex --recreate 2>&1 || echo "Reindex failed"
     else
-        echo "Elasticsearch index not found, running initial reindex..."
-        php bin/console listings:reindex --recreate 2>&1 || echo "Reindex failed, will retry on next deploy"
+        # Extract host from URL (remove credentials if present)
+        ES_HOST=$(echo "$ELASTICSEARCH_URL" | sed -E 's|https?://([^@]*@)?||' | sed 's|/.*||')
+        ES_PROTOCOL=$(echo "$ELASTICSEARCH_URL" | grep -oE '^https?')
+        
+        # Check if index exists
+        INDEX_EXISTS=$(curl -s -o /dev/null -w "%{http_code}" -u "elastic:$(echo $ELASTICSEARCH_URL | sed -E 's|.*://[^:]*:([^@]*)@.*|\1|')" "${ES_PROTOCOL}://${ES_HOST}/listings_v1" 2>/dev/null || echo "000")
+        
+        if [ "$INDEX_EXISTS" = "200" ]; then
+            echo "Elasticsearch index already exists, skipping reindex"
+        else
+            echo "Elasticsearch index not found, running initial reindex..."
+            php bin/console listings:reindex --recreate 2>&1 || echo "Reindex failed, will retry on next deploy"
+        fi
     fi
 else
     echo "ELASTICSEARCH_URL not set, skipping Elasticsearch setup"

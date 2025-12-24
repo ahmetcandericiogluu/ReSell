@@ -35,6 +35,14 @@ class ListingIndexer
                         'type' => 'text',
                         'fields' => ['keyword' => ['type' => 'keyword']]
                     ],
+                    'images' => [
+                        'type' => 'nested',
+                        'properties' => [
+                            'id' => ['type' => 'integer'],
+                            'url' => ['type' => 'keyword'],
+                            'position' => ['type' => 'integer']
+                        ]
+                    ],
                     'created_at' => ['type' => 'date'],
                     'updated_at' => ['type' => 'date']
                 ]
@@ -125,6 +133,16 @@ class ListingIndexer
 
     private function transformToDocument(Listing $listing): array
     {
+        // Transform images to array
+        $images = [];
+        foreach ($listing->getImages() as $image) {
+            $images[] = [
+                'id' => $image->getId(),
+                'url' => $image->getUrl(),
+                'position' => $image->getPosition()
+            ];
+        }
+
         return [
             'id' => (string) $listing->getId(),
             'seller_id' => $listing->getSellerId(),
@@ -135,6 +153,7 @@ class ListingIndexer
             'currency' => $listing->getCurrency(),
             'status' => $listing->getStatus(),
             'location' => $listing->getLocation(),
+            'images' => $images,
             'created_at' => $listing->getCreatedAt()->format('c'),
             'updated_at' => $listing->getUpdatedAt()->format('c')
         ];
