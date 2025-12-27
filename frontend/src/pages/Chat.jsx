@@ -366,16 +366,16 @@ const Chat = () => {
                         className={`flex ${isMyMessage(message.sender_id) ? 'justify-end' : 'justify-start'}`}
                       >
                         <div
-                          className={`max-w-[75%] px-4 py-2 rounded-2xl ${
+                          className={`max-w-[75%] px-4 py-2 rounded-2xl shadow-sm ${
                             isMyMessage(message.sender_id)
-                              ? 'bg-primary-600 text-white rounded-br-md'
+                              ? 'bg-emerald-100 text-slate-800 rounded-br-md'
                               : 'bg-white text-slate-800 border border-slate-200 rounded-bl-md'
                           }`}
                         >
                           <p className="break-words">{message.content}</p>
                           <div
-                            className={`flex items-center gap-1 text-xs mt-1 ${
-                              isMyMessage(message.sender_id) ? 'text-primary-200' : 'text-slate-400'
+                            className={`flex items-center justify-end gap-1 text-xs mt-1 ${
+                              isMyMessage(message.sender_id) ? 'text-slate-500' : 'text-slate-400'
                             }`}
                           >
                             <span>{formatTime(message.created_at)}</span>
@@ -383,9 +383,9 @@ const Chat = () => {
                             {isMyMessage(message.sender_id) && (
                               <span className="ml-1">
                                 {otherUserLastRead && message.id <= otherUserLastRead ? (
-                                  <span className="text-blue-300" title="Okundu">✓✓</span>
+                                  <span className="text-blue-500 font-bold" title="Okundu">✓✓</span>
                                 ) : (
-                                  <span title="Gönderildi">✓</span>
+                                  <span className="text-slate-400" title="Gönderildi">✓</span>
                                 )}
                               </span>
                             )}
