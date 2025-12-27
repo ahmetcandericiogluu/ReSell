@@ -107,7 +107,22 @@ class ConversationService
         $messages = $this->messageRepository->findByConversationPaginated($conversation, $page, $limit);
         $total = $this->messageRepository->countByConversation($conversation);
 
-        return ConversationDetailResponse::fromEntity($conversation, $messages, $page, $limit, $total);
+        // Get the OTHER user's last read message ID
+        $otherUserId = $conversation->getBuyerId() === $userId
+            ? $conversation->getSellerId()
+            : $conversation->getBuyerId();
+        
+        $otherParticipant = $this->participantRepository->findByConversationAndUser($conversation, $otherUserId);
+        $otherUserLastReadMessageId = $otherParticipant?->getLastReadMessage()?->getId();
+
+        return ConversationDetailResponse::fromEntity(
+            $conversation, 
+            $messages, 
+            $page, 
+            $limit, 
+            $total,
+            $otherUserLastReadMessageId ? (string) $otherUserLastReadMessageId : null
+        );
     }
 
     /**

@@ -16,13 +16,15 @@ class ConversationDetailResponse
     /** @var MessageResponse[] */
     public array $messages;
     public array $meta;
+    public ?string $other_user_last_read_message_id = null;
 
     public static function fromEntity(
         Conversation $conversation,
         array $messages,
         int $page,
         int $limit,
-        int $total
+        int $total,
+        ?string $otherUserLastReadMessageId = null
     ): self {
         $dto = new self();
         $dto->id = (string) $conversation->getId();
@@ -42,6 +44,7 @@ class ConversationDetailResponse
             'total' => $total,
             'total_pages' => (int) ceil($total / $limit),
         ];
+        $dto->other_user_last_read_message_id = $otherUserLastReadMessageId;
 
         return $dto;
     }

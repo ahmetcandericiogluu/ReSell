@@ -115,6 +115,10 @@ const Chat = () => {
       // Check if there are more messages (meta is in the response)
       const totalPages = data.meta?.total_pages || 1;
       setHasMore(totalPages > 1);
+      // Set other user's last read message ID for read receipts
+      if (data.other_user_last_read_message_id) {
+        setOtherUserLastRead(data.other_user_last_read_message_id);
+      }
     } catch (err) {
       console.error('Failed to fetch conversation:', err);
       setError('Konuşma yüklenirken bir hata oluştu.');
