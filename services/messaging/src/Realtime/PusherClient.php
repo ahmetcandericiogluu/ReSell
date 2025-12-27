@@ -13,14 +13,20 @@ class PusherClient
     private ?Pusher $pusher = null;
     private bool $enabled = false;
 
+    private string $appId;
+    private string $key;
+    private string $secret;
+    private string $cluster;
+
     public function __construct(
-        private readonly ?string $appId,
-        private readonly ?string $key,
-        private readonly ?string $secret,
-        private readonly ?string $cluster,
-        private readonly LoggerInterface $logger
+        private readonly ?LoggerInterface $logger = null
     ) {
-        $this->enabled = !empty($appId) && !empty($key) && !empty($secret) && !empty($cluster);
+        $this->appId = $_ENV['PUSHER_APP_ID'] ?? '';
+        $this->key = $_ENV['PUSHER_KEY'] ?? '';
+        $this->secret = $_ENV['PUSHER_SECRET'] ?? '';
+        $this->cluster = $_ENV['PUSHER_CLUSTER'] ?? 'eu';
+        
+        $this->enabled = !empty($this->appId) && !empty($this->key) && !empty($this->secret);
     }
 
     private function getPusher(): ?Pusher

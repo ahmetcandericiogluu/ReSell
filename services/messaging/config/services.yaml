@@ -2,11 +2,6 @@
 parameters:
     auth_service_url: '%env(AUTH_SERVICE_URL)%'
     listing_service_url: '%env(LISTING_SERVICE_URL)%'
-    # Pusher configuration (optional - realtime disabled if not set)
-    pusher_app_id: '%env(default::PUSHER_APP_ID)%'
-    pusher_key: '%env(default::PUSHER_KEY)%'
-    pusher_secret: '%env(default::PUSHER_SECRET)%'
-    pusher_cluster: '%env(default::PUSHER_CLUSTER)%'
 
 services:
     _defaults:
@@ -51,11 +46,4 @@ services:
         arguments:
             $listingServiceUrl: '%listing_service_url%'
 
-    # Realtime (Pusher)
-    App\Realtime\PusherClient:
-        arguments:
-            $appId: '%pusher_app_id%'
-            $key: '%pusher_key%'
-            $secret: '%pusher_secret%'
-            $cluster: '%pusher_cluster%'
 
