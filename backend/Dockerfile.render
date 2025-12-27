@@ -3,8 +3,8 @@ FROM php:8.3-apache
 # System deps + PHP extensions
 RUN apt-get update && apt-get install -y --no-install-recommends \
     git curl unzip libpq-dev libzip-dev \
-  && docker-php-ext-install pdo_pgsql zip opcache \
-  && rm -rf /var/lib/apt/lists/*
+ && docker-php-ext-install pdo_pgsql zip \
+ && rm -rf /var/lib/apt/lists/*
 
 # Apache modules
 RUN a2enmod rewrite headers
@@ -15,7 +15,6 @@ COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 WORKDIR /var/www/html
 COPY . .
 
-# Install PHP deps (prod)
 RUN composer install \
     --no-dev \
     --no-interaction \
@@ -23,20 +22,20 @@ RUN composer install \
     --optimize-autoloader \
     --no-scripts
 
-# ✅ Set Symfony public/ as DocumentRoot using existing Apache vhost (NO extra file)
-RUN sed -ri 's#DocumentRoot /var/www/html#DocumentRoot /var/www/html/public#g' /etc/apache2/sites-available/000-default.conf \
- && printf '\n<Directory /var/www/html/public>\n    AllowOverride All\n    Require all granted\n    DirectoryIndex index.php index.html\n</Directory>\n' >> /etc/apache2/apache2.conf
+RUN sed -ri 's#DocumentRoot /var/www/html#DocumentRoot /var/www/html/public#g' \
+      /etc/apache2/sites-available/000-default.conf \
+ && echo '<Directory /var/www/html/public>' >> /etc/apache2/apache2.conf \
+ && echo '    AllowOverride All' >> /etc/apache2/apache2.conf \
+ && echo '    Require all granted' >> /etc/apache2/apache2.conf \
+ && echo '    DirectoryIndex index.php index.html' >> /etc/apache2/apache2.conf \
+ && echo '</Directory>' >> /etc/apache2/apache2.conf
 
-# Symfony var/ permissions
 RUN mkdir -p var/cache var/log \
  && chown -R www-data:www-data var \
  && chmod -R 775 var
 
-# Production php.ini
 RUN mv "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php.ini"
 
-
-# Entrypoint (will set Render PORT at runtime)
 COPY docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
 RUN chmod +x /usr/local/bin/docker-entrypoint.sh
 
