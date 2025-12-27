@@ -76,6 +76,13 @@ const Chat = () => {
     scrollToBottom();
   }, [messages]);
 
+  // Refocus input after sending completes
+  useEffect(() => {
+    if (!sending && inputRef.current) {
+      inputRef.current.focus();
+    }
+  }, [sending]);
+
   const fetchConversation = async () => {
     try {
       setLoading(true);
@@ -322,9 +329,11 @@ const Chat = () => {
               placeholder="Mesajınızı yazın..."
               className="flex-1 px-4 py-3 border border-slate-200 rounded-full focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
               disabled={sending}
+              autoFocus
             />
             <button
               type="submit"
+              tabIndex={-1}
               disabled={!newMessage.trim() || sending}
               className="px-6 py-3 bg-primary-600 text-white rounded-full hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             >
