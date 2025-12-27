@@ -7,7 +7,8 @@ parameters:
     elasticsearch_url: '%env(ELASTICSEARCH_URL)%'
     elasticsearch_api_key: '%env(default::ELASTICSEARCH_API_KEY)%'
     app_env: '%env(APP_ENV)%'
-    show_detailed_errors: '%env(bool:default:false:SHOW_DETAILED_ERRORS)%'
+    env(SHOW_DETAILED_ERRORS): 'false'
+    show_detailed_errors: '%env(bool:SHOW_DETAILED_ERRORS)%'
 
 services:
     # default configuration for services in *this* file

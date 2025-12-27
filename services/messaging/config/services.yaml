@@ -3,7 +3,8 @@ parameters:
     auth_service_url: '%env(AUTH_SERVICE_URL)%'
     listing_service_url: '%env(LISTING_SERVICE_URL)%'
     app_env: '%env(APP_ENV)%'
-    show_detailed_errors: '%env(bool:default:false:SHOW_DETAILED_ERRORS)%'
+    env(SHOW_DETAILED_ERRORS): 'false'
+    show_detailed_errors: '%env(bool:SHOW_DETAILED_ERRORS)%'
 
 services:
     _defaults:
