@@ -14,6 +14,7 @@ const Chat = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
   const messagesEndRef = useRef(null);
+  const inputRef = useRef(null);
   
   const [conversation, setConversation] = useState(null);
   const [messages, setMessages] = useState([]);
@@ -85,6 +86,8 @@ const Chat = () => {
       setError('Mesaj gönderilemedi.');
     } finally {
       setSending(false);
+      // Keep focus on input for quick consecutive messages
+      inputRef.current?.focus();
     }
   };
 
@@ -254,6 +257,7 @@ const Chat = () => {
         <Container className="py-4">
           <form onSubmit={handleSendMessage} className="flex items-center space-x-3">
             <input
+              ref={inputRef}
               type="text"
               value={newMessage}
               onChange={(e) => setNewMessage(e.target.value)}
