@@ -40,9 +40,15 @@ class ExceptionListener
             'trace' => $exception->getTraceAsString(),
         ]);
 
+        // Include debug info temporarily
+        $debugMessage = $message;
+        if ($statusCode === 500) {
+            $debugMessage = $exception->getMessage() . ' in ' . $exception->getFile() . ':' . $exception->getLine();
+        }
+
         $response = new JsonResponse([
             'error' => true,
-            'message' => $message,
+            'message' => $debugMessage,
             'code' => $statusCode,
         ], $statusCode);
 
