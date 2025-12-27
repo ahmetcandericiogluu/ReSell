@@ -196,14 +196,21 @@ const Home = () => {
                     <h3 className="font-medium text-slate-800 line-clamp-1 mb-1 text-sm">
                       {listing.title}
                     </h3>
-                    <p className="text-lg font-bold text-primary-600">
+                    <p className="text-lg font-bold text-primary-600 mb-1">
                       {formatPrice(listing.price, listing.currency)}
                     </p>
-                    {listing.location && (
-                      <p className="text-xs text-slate-500 mt-1 truncate">
-                        📍 {listing.location}
-                      </p>
-                    )}
+                    <div className="flex items-center justify-between text-xs text-slate-500 mt-1">
+                      {listing.seller_name && (
+                        <span className="truncate mr-2">
+                          👤 {listing.seller_name}
+                        </span>
+                      )}
+                      {listing.location && (
+                        <span className="truncate">
+                          📍 {listing.location}
+                        </span>
+                      )}
+                    </div>
                   </div>
                 </Card>
               ))}

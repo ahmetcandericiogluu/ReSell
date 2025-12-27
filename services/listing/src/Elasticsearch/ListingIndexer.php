@@ -3,6 +3,7 @@
 namespace App\Elasticsearch;
 
 use App\Entity\Listing;
+use Doctrine\DBAL\Connection;
 use Psr\Log\LoggerInterface;
 
 class ListingIndexer
@@ -11,6 +12,7 @@ class ListingIndexer
 
     public function __construct(
         private readonly ElasticsearchClient $esClient,
+        private readonly Connection $connection,
         private readonly LoggerInterface $logger
     ) {
     }
@@ -22,7 +24,9 @@ class ListingIndexer
                 'properties' => [
                     'id' => ['type' => 'keyword'],
                     'seller_id' => ['type' => 'integer'],
+                    'seller_name' => ['type' => 'text'],
                     'category_id' => ['type' => 'integer'],
+                    'category_name' => ['type' => 'text'],
                     'title' => [
                         'type' => 'text',
                         'fields' => ['keyword' => ['type' => 'keyword']]
@@ -143,10 +147,18 @@ class ListingIndexer
             ];
         }
 
+        // Get seller name from users table
+        $sellerName = $this->getSellerName($listing->getSellerId());
+        
+        // Get category name
+        $categoryName = $listing->getCategory()->getName();
+
         return [
             'id' => (string) $listing->getId(),
             'seller_id' => $listing->getSellerId(),
+            'seller_name' => $sellerName,
             'category_id' => $listing->getCategory()->getId(),
+            'category_name' => $categoryName,
             'title' => $listing->getTitle(),
             'description' => $listing->getDescription(),
             'price' => (float) $listing->getPrice(),
@@ -157,6 +169,21 @@ class ListingIndexer
             'created_at' => $listing->getCreatedAt()->format('c'),
             'updated_at' => $listing->getUpdatedAt()->format('c')
         ];
+    }
+
+    private function getSellerName(int $sellerId): ?string
+    {
+        try {
+            $result = $this->connection->executeQuery(
+                'SELECT name FROM users WHERE id = ?',
+                [$sellerId]
+            )->fetchOne();
+            
+            return $result ?: null;
+        } catch (\Exception $e) {
+            $this->logger->warning('Failed to fetch seller name: ' . $e->getMessage());
+            return null;
+        }
     }
 }
 

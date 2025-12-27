@@ -70,18 +70,19 @@ const Messages = () => {
 
       <Container className="py-8">
         {/* Header */}
-        <div className="flex items-center justify-between mb-6">
-          <div>
-            <h1 className="text-2xl font-bold text-slate-800">Mesajlarım</h1>
-            <p className="text-slate-600">
-              {conversations.length} konuşma
-              {getTotalUnread() > 0 && (
-                <span className="ml-2 text-primary-600 font-medium">
-                  ({getTotalUnread()} okunmamış)
-                </span>
-              )}
-            </p>
+        <div className="mb-6 bg-gradient-to-r from-emerald-50 to-teal-50 border border-emerald-200 rounded-xl p-6">
+          <div className="flex items-center gap-3 mb-2">
+            <span className="text-3xl">💬</span>
+            <h1 className="text-3xl font-bold text-slate-800">Mesajlarım</h1>
           </div>
+          <p className="text-slate-700 font-medium">
+            {conversations.length} konuşma
+            {getTotalUnread() > 0 && (
+              <span className="ml-2 text-emerald-600 font-bold">
+                ({getTotalUnread()} okunmamış)
+              </span>
+            )}
+          </p>
         </div>
 
         {/* Error */}
@@ -108,7 +109,7 @@ const Messages = () => {
           </div>
         ) : conversations.length === 0 ? (
           /* Empty State */
-          <Card padding="lg" className="text-center">
+          <Card padding="lg" className="text-center bg-gradient-to-br from-emerald-50 to-teal-50 border-emerald-200">
             <div className="text-6xl mb-4">💬</div>
             <h3 className="text-xl font-semibold text-slate-800 mb-2">
               Henüz mesajınız yok
@@ -118,7 +119,7 @@ const Messages = () => {
             </p>
             <button
               onClick={() => navigate('/listings')}
-              className="px-6 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors"
+              className="px-6 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors"
             >
               İlanlara Göz At
             </button>
@@ -131,7 +132,7 @@ const Messages = () => {
                 key={conversation.id}
                 padding="md"
                 className={`cursor-pointer hover:shadow-md transition-all ${
-                  conversation.unread_count > 0 ? 'border-l-4 border-l-primary-500 bg-primary-50/30' : ''
+                  conversation.unread_count > 0 ? 'border-l-4 border-l-emerald-500 bg-emerald-50/50' : ''
                 }`}
                 onClick={() => navigate(`/messages/${conversation.id}`)}
               >
@@ -156,7 +157,7 @@ const Messages = () => {
                       {conversation.last_message ? (
                         <>
                           {conversation.last_message.sender_id !== user?.id && (
-                            <span className="text-primary-600 font-medium mr-1">
+                            <span className="text-emerald-600 font-medium mr-1">
                               {conversation.other_user_name || 'Kullanıcı'}:
                             </span>
                           )}

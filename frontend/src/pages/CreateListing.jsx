@@ -77,9 +77,12 @@ const CreateListing = () => {
 
       <Container size="sm" className="py-8">
         {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-semibold text-slate-800 mb-2">📝 Yeni İlan Oluştur</h1>
-          <p className="text-slate-600">İkinci el ürününüzü satışa çıkarın</p>
+        <div className="mb-8 bg-gradient-to-r from-indigo-50 to-blue-50 border border-indigo-200 rounded-xl p-6">
+          <div className="flex items-center gap-3 mb-2">
+            <span className="text-3xl">📝</span>
+            <h1 className="text-3xl font-bold text-slate-800">Yeni İlan Oluştur</h1>
+          </div>
+          <p className="text-slate-700 font-medium">İkinci el ürününüzü satışa çıkarın</p>
         </div>
 
         {/* Form Card */}
@@ -93,8 +96,8 @@ const CreateListing = () => {
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Basic Info Section */}
             <div>
-              <h2 className="text-lg font-semibold text-slate-800 mb-4 pb-2 border-b border-slate-200">
-                Temel Bilgiler
+              <h2 className="text-lg font-semibold text-indigo-700 mb-4 pb-2 border-b border-indigo-200">
+                📋 Temel Bilgiler
               </h2>
               
               <div className="space-y-4">
@@ -126,8 +129,8 @@ const CreateListing = () => {
 
             {/* Category Section */}
             <div>
-              <h2 className="text-lg font-semibold text-slate-800 mb-4 pb-2 border-b border-slate-200">
-                Kategori
+              <h2 className="text-lg font-semibold text-indigo-700 mb-4 pb-2 border-b border-indigo-200">
+                🏷️ Kategori
               </h2>
               
               <FormField label="Kategori" required>
@@ -150,8 +153,8 @@ const CreateListing = () => {
 
             {/* Price Section */}
             <div>
-              <h2 className="text-lg font-semibold text-slate-800 mb-4 pb-2 border-b border-slate-200">
-                Fiyat
+              <h2 className="text-lg font-semibold text-indigo-700 mb-4 pb-2 border-b border-indigo-200">
+                💰 Fiyat
               </h2>
               
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -185,8 +188,8 @@ const CreateListing = () => {
 
             {/* Location Section */}
             <div>
-              <h2 className="text-lg font-semibold text-slate-800 mb-4 pb-2 border-b border-slate-200">
-                Konum
+              <h2 className="text-lg font-semibold text-indigo-700 mb-4 pb-2 border-b border-indigo-200">
+                📍 Konum
               </h2>
               
               <FormField label="Konum">
@@ -215,7 +218,7 @@ const CreateListing = () => {
                 type="submit"
                 variant="primary"
                 disabled={loading}
-                className="flex-1"
+                className="flex-1 bg-indigo-600 hover:bg-indigo-700"
               >
                 {loading ? 'Oluşturuluyor...' : '✅ İlanı Yayınla'}
               </Button>

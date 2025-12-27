@@ -41,15 +41,18 @@ const MyListings = () => {
 
       <Container className="py-8">
         {/* Header with Add Button */}
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-8">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-8 bg-gradient-to-r from-purple-50 to-violet-50 border border-purple-200 rounded-xl p-6">
           <div>
-            <h1 className="text-3xl font-semibold text-slate-800 mb-2">İlanlarım</h1>
-            <p className="text-slate-600">Tüm ilanlarınızı yönetin</p>
+            <div className="flex items-center gap-3 mb-2">
+              <span className="text-3xl">📦</span>
+              <h1 className="text-3xl font-bold text-slate-800">İlanlarım</h1>
+            </div>
+            <p className="text-slate-700 font-medium">Tüm ilanlarınızı yönetin</p>
           </div>
           <Button
             variant="primary"
             onClick={() => navigate('/listings/create')}
-            className="mt-4 sm:mt-0"
+            className="mt-4 sm:mt-0 bg-purple-600 hover:bg-purple-700"
           >
             ➕ Yeni İlan Ekle
           </Button>
@@ -71,13 +74,14 @@ const MyListings = () => {
           <>
             {/* Empty State */}
             {listings.length === 0 ? (
-              <Card padding="lg" className="text-center">
+              <Card padding="lg" className="text-center bg-gradient-to-br from-purple-50 to-violet-50 border-purple-200">
                 <div className="text-6xl mb-4">📦</div>
                 <h3 className="text-xl font-semibold text-slate-800 mb-2">Henüz ilan oluşturmadınız</h3>
                 <p className="text-slate-600 mb-6">İlk ilanınızı oluşturarak satışa başlayın</p>
                 <Button
                   variant="primary"
                   onClick={() => navigate('/listings/create')}
+                  className="bg-purple-600 hover:bg-purple-700"
                 >
                   ➕ İlk İlanınızı Oluşturun
                 </Button>

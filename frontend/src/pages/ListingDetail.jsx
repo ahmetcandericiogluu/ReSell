@@ -248,7 +248,7 @@ const ListingDetail = () => {
           {/* Info Section - Right Side (1/3 on large screens) */}
           <div className="lg:col-span-1 space-y-6">
             {/* Main Info Card */}
-            <Card padding="md">
+            <Card padding="md" className="border-t-4 border-t-primary-500">
               <div className="flex items-start justify-between mb-4">
                 <h1 className="text-2xl font-semibold text-slate-800 flex-1 pr-2">
                   {listing.title}
@@ -258,7 +258,7 @@ const ListingDetail = () => {
                 </Badge>
               </div>
 
-              <div className="text-3xl font-bold text-primary-600 mb-6">
+              <div className="text-3xl font-bold bg-gradient-to-r from-primary-600 to-blue-600 bg-clip-text text-transparent mb-6">
                 {formatPrice(listing.price, listing.currency)}
               </div>
 
@@ -302,8 +302,8 @@ const ListingDetail = () => {
             </Card>
 
             {/* Seller Card */}
-            <Card padding="md">
-              <h2 className="text-lg font-semibold text-slate-800 mb-4">Satıcı Bilgileri</h2>
+            <Card padding="md" className="bg-gradient-to-br from-slate-50 to-blue-50 border-blue-200">
+              <h2 className="text-lg font-semibold text-slate-800 mb-4">👤 Satıcı Bilgileri</h2>
               
               <div 
                 onClick={() => navigate(`/users/${listing.sellerId || listing.seller_id}`)}

@@ -132,9 +132,12 @@ const Listings = () => {
 
       <Container className="py-8">
         {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-semibold text-slate-800 mb-2">Tüm İlanlar</h1>
-          <p className="text-slate-600">
+        <div className="mb-8 bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200 rounded-xl p-6">
+          <div className="flex items-center gap-3 mb-2">
+            <span className="text-3xl">🔍</span>
+            <h1 className="text-3xl font-bold text-slate-800">Tüm İlanlar</h1>
+          </div>
+          <p className="text-slate-700 font-medium">
             {meta.total > 0 
               ? `${meta.total} ilan bulundu` 
               : 'İkinci el ürünleri keşfedin'}
@@ -222,27 +225,27 @@ const Listings = () => {
               <div className="flex items-center justify-between pt-2 border-t border-slate-100">
                 <div className="flex flex-wrap gap-2">
                   {filters.q && (
-                    <span className="inline-flex items-center gap-1 px-2 py-1 bg-primary-50 text-primary-700 rounded-full text-sm">
+                    <span className="inline-flex items-center gap-1 px-2 py-1 bg-amber-50 text-amber-700 rounded-full text-sm">
                       🔍 "{filters.q}"
-                      <button type="button" onClick={() => setFilters({ ...filters, q: '' })} className="hover:text-primary-900">×</button>
+                      <button type="button" onClick={() => setFilters({ ...filters, q: '' })} className="hover:text-amber-900">×</button>
                     </span>
                   )}
                   {filters.categoryId && (
-                    <span className="inline-flex items-center gap-1 px-2 py-1 bg-primary-50 text-primary-700 rounded-full text-sm">
+                    <span className="inline-flex items-center gap-1 px-2 py-1 bg-orange-50 text-orange-700 rounded-full text-sm">
                       📁 {categories.find(c => c.id == filters.categoryId)?.name}
-                      <button type="button" onClick={() => setFilters({ ...filters, categoryId: '' })} className="hover:text-primary-900">×</button>
+                      <button type="button" onClick={() => setFilters({ ...filters, categoryId: '' })} className="hover:text-orange-900">×</button>
                     </span>
                   )}
                   {(filters.minPrice || filters.maxPrice) && (
-                    <span className="inline-flex items-center gap-1 px-2 py-1 bg-primary-50 text-primary-700 rounded-full text-sm">
+                    <span className="inline-flex items-center gap-1 px-2 py-1 bg-amber-50 text-amber-700 rounded-full text-sm">
                       💰 {filters.minPrice || '0'} - {filters.maxPrice || '∞'} ₺
-                      <button type="button" onClick={() => setFilters({ ...filters, minPrice: '', maxPrice: '' })} className="hover:text-primary-900">×</button>
+                      <button type="button" onClick={() => setFilters({ ...filters, minPrice: '', maxPrice: '' })} className="hover:text-amber-900">×</button>
                     </span>
                   )}
                   {filters.location && (
-                    <span className="inline-flex items-center gap-1 px-2 py-1 bg-primary-50 text-primary-700 rounded-full text-sm">
+                    <span className="inline-flex items-center gap-1 px-2 py-1 bg-orange-50 text-orange-700 rounded-full text-sm">
                       📍 {filters.location}
-                      <button type="button" onClick={() => setFilters({ ...filters, location: '' })} className="hover:text-primary-900">×</button>
+                      <button type="button" onClick={() => setFilters({ ...filters, location: '' })} className="hover:text-orange-900">×</button>
                     </span>
                   )}
                 </div>

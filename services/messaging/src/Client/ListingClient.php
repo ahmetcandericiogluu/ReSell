@@ -28,7 +28,7 @@ class ListingClient
                 'headers' => [
                     'Accept' => 'application/json',
                 ],
-                'timeout' => 5,
+                'timeout' => 10,
             ]);
 
             $data = $response->toArray();

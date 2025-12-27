@@ -98,9 +98,9 @@ services:
       AUTH_SERVICE_URL: http://auth-service:8000
       LISTING_SERVICE_URL: http://listing-service:8000
       # Pusher (optional - leave empty to disable realtime)
-      PUSHER_APP_ID: ""
-      PUSHER_KEY: ""
-      PUSHER_SECRET: ""
+      PUSHER_APP_ID: "2095752"
+      PUSHER_KEY: "bee75dea2073413f2bd8"
+      PUSHER_SECRET: "96d87e01441d5db80ed7"
       PUSHER_CLUSTER: "eu"
     ports:
       - "8083:8000"
@@ -132,7 +132,7 @@ services:
       VITE_LISTING_SERVICE_URL: http://localhost:8082
       VITE_MESSAGING_SERVICE_URL: http://localhost:8083
       # Pusher (optional - leave empty to disable realtime)
-      VITE_PUSHER_KEY: ""
+      VITE_PUSHER_KEY: "bee75dea2073413f2bd8"
       VITE_PUSHER_CLUSTER: "eu"
 
   # ========== INFRASTRUCTURE ==========
