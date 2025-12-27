@@ -1,0 +1,47 @@
+# This file is the entry point to configure your own services.
+parameters:
+    auth_service_url: '%env(AUTH_SERVICE_URL)%'
+    listing_service_url: '%env(LISTING_SERVICE_URL)%'
+
+services:
+    _defaults:
+        autowire: true
+        autoconfigure: true
+
+    App\:
+        resource: '../src/'
+        exclude:
+            - '../src/DependencyInjection/'
+            - '../src/Entity/'
+            - '../src/Kernel.php'
+            - '../src/Security/JwtUser.php'
+            - '../src/DTO/'
+            - '../src/Event/'
+
+    # Event Listener
+    App\EventListener\ExceptionListener:
+        tags:
+            - { name: kernel.event_listener, event: kernel.exception, priority: 0 }
+
+    # Security
+    App\Security\JwtTokenManager:
+        public: true
+        arguments:
+            $secret: '%env(APP_SECRET)%'
+
+    App\Security\JwtAuthenticator:
+        arguments:
+            $jwtTokenManager: '@App\Security\JwtTokenManager'
+
+    App\Security\AuthenticationEntryPoint:
+        public: true
+
+    # External Clients
+    App\Client\AuthClient:
+        arguments:
+            $authServiceUrl: '%auth_service_url%'
+
+    App\Client\ListingClient:
+        arguments:
+            $listingServiceUrl: '%listing_service_url%'
+

@@ -80,6 +80,32 @@ services:
     extra_hosts:
       - "host.docker.internal:host-gateway"
 
+  # Messaging Service
+  messaging-service:
+    build:
+      context: ./services/messaging
+      dockerfile: Dockerfile.dev
+    container_name: messaging-service
+    working_dir: /var/www/messaging
+    entrypoint: ["/bin/bash", "/usr/local/bin/docker-entrypoint-dev.sh"]
+    environment:
+      APP_ENV: dev
+      APP_SECRET: dev-secret-key-12345
+      DATABASE_URL: postgresql://postgres:postgres@messaging-db:5432/messaging?serverVersion=16&charset=utf8
+      CORS_ALLOW_ORIGIN: "^https?://(localhost|127\\.0\\.0\\.1)(:[0-9]+)?$$"
+      AUTH_SERVICE_URL: http://auth-service:8000
+      LISTING_SERVICE_URL: http://listing-service:8000
+    ports:
+      - "8083:8000"
+    volumes:
+      - ./services/messaging:/var/www/messaging
+    networks:
+      - microservices
+    depends_on:
+      - messaging-db
+      - auth-service
+      - listing-service
+
   # Frontend
   frontend:
     image: node:20-alpine
@@ -97,8 +123,24 @@ services:
       VITE_API_URL: http://localhost:8000
       VITE_AUTH_SERVICE_URL: http://localhost:8001
       VITE_LISTING_SERVICE_URL: http://localhost:8082
+      VITE_MESSAGING_SERVICE_URL: http://localhost:8083
 
   # ========== INFRASTRUCTURE ==========
+  
+  # Messaging Database
+  messaging-db:
+    image: postgres:16-alpine
+    container_name: messaging-db
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: messaging
+    ports:
+      - "5433:5432"
+    volumes:
+      - messaging_db_data:/var/lib/postgresql/data
+    networks:
+      - microservices
   
   # Elasticsearch
   elasticsearch:
@@ -136,6 +178,7 @@ services:
 volumes:
   frontend_node_modules:
   elasticsearch_data:
+  messaging_db_data:
 
 networks:
   microservices:

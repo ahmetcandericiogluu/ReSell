@@ -23,6 +23,8 @@ databases:
     region: frankfurt
     ipAllowList: []
 
+  # messaging-db is hosted on Neon (external) - Render free plan limit
+
 services:
   # Auth Service
   - type: web
@@ -104,6 +106,33 @@ services:
         value: https://resell-frontend.onrender.com
     healthCheckPath: /
 
+  # Messaging Service (uses Neon PostgreSQL - external DB)
+  - type: web
+    name: resell-messaging-service
+    runtime: docker
+    region: frankfurt
+    plan: free
+    dockerfilePath: ./services/messaging/Dockerfile.render
+    dockerContext: ./services/messaging
+    envVars:
+      - key: APP_ENV
+        value: prod
+      - key: APP_DEBUG
+        value: 0
+      - key: APP_SECRET
+        generateValue: true
+      # DATABASE_URL from Neon - set manually in Render Dashboard
+      # Format: postgresql://USER:PASS@ep-xxx.neon.tech/messaging_service?sslmode=require
+      - key: DATABASE_URL
+        sync: false
+      - key: CORS_ALLOW_ORIGIN
+        value: ^https?://(localhost|127\.0\.0\.1|.*\.onrender\.com)(:\d+)?$
+      - key: AUTH_SERVICE_URL
+        value: https://resell-auth-service.onrender.com
+      - key: LISTING_SERVICE_URL
+        value: https://resell-listing-service.onrender.com
+    healthCheckPath: /health
+
   # Frontend
   - type: web
     name: resell-frontend
@@ -119,4 +148,6 @@ services:
         value: https://resell-auth-service.onrender.com
       - key: VITE_LISTING_SERVICE_URL
         value: https://resell-listing-service.onrender.com
+      - key: VITE_MESSAGING_SERVICE_URL
+        value: https://resell-messaging-service.onrender.com
     healthCheckPath: /
