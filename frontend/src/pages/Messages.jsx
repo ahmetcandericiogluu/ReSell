@@ -1,8 +1,10 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import { Container, Card, Avatar, Badge } from '../components/ui';
+import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
+import { useUserChannel } from '../hooks/usePusher';
 import messagingApi from '../api/messagingApi';
 
 /**
@@ -10,10 +12,21 @@ import messagingApi from '../api/messagingApi';
  */
 const Messages = () => {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const { showApiError } = useToast();
   const [conversations, setConversations] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+
+  // Handle realtime new message notification
+  const handleNewMessage = useCallback((data) => {
+    // Refresh conversation list when new message arrives
+    console.log('New message received, refreshing list...', data);
+    fetchConversations();
+  }, []);
+
+  // Subscribe to user's private channel for notifications
+  useUserChannel(user?.id, handleNewMessage);
 
   useEffect(() => {
     fetchConversations();

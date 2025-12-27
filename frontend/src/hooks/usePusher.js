@@ -141,5 +141,53 @@ export const useConversationChannel = (conversationId, onNewMessage, onTyping) =
   return { isConnected };
 };
 
+/**
+ * Hook to subscribe to user's private channel for notifications
+ * @param {number} userId - The user's ID
+ * @param {function} onNewMessage - Callback when a new message arrives in any conversation
+ */
+export const useUserChannel = (userId, onNewMessage) => {
+  const { pusher, isConnected } = usePusher();
+  const channelRef = useRef(null);
+
+  useEffect(() => {
+    if (!pusher || !userId || !isConnected) {
+      return;
+    }
+
+    const channelName = `private-user.${userId}`;
+    
+    console.log('Subscribing to user channel:', channelName);
+    channelRef.current = pusher.subscribe(channelName);
+
+    channelRef.current.bind('pusher:subscription_succeeded', () => {
+      console.log('Subscribed to user channel:', channelName);
+    });
+
+    channelRef.current.bind('pusher:subscription_error', (error) => {
+      console.error('User channel subscription error:', channelName, error);
+    });
+
+    // Bind to new_message event (notification for messages list)
+    channelRef.current.bind('new_message', (data) => {
+      console.log('New message notification:', data);
+      if (onNewMessage) {
+        onNewMessage(data);
+      }
+    });
+
+    return () => {
+      if (channelRef.current) {
+        console.log('Unsubscribing from user channel:', channelName);
+        channelRef.current.unbind_all();
+        pusher.unsubscribe(channelName);
+        channelRef.current = null;
+      }
+    };
+  }, [pusher, userId, isConnected, onNewMessage]);
+
+  return { isConnected };
+};
+
 export default usePusher;
 

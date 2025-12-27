@@ -72,21 +72,30 @@ class RealtimeController extends AbstractController
             return new JsonResponse(['error' => 'Missing socket_id or channel_name'], Response::HTTP_BAD_REQUEST);
         }
 
-        // Parse channel name: private-conversation.{uuid}
-        if (!preg_match('/^private-conversation\.([a-f0-9-]+)$/i', $channelName, $matches)) {
-            return new JsonResponse(['error' => 'Invalid channel format'], Response::HTTP_BAD_REQUEST);
-        }
-
-        $conversationId = $matches[1];
-        
         // Get user ID from JwtUser
         $userId = method_exists($user, 'getId') ? $user->getId() : (int) $user->getUserIdentifier();
 
-        // Verify user is participant of this conversation
-        $participant = $this->participantRepository->findByConversationAndUser($conversationId, $userId);
+        // Handle user channel: private-user.{userId}
+        if (preg_match('/^private-user\.(\d+)$/', $channelName, $matches)) {
+            $channelUserId = (int) $matches[1];
+            
+            // User can only subscribe to their own channel
+            if ($channelUserId !== $userId) {
+                return new JsonResponse(['error' => 'Not authorized for this channel'], Response::HTTP_FORBIDDEN);
+            }
+        }
+        // Handle conversation channel: private-conversation.{uuid}
+        elseif (preg_match('/^private-conversation\.([a-f0-9-]+)$/i', $channelName, $matches)) {
+            $conversationId = $matches[1];
 
-        if (!$participant) {
-            return new JsonResponse(['error' => 'Not authorized for this channel'], Response::HTTP_FORBIDDEN);
+            // Verify user is participant of this conversation
+            $participant = $this->participantRepository->findByConversationAndUser($conversationId, $userId);
+
+            if (!$participant) {
+                return new JsonResponse(['error' => 'Not authorized for this channel'], Response::HTTP_FORBIDDEN);
+            }
+        } else {
+            return new JsonResponse(['error' => 'Invalid channel format'], Response::HTTP_BAD_REQUEST);
         }
 
         // Generate Pusher auth response

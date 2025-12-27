@@ -58,8 +58,18 @@ class MessageCreatedListener implements EventSubscriberInterface
 
             $this->pusherClient->trigger($channel, 'message.created', $payload);
 
+            // Also notify recipient's user channel for messages list updates
+            $userChannel = 'private-user.' . $event->recipientId;
+            $userPayload = [
+                'conversation_id' => (string) $event->conversationId,
+                'sender_id' => $event->senderId,
+                'preview' => mb_substr($message->getContent(), 0, 50),
+            ];
+            $this->pusherClient->trigger($userChannel, 'new_message', $userPayload);
+
             $this->logger->info('Realtime message published', [
                 'channel' => $channel,
+                'userChannel' => $userChannel,
                 'messageId' => (string) $message->getId(),
             ]);
         } catch (\Exception $e) {
