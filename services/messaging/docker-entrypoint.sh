@@ -23,9 +23,10 @@ ENVEOF
 
 echo "Created .env.local"
 
-# Clear cache
+# Clear and warm up cache
 rm -rf var/cache/prod/*
-php bin/console cache:clear --env=prod --no-warmup 2>&1 || true
+php bin/console cache:clear --env=prod 2>&1 || true
+php bin/console cache:warmup --env=prod 2>&1 || true
 
 # Wait for database
 max_retries=15
