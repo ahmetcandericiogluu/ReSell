@@ -6,7 +6,7 @@ services:
   # Auth Service
   auth-service:
     build:
-      context: ./auth-service
+      context: ./services/auth
       dockerfile: Dockerfile.dev
     container_name: auth-service
     working_dir: /var/www/html
@@ -19,7 +19,7 @@ services:
     ports:
       - "8001:8000"
     volumes:
-      - ./auth-service:/var/www/html
+      - ./services/auth:/var/www/html
     networks:
       - microservices
     extra_hosts:

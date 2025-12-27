@@ -32,8 +32,8 @@ services:
     runtime: docker
     region: frankfurt
     plan: free
-    dockerfilePath: ./auth-service/Dockerfile.render
-    dockerContext: ./auth-service
+    dockerfilePath: ./services/auth/Dockerfile.render
+    dockerContext: ./services/auth
     envVars:
       - key: APP_ENV
         value: prod
