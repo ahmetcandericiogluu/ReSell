@@ -53,7 +53,10 @@ const Chat = () => {
       }
       return [...prev, message];
     });
-  }, [user?.id]);
+    
+    // Mark as read since user is viewing the conversation
+    messagingApi.markAsRead(id).catch(() => {});
+  }, [user?.id, id]);
 
   // Typing indicator handler
   const handleTyping = useCallback((typingUserId) => {
