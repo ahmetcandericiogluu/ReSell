@@ -63,9 +63,9 @@ postgresql://USER:PASSWORD@ep-xxx-pooler.neon.tech/messaging_service?sslmode=req
 
 ### Important Notes
 
-- **SSL Required**: Neon requires SSL/TLS connections
-- **PgBouncer Compatibility**: The service is configured with `use_savepoints: false` for PgBouncer compatibility
+- **SSL Required**: Neon requires SSL/TLS connections (`sslmode=require`)
 - **Pooled Endpoint**: Use the `-pooler` endpoint for better connection handling
+- **DBAL 4**: Doctrine DBAL 4 handles PgBouncer compatibility automatically
 
 ### Render Configuration
 
