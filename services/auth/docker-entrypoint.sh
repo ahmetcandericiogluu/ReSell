@@ -16,18 +16,6 @@ echo "APP_ENV: $APP_ENV"
 echo "PORT: $PORT"
 echo ""
 
-# Run detailed connection test first
-echo "🔍 Running detailed connection test..."
-php /var/www/html/test-db-connection.php
-TEST_RESULT=$?
-
-if [ $TEST_RESULT -eq 0 ]; then
-  echo "✅ Direct PDO connection successful!"
-else
-  echo "❌ Direct PDO connection failed! Check logs above."
-  exit 1
-fi
-
 echo ""
 
 # Create .env.local file for Symfony to read runtime environment variables
@@ -70,9 +58,6 @@ until php bin/console doctrine:query:sql "SELECT 1" 2>&1; do
   RETRY_COUNT=$((RETRY_COUNT+1))
   if [ $RETRY_COUNT -ge $MAX_RETRIES ]; then
     echo "❌ Doctrine connection failed after $MAX_RETRIES attempts"
-    echo ""
-    echo "📋 Re-running connection test for debugging..."
-    php /var/www/html/test-db-connection.php
     echo ""
     echo "📋 Full Doctrine DBAL configuration:"
     php bin/console debug:config doctrine dbal
