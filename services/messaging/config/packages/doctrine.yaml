@@ -3,8 +3,6 @@ doctrine:
         url: '%env(resolve:DATABASE_URL)%'
         # server_version is auto-detected from Neon
         profiling_collect_backtrace: '%kernel.debug%'
-        # use_savepoints: false for PgBouncer compatibility (Neon pooled connections)
-        use_savepoints: false
     orm:
         auto_generate_proxy_classes: true
         enable_lazy_ghost_objects: true
