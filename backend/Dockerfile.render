@@ -1,10 +1,10 @@
 FROM php:8.3-apache
 
-# System deps + PHP extensions
+# System deps + PHP extensions (minimum)
 RUN apt-get update && apt-get install -y --no-install-recommends \
     git curl unzip libpq-dev libzip-dev \
- && docker-php-ext-install pdo_pgsql zip \
- && rm -rf /var/lib/apt/lists/*
+  && docker-php-ext-install pdo_pgsql zip opcache \
+  && rm -rf /var/lib/apt/lists/*
 
 # Apache modules
 RUN a2enmod rewrite headers
@@ -15,6 +15,7 @@ COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 WORKDIR /var/www/html
 COPY . .
 
+# Install PHP deps (prod) - auto-scripts kapalı (WebProfiler hatası için)
 RUN composer install \
     --no-dev \
     --no-interaction \
@@ -22,13 +23,12 @@ RUN composer install \
     --optimize-autoloader \
     --no-scripts
 
-RUN sed -ri 's#DocumentRoot /var/www/html#DocumentRoot /var/www/html/public#g' \
-      /etc/apache2/sites-available/000-default.conf \
- && echo '<Directory /var/www/html/public>' >> /etc/apache2/apache2.conf \
- && echo '    AllowOverride All' >> /etc/apache2/apache2.conf \
- && echo '    Require all granted' >> /etc/apache2/apache2.conf \
- && echo '    DirectoryIndex index.php index.html' >> /etc/apache2/apache2.conf \
- && echo '</Directory>' >> /etc/apache2/apache2.conf
+# ✅ Symfony public/ => Apache DocumentRoot (dosya eklemeden, en sağlam yöntem)
+ENV APACHE_DOCUMENT_ROOT=/var/www/html/public
+RUN sed -ri "s#DocumentRoot /var/www/html#DocumentRoot ${APACHE_DOCUMENT_ROOT}#g" /etc/apache2/sites-available/000-default.conf \
+ && sed -ri "s#<Directory /var/www/>#<Directory ${APACHE_DOCUMENT_ROOT}/>#g" /etc/apache2/apache2.conf \
+ && sed -ri "s#/var/www/html#${APACHE_DOCUMENT_ROOT}#g" /etc/apache2/conf-available/docker-php.conf \
+ && printf '\n<Directory "%s">\n  AllowOverride All\n  Require all granted\n  DirectoryIndex index.php index.html\n</Directory>\n' "${APACHE_DOCUMENT_ROOT}" >> /etc/apache2/apache2.conf
 
 RUN mkdir -p var/cache var/log \
  && chown -R www-data:www-data var \
