@@ -41,7 +41,6 @@ const Chat = () => {
   const handleNewMessage = useCallback((message) => {
     // Skip if this is our own message (already added when sending)
     if (message.sender_id === user?.id) {
-      console.log('Skipping own message from Pusher');
       return;
     }
     

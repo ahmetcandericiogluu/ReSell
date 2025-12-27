@@ -16,17 +16,14 @@ const getPusherInstance = () => {
   }
 
   if (!PUSHER_KEY) {
-    console.log('Pusher not configured, realtime disabled');
     return null;
   }
 
   const token = localStorage.getItem('token');
   if (!token) {
-    console.log('No auth token, skipping Pusher connection');
     return null;
   }
 
-  console.log('Creating new Pusher instance');
   pusherInstance = new Pusher(PUSHER_KEY, {
     cluster: PUSHER_CLUSTER,
     authEndpoint: `${MESSAGING_SERVICE_URL}/api/realtime/auth`,
@@ -38,12 +35,10 @@ const getPusherInstance = () => {
   });
 
   pusherInstance.connection.bind('connected', () => {
-    console.log('Pusher connected');
     connectionState = 'connected';
   });
 
   pusherInstance.connection.bind('disconnected', () => {
-    console.log('Pusher disconnected');
     connectionState = 'disconnected';
   });
 
@@ -101,13 +96,7 @@ export const useConversationChannel = (conversationId, onNewMessage, onTyping, o
     }
 
     const channelName = `private-conversation.${conversationId}`;
-    
-    console.log('Subscribing to channel:', channelName);
     channelRef.current = pusher.subscribe(channelName);
-
-    channelRef.current.bind('pusher:subscription_succeeded', () => {
-      console.log('Subscribed to:', channelName);
-    });
 
     channelRef.current.bind('pusher:subscription_error', (error) => {
       console.error('Subscription error:', channelName, error);
@@ -115,7 +104,6 @@ export const useConversationChannel = (conversationId, onNewMessage, onTyping, o
 
     // Bind to message.created event
     channelRef.current.bind('message.created', (data) => {
-      console.log('Received message:', data);
       if (onNewMessage) {
         onNewMessage(data.message);
       }
@@ -123,7 +111,6 @@ export const useConversationChannel = (conversationId, onNewMessage, onTyping, o
 
     // Bind to user.typing event
     channelRef.current.bind('user.typing', (data) => {
-      console.log('User typing:', data);
       if (onTyping) {
         onTyping(data.user_id);
       }
@@ -131,7 +118,6 @@ export const useConversationChannel = (conversationId, onNewMessage, onTyping, o
 
     // Bind to messages.read event
     channelRef.current.bind('messages.read', (data) => {
-      console.log('Messages read:', data);
       if (onMessagesRead) {
         onMessagesRead(data);
       }
@@ -139,7 +125,6 @@ export const useConversationChannel = (conversationId, onNewMessage, onTyping, o
 
     return () => {
       if (channelRef.current) {
-        console.log('Unsubscribing from:', channelName);
         channelRef.current.unbind_all();
         pusher.unsubscribe(channelName);
         channelRef.current = null;
@@ -165,13 +150,7 @@ export const useUserChannel = (userId, onNewMessage) => {
     }
 
     const channelName = `private-user.${userId}`;
-    
-    console.log('Subscribing to user channel:', channelName);
     channelRef.current = pusher.subscribe(channelName);
-
-    channelRef.current.bind('pusher:subscription_succeeded', () => {
-      console.log('Subscribed to user channel:', channelName);
-    });
 
     channelRef.current.bind('pusher:subscription_error', (error) => {
       console.error('User channel subscription error:', channelName, error);
@@ -179,7 +158,6 @@ export const useUserChannel = (userId, onNewMessage) => {
 
     // Bind to new_message event (notification for messages list)
     channelRef.current.bind('new_message', (data) => {
-      console.log('New message notification:', data);
       if (onNewMessage) {
         onNewMessage(data);
       }
@@ -187,7 +165,6 @@ export const useUserChannel = (userId, onNewMessage) => {
 
     return () => {
       if (channelRef.current) {
-        console.log('Unsubscribing from user channel:', channelName);
         channelRef.current.unbind_all();
         pusher.unsubscribe(channelName);
         channelRef.current = null;
@@ -199,4 +176,3 @@ export const useUserChannel = (userId, onNewMessage) => {
 };
 
 export default usePusher;
-

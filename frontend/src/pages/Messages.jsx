@@ -21,7 +21,6 @@ const Messages = () => {
   // Handle realtime new message notification
   const handleNewMessage = useCallback((data) => {
     // Refresh conversation list when new message arrives
-    console.log('New message received, refreshing list...', data);
     fetchConversations();
   }, []);
 
