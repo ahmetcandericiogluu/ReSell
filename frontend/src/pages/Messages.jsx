@@ -154,10 +154,18 @@ const Messages = () => {
                       </span>
                     </div>
                     <p className="text-sm text-slate-600 truncate">
-                      <span className="text-primary-600 font-medium mr-1">
-                        {conversation.other_user_name || 'Kullanıcı'}:
-                      </span>
-                      {conversation.last_message?.content || 'Henüz mesaj yok'}
+                      {conversation.last_message ? (
+                        <>
+                          {conversation.last_message.sender_id !== user?.id && (
+                            <span className="text-primary-600 font-medium mr-1">
+                              {conversation.other_user_name || 'Kullanıcı'}:
+                            </span>
+                          )}
+                          {conversation.last_message.content}
+                        </>
+                      ) : (
+                        'Henüz mesaj yok'
+                      )}
                     </p>
                   </div>
 
