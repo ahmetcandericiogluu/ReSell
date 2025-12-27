@@ -1,5 +1,6 @@
 parameters:
     app_env: '%env(APP_ENV)%'
+    show_detailed_errors: '%env(bool:default:false:SHOW_DETAILED_ERRORS)%'
 
 services:
     _defaults:
@@ -15,8 +16,10 @@ services:
             $secret: '%env(APP_SECRET)%'
 
     # Exception listener for detailed error responses
+    # Set SHOW_DETAILED_ERRORS=true in Render to see detailed errors in prod
     App\EventListener\ExceptionListener:
         arguments:
             $appEnv: '%app_env%'
+            $showDetailedErrors: '%show_detailed_errors%'
         tags:
             - { name: kernel.event_listener, event: kernel.exception, priority: 100 }

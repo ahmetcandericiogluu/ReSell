@@ -13,7 +13,8 @@ class ExceptionListener
 {
     public function __construct(
         private readonly ?LoggerInterface $logger = null,
-        private readonly string $appEnv = 'prod'
+        private readonly string $appEnv = 'prod',
+        private readonly bool $showDetailedErrors = false
     ) {
     }
 
@@ -57,15 +58,21 @@ class ExceptionListener
             $errorData['message'] = $exception->getMessage();
             $errorData['code'] = $statusCode;
         } else {
-            // Internal server error - show detailed info
-            $errorData['message'] = $exception->getMessage();
-            $errorData['exception'] = get_class($exception);
-            $errorData['file'] = basename($exception->getFile()) . ':' . $exception->getLine();
+            // Internal server error
+            $showDetails = $this->appEnv === 'dev' || $this->showDetailedErrors;
             
-            // In dev, show full path and trace
-            if ($this->appEnv === 'dev') {
-                $errorData['file'] = $exception->getFile() . ':' . $exception->getLine();
-                $errorData['trace'] = array_slice(explode("\n", $exception->getTraceAsString()), 0, 10);
+            if ($showDetails) {
+                $errorData['message'] = $exception->getMessage();
+                $errorData['exception'] = get_class($exception);
+                $errorData['file'] = basename($exception->getFile()) . ':' . $exception->getLine();
+                
+                // In dev, show full path and trace
+                if ($this->appEnv === 'dev') {
+                    $errorData['file'] = $exception->getFile() . ':' . $exception->getLine();
+                    $errorData['trace'] = array_slice(explode("\n", $exception->getTraceAsString()), 0, 10);
+                }
+            } else {
+                $errorData['message'] = 'Internal server error';
             }
         }
 
