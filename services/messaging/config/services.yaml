@@ -27,7 +27,8 @@ services:
     App\Security\JwtTokenManager:
         public: true
         arguments:
-            $secret: '%env(APP_SECRET)%'
+            # JWT_SECRET must match auth-service's APP_SECRET
+            $secret: '%env(JWT_SECRET)%'
 
     App\Security\JwtAuthenticator:
         arguments:

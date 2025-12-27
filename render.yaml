@@ -121,6 +121,9 @@ services:
         value: 0
       - key: APP_SECRET
         generateValue: true
+      # JWT_SECRET must match auth-service's APP_SECRET - set manually
+      - key: JWT_SECRET
+        sync: false
       # DATABASE_URL from Neon - set manually in Render Dashboard
       # Format: postgresql://USER:PASS@ep-xxx.neon.tech/messaging_service?sslmode=require
       - key: DATABASE_URL

@@ -91,6 +91,7 @@ services:
     environment:
       APP_ENV: dev
       APP_SECRET: dev-secret-key-12345
+      JWT_SECRET: dev-secret-key-12345
       DATABASE_URL: postgresql://postgres:postgres@messaging-db:5432/messaging?serverVersion=16&charset=utf8
       CORS_ALLOW_ORIGIN: "^https?://(localhost|127\\.0\\.0\\.1)(:[0-9]+)?$$"
       AUTH_SERVICE_URL: http://auth-service:8000
