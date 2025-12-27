@@ -73,7 +73,7 @@ services:
     # JWT Authenticator with secret
     App\User\Security\JwtAuthenticator:
         arguments:
-            $jwtSecret: '%env(APP_SECRET)%'
+            $jwtSecret: '%env(JWT_SECRET)%'
 
     # ========================================
     # SERVICE CLIENTS
