@@ -110,6 +110,8 @@ services:
         value: ^https?://(localhost|127\.0\.0\.1|.*\.onrender\.com)(:\d+)?$
       - key: FRONTEND_URL
         value: https://resell-frontend.onrender.com
+      - key: LISTING_SERVICE_URL
+        value: https://resell-listing-service.onrender.com
     healthCheckPath: /
 
   # Messaging Service (uses Neon PostgreSQL - external DB)

@@ -178,6 +178,15 @@ class ListingService
     }
 
     /**
+     * Refresh listing in Elasticsearch (called after external changes like image upload)
+     */
+    public function refreshIndex(int $id): void
+    {
+        $listing = $this->getListingById($id);
+        $this->syncToElasticsearch($listing);
+    }
+
+    /**
      * Sync listing to Elasticsearch (write-through strategy)
      */
     private function syncToElasticsearch(Listing $listing): void

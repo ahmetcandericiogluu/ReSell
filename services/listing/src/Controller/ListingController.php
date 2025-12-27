@@ -191,5 +191,16 @@ class ListingController extends AbstractController
 
         return $this->json(null, Response::HTTP_NO_CONTENT);
     }
+
+    #[Route('/{id}/refresh-index', name: 'listings_refresh_index', methods: ['POST'], requirements: ['id' => '\d+'])]
+    #[OA\Post(summary: 'Refresh listing in Elasticsearch index')]
+    #[OA\Response(response: 200, description: 'Index refreshed')]
+    #[OA\Response(response: 404, description: 'Listing not found')]
+    public function refreshIndex(int $id): JsonResponse
+    {
+        $this->listingService->refreshIndex($id);
+
+        return $this->json(['success' => true, 'message' => 'Index refreshed']);
+    }
 }
 

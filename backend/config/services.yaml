@@ -74,3 +74,12 @@ services:
     App\User\Security\JwtAuthenticator:
         arguments:
             $jwtSecret: '%env(APP_SECRET)%'
+
+    # ========================================
+    # SERVICE CLIENTS
+    # ========================================
+    
+    # Listing Service Client (for microservice communication)
+    App\Shared\Client\ListingServiceClient:
+        arguments:
+            $listingServiceUrl: '%env(LISTING_SERVICE_URL)%'

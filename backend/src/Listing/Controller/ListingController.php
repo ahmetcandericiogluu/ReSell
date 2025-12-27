@@ -9,6 +9,7 @@ use App\Listing\Entity\ListingImage;
 use App\Listing\Repository\ListingImageRepository;
 use App\Listing\Service\ListingImageService;
 use App\Listing\Service\ListingService;
+use App\Shared\Client\ListingServiceClient;
 use App\User\Repository\UserRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -25,7 +26,8 @@ class ListingController extends AbstractController
         private readonly ListingService $listingService,
         private readonly ListingImageService $listingImageService,
         private readonly ListingImageRepository $listingImageRepository,
-        private readonly UserRepository $userRepository
+        private readonly UserRepository $userRepository,
+        private readonly ?ListingServiceClient $listingServiceClient = null
     ) {
     }
 
@@ -139,6 +141,9 @@ class ListingController extends AbstractController
                     'created_at' => $image->getCreatedAt()->format('Y-m-d H:i:s'),
                 ];
             }, $images);
+
+            // Notify listing-service to refresh ES index
+            $this->listingServiceClient?->refreshIndex($id);
 
             return $this->json($response, Response::HTTP_CREATED);
         } catch (\InvalidArgumentException $e) {

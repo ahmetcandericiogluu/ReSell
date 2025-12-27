@@ -64,6 +64,7 @@ services:
       DATABASE_URL: postgresql://postgres:postgres@host.docker.internal:5432/resell?serverVersion=16&charset=utf8
       CORS_ALLOW_ORIGIN: "^https?://(localhost|127\\.0\\.0\\.1)(:[0-9]+)?$$"
       FRONTEND_URL: http://localhost:3000
+      LISTING_SERVICE_URL: http://listing-service:8000
       # Cloudflare R2 Storage
       R2_ENDPOINT: https://56751b8361542d95b3c6aa19e5807694.r2.cloudflarestorage.com
       R2_REGION: auto
