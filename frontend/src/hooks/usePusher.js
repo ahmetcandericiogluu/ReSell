@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, useCallback } from 'react';
 import Pusher from 'pusher-js';
 
 const MESSAGING_SERVICE_URL = import.meta.env.VITE_MESSAGING_SERVICE_URL 
@@ -6,62 +6,82 @@ const MESSAGING_SERVICE_URL = import.meta.env.VITE_MESSAGING_SERVICE_URL
 const PUSHER_KEY = import.meta.env.VITE_PUSHER_KEY;
 const PUSHER_CLUSTER = import.meta.env.VITE_PUSHER_CLUSTER || 'eu';
 
+// Singleton Pusher instance
+let pusherInstance = null;
+let connectionState = 'disconnected';
+
+const getPusherInstance = () => {
+  if (pusherInstance) {
+    return pusherInstance;
+  }
+
+  if (!PUSHER_KEY) {
+    console.log('Pusher not configured, realtime disabled');
+    return null;
+  }
+
+  const token = localStorage.getItem('token');
+  if (!token) {
+    console.log('No auth token, skipping Pusher connection');
+    return null;
+  }
+
+  console.log('Creating new Pusher instance');
+  pusherInstance = new Pusher(PUSHER_KEY, {
+    cluster: PUSHER_CLUSTER,
+    authEndpoint: `${MESSAGING_SERVICE_URL}/api/realtime/auth`,
+    auth: {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    },
+  });
+
+  pusherInstance.connection.bind('connected', () => {
+    console.log('Pusher connected');
+    connectionState = 'connected';
+  });
+
+  pusherInstance.connection.bind('disconnected', () => {
+    console.log('Pusher disconnected');
+    connectionState = 'disconnected';
+  });
+
+  pusherInstance.connection.bind('error', (err) => {
+    console.error('Pusher error:', err);
+  });
+
+  return pusherInstance;
+};
+
 /**
  * Custom hook for Pusher realtime connection
  */
 export const usePusher = () => {
-  const pusherRef = useRef(null);
-  const [isConnected, setIsConnected] = useState(false);
+  const [isConnected, setIsConnected] = useState(connectionState === 'connected');
+  const pusher = getPusherInstance();
 
   useEffect(() => {
-    if (!PUSHER_KEY) {
-      console.log('Pusher not configured, realtime disabled');
-      return;
-    }
+    if (!pusher) return;
 
-    const token = localStorage.getItem('token');
-    if (!token) {
-      console.log('No auth token, skipping Pusher connection');
-      return;
-    }
+    const handleConnected = () => setIsConnected(true);
+    const handleDisconnected = () => setIsConnected(false);
 
-    // Initialize Pusher
-    pusherRef.current = new Pusher(PUSHER_KEY, {
-      cluster: PUSHER_CLUSTER,
-      authEndpoint: `${MESSAGING_SERVICE_URL}/api/realtime/auth`,
-      auth: {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      },
-    });
+    pusher.connection.bind('connected', handleConnected);
+    pusher.connection.bind('disconnected', handleDisconnected);
 
-    pusherRef.current.connection.bind('connected', () => {
-      console.log('Pusher connected');
+    // Check current state
+    if (pusher.connection.state === 'connected') {
       setIsConnected(true);
-    });
-
-    pusherRef.current.connection.bind('disconnected', () => {
-      console.log('Pusher disconnected');
-      setIsConnected(false);
-    });
-
-    pusherRef.current.connection.bind('error', (err) => {
-      console.error('Pusher error:', err);
-    });
+    }
 
     return () => {
-      if (pusherRef.current) {
-        pusherRef.current.disconnect();
-        pusherRef.current = null;
-      }
+      pusher.connection.unbind('connected', handleConnected);
+      pusher.connection.unbind('disconnected', handleDisconnected);
     };
-  }, []);
+  }, [pusher]);
 
-  return {
-    pusher: pusherRef.current,
-    isConnected,
-  };
+  return { pusher, isConnected };
 };
 
 /**
