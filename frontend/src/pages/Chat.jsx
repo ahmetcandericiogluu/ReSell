@@ -125,8 +125,10 @@ const Chat = () => {
       setError('Mesaj gönderilemedi.');
     } finally {
       setSending(false);
-      // Keep focus on input for quick consecutive messages
-      inputRef.current?.focus();
+      // Keep focus on input for quick consecutive messages (delay for React render)
+      setTimeout(() => {
+        inputRef.current?.focus();
+      }, 0);
     }
   };
 
