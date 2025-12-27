@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import { Container, Card, Avatar, Badge } from '../components/ui';
+import { useToast } from '../context/ToastContext';
 import messagingApi from '../api/messagingApi';
 
 /**
@@ -9,6 +10,7 @@ import messagingApi from '../api/messagingApi';
  */
 const Messages = () => {
   const navigate = useNavigate();
+  const { showApiError } = useToast();
   const [conversations, setConversations] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -25,6 +27,7 @@ const Messages = () => {
     } catch (err) {
       console.error('Failed to fetch conversations:', err);
       setError('Mesajlar yüklenirken bir hata oluştu.');
+      showApiError(err, 'Mesajlar yüklenemedi');
     } finally {
       setLoading(false);
     }

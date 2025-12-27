@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import { Container, Card, Avatar } from '../components/ui';
 import { useAuth } from '../context/AuthContext';
+import { useToast } from '../context/ToastContext';
 import messagingApi from '../api/messagingApi';
 import { useConversationChannel } from '../hooks/usePusher';
 
@@ -13,6 +14,7 @@ const Chat = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { showApiError } = useToast();
   const messagesEndRef = useRef(null);
   const inputRef = useRef(null);
   const typingTimeoutRef = useRef(null);
@@ -92,6 +94,7 @@ const Chat = () => {
     } catch (err) {
       console.error('Failed to fetch conversation:', err);
       setError('Konuşma yüklenirken bir hata oluştu.');
+      showApiError(err, 'Konuşma yüklenemedi');
     } finally {
       setLoading(false);
     }
@@ -129,7 +132,7 @@ const Chat = () => {
       setNewMessage('');
     } catch (err) {
       console.error('Failed to send message:', err);
-      setError('Mesaj gönderilemedi.');
+      showApiError(err, 'Mesaj gönderilemedi');
     } finally {
       setSending(false);
       // Keep focus on input for quick consecutive messages (delay for React render)
