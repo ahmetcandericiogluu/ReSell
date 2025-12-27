@@ -112,7 +112,7 @@ services:
         value: https://resell-frontend.onrender.com
       - key: LISTING_SERVICE_URL
         value: https://resell-listing-service.onrender.com
-    healthCheckPath: /
+    healthCheckPath: /health
 
   # Messaging Service (uses Neon PostgreSQL - external DB)
   - type: web
