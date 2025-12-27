@@ -2,12 +2,18 @@
 
 namespace App\EventListener;
 
+use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpKernel\Event\ExceptionEvent;
 use Symfony\Component\HttpKernel\Exception\HttpExceptionInterface;
 
 class ExceptionListener
 {
+    public function __construct(
+        private readonly ?LoggerInterface $logger = null
+    ) {
+    }
+
     public function onKernelException(ExceptionEvent $event): void
     {
         $exception = $event->getThrowable();
@@ -25,6 +31,14 @@ class ExceptionListener
             $statusCode = $exception->getStatusCode();
             $message = $exception->getMessage();
         }
+
+        // Log the actual error for debugging
+        $this->logger?->error('API Exception', [
+            'path' => $request->getPathInfo(),
+            'message' => $exception->getMessage(),
+            'class' => get_class($exception),
+            'trace' => $exception->getTraceAsString(),
+        ]);
 
         $response = new JsonResponse([
             'error' => true,
