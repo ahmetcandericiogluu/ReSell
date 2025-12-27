@@ -2,6 +2,7 @@
 
 namespace App\Service;
 
+use App\Client\AuthClient;
 use App\Client\ListingClient;
 use App\DTO\ConversationDetailResponse;
 use App\DTO\ConversationResponse;
@@ -12,6 +13,7 @@ use App\Realtime\PusherClient;
 use App\Repository\ConversationParticipantRepository;
 use App\Repository\ConversationRepository;
 use App\Repository\MessageRepository;
+use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
@@ -23,14 +25,16 @@ class ConversationService
         private readonly ConversationParticipantRepository $participantRepository,
         private readonly MessageRepository $messageRepository,
         private readonly ListingClient $listingClient,
-        private readonly PusherClient $pusherClient
+        private readonly PusherClient $pusherClient,
+        private readonly AuthClient $authClient,
+        private readonly RequestStack $requestStack
     ) {
     }
 
     /**
      * Create or get existing conversation for a listing
      */
-    public function createOrGetConversation(CreateConversationRequest $request, int $buyerId): ConversationResponse
+    public function createOrGetConversation(CreateConversationRequest $request, int $buyerId, string $buyerName = null): ConversationResponse
     {
         // Fetch listing from listing-service to get seller_id
         $listing = $this->listingClient->getListing($request->listing_id);
@@ -40,6 +44,7 @@ class ConversationService
         }
 
         $sellerId = $listing['seller_id'];
+        $sellerName = $listing['seller_name'] ?? null;
 
         // Prevent buyer from messaging themselves
         if ($buyerId === $sellerId) {
@@ -60,6 +65,8 @@ class ConversationService
             $conversation->setBuyerId($buyerId);
             $conversation->setSellerId($sellerId);
             $conversation->setListingTitle($listing['title']);
+            $conversation->setBuyerName($buyerName);
+            $conversation->setSellerName($sellerName);
 
             $this->conversationRepository->save($conversation, true);
 
@@ -208,7 +215,12 @@ class ConversationService
 
         $lastMessage = $this->messageRepository->findLatestByConversation($conversation);
 
-        return ConversationResponse::fromEntity($conversation, $unreadCount, $lastMessage);
+        // Determine other user's name
+        $otherUserName = $conversation->getBuyerId() === $userId
+            ? $conversation->getSellerName()
+            : $conversation->getBuyerName();
+
+        return ConversationResponse::fromEntity($conversation, $unreadCount, $lastMessage, $userId, $otherUserName);
     }
 }
 

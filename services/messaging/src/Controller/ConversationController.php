@@ -47,8 +47,9 @@ class ConversationController extends AbstractController
         Request $httpRequest
     ): JsonResponse {
         $userId = (int) $httpRequest->attributes->get('user_id');
+        $userName = $httpRequest->attributes->get('user_name');
         
-        $response = $this->conversationService->createOrGetConversation($request, $userId);
+        $response = $this->conversationService->createOrGetConversation($request, $userId, $userName);
 
         return $this->json($response, Response::HTTP_OK);
     }

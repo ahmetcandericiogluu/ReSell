@@ -16,11 +16,17 @@ class ConversationResponse
     public string $updated_at;
     public ?MessageResponse $last_message;
     public int $unread_count;
+    
+    // Other user info (the person you're chatting with)
+    public int $other_user_id;
+    public ?string $other_user_name = null;
 
     public static function fromEntity(
         Conversation $conversation,
         int $unreadCount = 0,
-        ?Message $lastMessage = null
+        ?Message $lastMessage = null,
+        int $currentUserId = 0,
+        ?string $otherUserName = null
     ): self {
         $dto = new self();
         $dto->id = (string) $conversation->getId();
@@ -32,6 +38,12 @@ class ConversationResponse
         $dto->updated_at = $conversation->getUpdatedAt()->format('c');
         $dto->last_message = $lastMessage ? MessageResponse::fromEntity($lastMessage) : null;
         $dto->unread_count = $unreadCount;
+        
+        // Set other user info based on current user
+        $dto->other_user_id = $conversation->getBuyerId() === $currentUserId
+            ? $conversation->getSellerId()
+            : $conversation->getBuyerId();
+        $dto->other_user_name = $otherUserName;
 
         return $dto;
     }

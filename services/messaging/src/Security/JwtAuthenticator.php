@@ -48,8 +48,9 @@ class JwtAuthenticator extends AbstractAuthenticator
             throw new CustomUserMessageAuthenticationException('Invalid token payload');
         }
 
-        // Store user_id in request for easy access in controllers
+        // Store user info in request for easy access in controllers
         $request->attributes->set('user_id', (int) $userId);
+        $request->attributes->set('user_name', $name);
 
         return new SelfValidatingPassport(
             new UserBadge($email, fn() => new JwtUser((int) $userId, $email, $name))

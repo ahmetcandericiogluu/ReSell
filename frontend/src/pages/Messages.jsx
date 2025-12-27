@@ -147,13 +147,16 @@ const Messages = () => {
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center justify-between mb-1">
                       <h3 className="font-semibold text-slate-800 truncate">
-                        {conversation.listing_title || 'İlan'}
+                        {conversation.other_user_name || 'Kullanıcı'}
                       </h3>
                       <span className="text-xs text-slate-500 whitespace-nowrap ml-2">
                         {formatDate(conversation.updated_at)}
                       </span>
                     </div>
                     <p className="text-sm text-slate-600 truncate">
+                      <span className="text-slate-400 mr-1">
+                        {conversation.listing_title}:
+                      </span>
                       {conversation.last_message?.content || 'Henüz mesaj yok'}
                     </p>
                   </div>

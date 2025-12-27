@@ -33,6 +33,12 @@ class Conversation
     #[ORM\Column(type: 'string', length: 255, nullable: true)]
     private ?string $listingTitle = null;
 
+    #[ORM\Column(type: 'string', length: 255, nullable: true)]
+    private ?string $buyerName = null;
+
+    #[ORM\Column(type: 'string', length: 255, nullable: true)]
+    private ?string $sellerName = null;
+
     #[ORM\Column(type: 'datetime_immutable')]
     private \DateTimeImmutable $createdAt;
 
@@ -107,6 +113,28 @@ class Conversation
     public function setListingTitle(?string $listingTitle): self
     {
         $this->listingTitle = $listingTitle;
+        return $this;
+    }
+
+    public function getBuyerName(): ?string
+    {
+        return $this->buyerName;
+    }
+
+    public function setBuyerName(?string $buyerName): self
+    {
+        $this->buyerName = $buyerName;
+        return $this;
+    }
+
+    public function getSellerName(): ?string
+    {
+        return $this->sellerName;
+    }
+
+    public function setSellerName(?string $sellerName): self
+    {
+        $this->sellerName = $sellerName;
         return $this;
     }
 
