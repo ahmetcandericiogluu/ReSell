@@ -6,6 +6,7 @@
 parameters:
     elasticsearch_url: '%env(ELASTICSEARCH_URL)%'
     elasticsearch_api_key: '%env(default::ELASTICSEARCH_API_KEY)%'
+    app_env: '%env(APP_ENV)%'
 
 services:
     # default configuration for services in *this* file
@@ -28,8 +29,10 @@ services:
     # please note that last definitions always *replace* previous ones
     
     App\EventListener\ExceptionListener:
+        arguments:
+            $appEnv: '%app_env%'
         tags:
-            - { name: kernel.event_listener, event: kernel.exception, priority: 0 }
+            - { name: kernel.event_listener, event: kernel.exception, priority: 100 }
 
     App\Security\JwtTokenManager:
         public: true

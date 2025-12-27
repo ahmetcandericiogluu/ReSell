@@ -62,10 +62,10 @@ class ExceptionListener
             $errorData['exception'] = get_class($exception);
             $errorData['file'] = basename($exception->getFile()) . ':' . $exception->getLine();
             
-            // In dev, show full path and trace
+            // In dev, show full path
             if ($this->appEnv === 'dev') {
                 $errorData['file'] = $exception->getFile() . ':' . $exception->getLine();
-                $errorData['trace'] = array_slice(explode("\n", $exception->getTraceAsString()), 0, 10);
+                $errorData['trace'] = explode("\n", $exception->getTraceAsString());
             }
         }
 

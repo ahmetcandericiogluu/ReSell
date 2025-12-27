@@ -2,6 +2,7 @@
 parameters:
     auth_service_url: '%env(AUTH_SERVICE_URL)%'
     listing_service_url: '%env(LISTING_SERVICE_URL)%'
+    app_env: '%env(APP_ENV)%'
 
 services:
     _defaults:
@@ -18,10 +19,12 @@ services:
             - '../src/DTO/'
             - '../src/Event/'
 
-    # Event Listener
+    # Event Listener - detailed error responses
     App\EventListener\ExceptionListener:
+        arguments:
+            $appEnv: '%app_env%'
         tags:
-            - { name: kernel.event_listener, event: kernel.exception, priority: 0 }
+            - { name: kernel.event_listener, event: kernel.exception, priority: 100 }
 
     # Security
     App\Security\JwtTokenManager:
