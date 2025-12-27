@@ -191,14 +191,37 @@ const Chat = () => {
     e.preventDefault();
     if (!newMessage.trim() || sending) return;
 
+    const messageContent = newMessage.trim();
+    const tempId = `temp-${Date.now()}`;
+    
+    // Add pending message immediately (optimistic update)
+    const pendingMessage = {
+      id: tempId,
+      sender_id: user?.id,
+      content: messageContent,
+      created_at: new Date().toISOString(),
+      pending: true, // Mark as pending
+    };
+    
+    setMessages((prev) => [...prev, pendingMessage]);
+    setNewMessage('');
+
     try {
       setSending(true);
-      const message = await messagingApi.sendMessage(id, newMessage.trim());
-      setMessages((prev) => [...prev, message]);
-      setNewMessage('');
+      const message = await messagingApi.sendMessage(id, messageContent);
+      
+      // Replace pending message with real one
+      setMessages((prev) => 
+        prev.map((m) => m.id === tempId ? { ...message, pending: false } : m)
+      );
     } catch (err) {
       console.error('Failed to send message:', err);
       showApiError(err, 'Mesaj gönderilemedi');
+      
+      // Mark message as failed
+      setMessages((prev) => 
+        prev.map((m) => m.id === tempId ? { ...m, pending: false, failed: true } : m)
+      );
     } finally {
       setSending(false);
       // Keep focus on input for quick consecutive messages (delay for React render)
@@ -382,10 +405,14 @@ const Chat = () => {
                             {/* Read status - only show for own messages */}
                             {isMyMessage(message.sender_id) && (
                               <span className="ml-1">
-                                {otherUserLastRead && message.id <= otherUserLastRead ? (
+                                {message.failed ? (
+                                  <span className="text-red-500" title="Gönderilemedi">✕</span>
+                                ) : message.pending ? (
+                                  <span className="text-slate-400" title="Gönderiliyor...">✓</span>
+                                ) : otherUserLastRead && message.id <= otherUserLastRead ? (
                                   <span className="text-blue-500 font-bold" title="Okundu">✓✓</span>
                                 ) : (
-                                  <span className="text-slate-400" title="Gönderildi">✓</span>
+                                  <span className="text-slate-400" title="Gönderildi">✓✓</span>
                                 )}
                               </span>
                             )}
