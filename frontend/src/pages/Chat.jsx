@@ -22,8 +22,14 @@ const Chat = () => {
   const [sending, setSending] = useState(false);
   const [error, setError] = useState('');
 
-  // Realtime message handler - dedupe by message ID
+  // Realtime message handler - only for messages from OTHER users
   const handleNewMessage = useCallback((message) => {
+    // Skip if this is our own message (already added when sending)
+    if (message.sender_id === user?.id) {
+      console.log('Skipping own message from Pusher');
+      return;
+    }
+    
     setMessages((prev) => {
       // Check if message already exists (dedupe)
       const exists = prev.some((m) => m.id === message.id);
@@ -32,7 +38,7 @@ const Chat = () => {
       }
       return [...prev, message];
     });
-  }, []);
+  }, [user?.id]);
 
   // Subscribe to realtime channel
   const { isConnected: realtimeConnected } = useConversationChannel(id, handleNewMessage);
