@@ -21,7 +21,7 @@ RUN a2enmod rewrite headers
 WORKDIR /var/www/html
 
 # Copy application files (Render uses repo root as context)
-COPY ..
+COPY . .
 
 # Debug: List files
 RUN echo "=== Files in /var/www/html ===" && ls -la
