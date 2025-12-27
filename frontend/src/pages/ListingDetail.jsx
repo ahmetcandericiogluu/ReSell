@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import listingApi from '../api/listingApi';
+import messagingApi from '../api/messagingApi';
 import Navbar from '../components/Navbar';
 import { Container, Card, Badge, Avatar, Button } from '../components/ui';
 
@@ -21,6 +22,7 @@ const ListingDetail = () => {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [contacting, setContacting] = useState(false);
 
   useEffect(() => {
     fetchListing();
@@ -58,6 +60,20 @@ const ListingDetail = () => {
       navigate('/login');
     } catch (error) {
       console.error('Logout error:', error);
+    }
+  };
+
+  const handleContact = async () => {
+    if (contacting) return;
+    try {
+      setContacting(true);
+      const conversation = await messagingApi.createConversation(parseInt(id));
+      navigate(`/messages/${conversation.id}`);
+    } catch (err) {
+      console.error('Failed to create conversation:', err);
+      setError('Mesajlaşma başlatılamadı.');
+    } finally {
+      setContacting(false);
     }
   };
 
@@ -297,13 +313,15 @@ const ListingDetail = () => {
                 <span className="text-slate-400">→</span>
               </div>
 
-              {listing.status === 'active' && (
+              {listing.status === 'active' && user?.id !== (listing.sellerId || listing.seller_id) && (
                 <div className="space-y-2">
-                  <Button variant="primary" className="w-full">
-                    💬 Mesaj Gönder
-                  </Button>
-                  <Button variant="secondary" className="w-full">
-                    📞 İletişim Bilgilerini Gör
+                  <Button 
+                    variant="primary" 
+                    className="w-full"
+                    onClick={handleContact}
+                    disabled={contacting}
+                  >
+                    {contacting ? '⏳ Başlatılıyor...' : '💬 Mesaj Gönder'}
                   </Button>
                 </div>
               )}

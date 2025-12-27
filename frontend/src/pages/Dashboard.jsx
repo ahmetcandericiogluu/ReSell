@@ -38,10 +38,9 @@ const Dashboard = () => {
     {
       icon: '💬',
       title: 'Mesajlarım',
-      description: 'Yakında aktif olacak',
-      action: () => {},
-      color: 'bg-slate-50 hover:bg-slate-100 text-slate-600 border-slate-200',
-      disabled: true
+      description: 'Konuşmalarınızı görüntüleyin',
+      action: () => navigate('/messages'),
+      color: 'bg-violet-50 hover:bg-violet-100 text-violet-700 border-violet-200'
     }
   ];
 

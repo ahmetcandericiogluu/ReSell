@@ -25,6 +25,7 @@ const Navbar = ({ activePage = '' }) => {
     { path: '/dashboard', label: 'Ana Sayfa', name: 'dashboard' },
     { path: '/listings', label: 'İlanlar', name: 'listings' },
     { path: '/my-listings', label: 'İlanlarım', name: 'my-listings' },
+    { path: '/messages', label: '💬 Mesajlar', name: 'messages' },
   ];
 
   return (

@@ -10,6 +10,8 @@ import ListingDetail from './pages/ListingDetail';
 import MyListings from './pages/MyListings';
 import ManageImages from './pages/ManageImages';
 import ProfilePage from './pages/ProfilePage';
+import Messages from './pages/Messages';
+import Chat from './pages/Chat';
 
 function App() {
   return (
@@ -80,6 +82,22 @@ function App() {
             element={
               <ProtectedRoute>
                 <ProfilePage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/messages"
+            element={
+              <ProtectedRoute>
+                <Messages />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/messages/:id"
+            element={
+              <ProtectedRoute>
+                <Chat />
               </ProtectedRoute>
             }
           />
