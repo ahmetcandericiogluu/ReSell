@@ -218,10 +218,26 @@ class ConversationService
 
         $lastMessage = $this->messageRepository->findLatestByConversation($conversation);
 
-        // Determine other user's name
-        $otherUserName = $conversation->getBuyerId() === $userId
-            ? $conversation->getSellerName()
-            : $conversation->getBuyerName();
+        // Determine other user's info
+        $isBuyer = $conversation->getBuyerId() === $userId;
+        $otherUserId = $isBuyer ? $conversation->getSellerId() : $conversation->getBuyerId();
+        $otherUserName = $isBuyer ? $conversation->getSellerName() : $conversation->getBuyerName();
+
+        // If name is not stored, fetch from auth-service
+        if (empty($otherUserName)) {
+            $otherUserInfo = $this->authClient->getUserById($otherUserId);
+            $otherUserName = $otherUserInfo['name'] ?? null;
+            
+            // Update conversation with the name for future requests
+            if ($otherUserName) {
+                if ($isBuyer) {
+                    $conversation->setSellerName($otherUserName);
+                } else {
+                    $conversation->setBuyerName($otherUserName);
+                }
+                $this->conversationRepository->save($conversation, true);
+            }
+        }
 
         return ConversationResponse::fromEntity($conversation, $unreadCount, $lastMessage, $userId, $otherUserName);
     }
