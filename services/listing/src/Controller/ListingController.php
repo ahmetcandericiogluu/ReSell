@@ -73,6 +73,22 @@ class ListingController extends AbstractController
         return $this->json($response);
     }
 
+    #[Route('/user/{userId}', name: 'listings_by_user', methods: ['GET'], requirements: ['userId' => '\d+'])]
+    #[OA\Get(summary: 'Get listings by user ID')]
+    #[OA\Parameter(name: 'userId', in: 'path', required: true, schema: new OA\Schema(type: 'integer'))]
+    #[OA\Response(response: 200, description: 'Returns user listings')]
+    public function getByUserId(int $userId): JsonResponse
+    {
+        $listings = $this->listingService->getActiveListingsByUserId($userId);
+        
+        $response = array_map(
+            fn($listing) => ListingResponse::fromEntity($listing),
+            $listings
+        );
+
+        return $this->json($response);
+    }
+
     #[Route('', name: 'listings_index', methods: ['GET'])]
     #[OA\Get(summary: 'Get all listings')]
     #[OA\Parameter(name: 'status', in: 'query', description: 'Filter by status', schema: new OA\Schema(type: 'string'))]

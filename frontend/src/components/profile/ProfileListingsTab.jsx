@@ -10,25 +10,25 @@ const ProfileListingsTab = ({ userId, isOwnProfile }) => {
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    if (isOwnProfile) {
-      fetchListings();
-    }
+    fetchListings();
   }, [userId, isOwnProfile]);
 
   const fetchListings = async () => {
-    if (!isOwnProfile) return;
-    
     setLoading(true);
     setError(null);
     
     try {
-      const data = await listingApi.getMyListings();
-      // getMyListings listing service'den array döner
+      let data;
+      if (isOwnProfile) {
+        data = await listingApi.getMyListings();
+      } else {
+        data = await listingApi.getByUserId(userId);
+      }
+      // listing service'den array döner
       const items = Array.isArray(data) ? data : (data.data || []);
       setListings(items);
     } catch (err) {
       setError('İlanlar yüklenemedi');
-      console.error('Listings fetch error:', err);
     } finally {
       setLoading(false);
     }
@@ -81,23 +81,6 @@ const ProfileListingsTab = ({ userId, isOwnProfile }) => {
           <div className="text-4xl mb-2">😞</div>
           <p className="text-slate-600 mb-4">{error}</p>
           <Button onClick={fetchListings}>Tekrar Dene</Button>
-        </div>
-      </Card>
-    );
-  }
-
-  // Başka kullanıcı profili için henüz destek yok
-  if (!isOwnProfile) {
-    return (
-      <Card>
-        <div className="text-center py-12">
-          <div className="text-6xl mb-4">🔒</div>
-          <h3 className="text-xl font-semibold text-slate-800 mb-2">
-            İlanlar görüntülenemiyor
-          </h3>
-          <p className="text-slate-600">
-            Şu an sadece kendi ilanlarınızı görüntüleyebilirsiniz.
-          </p>
         </div>
       </Card>
     );

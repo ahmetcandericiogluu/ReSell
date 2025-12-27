@@ -177,6 +177,11 @@ class ListingService
         return $this->listingRepository->findBySellerIdAndNotDeleted($userId);
     }
 
+    public function getActiveListingsByUserId(int $userId): array
+    {
+        return $this->listingRepository->findActiveBySellerIdAndNotDeleted($userId);
+    }
+
     /**
      * Refresh listing in Elasticsearch (called after external changes like image upload)
      */

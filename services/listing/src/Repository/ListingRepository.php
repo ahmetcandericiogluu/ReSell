@@ -140,5 +140,22 @@ class ListingRepository extends ServiceEntityRepository
             ->getQuery()
             ->getResult();
     }
+
+    /**
+     * Get only active listings by seller (for public profile view)
+     * @return Listing[]
+     */
+    public function findActiveBySellerIdAndNotDeleted(int $sellerId): array
+    {
+        return $this->createQueryBuilder('l')
+            ->andWhere('l.sellerId = :sellerId')
+            ->andWhere('l.status = :status')
+            ->andWhere('l.deletedAt IS NULL')
+            ->setParameter('sellerId', $sellerId)
+            ->setParameter('status', 'active')
+            ->orderBy('l.createdAt', 'DESC')
+            ->getQuery()
+            ->getResult();
+    }
 }
 

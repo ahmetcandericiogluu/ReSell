@@ -44,6 +44,18 @@ apiClient.interceptors.request.use((config) => {
   return config;
 });
 
+// Users API client (for public user info)
+const usersBaseUrl = import.meta.env.VITE_AUTH_SERVICE_URL 
+  ? `${import.meta.env.VITE_AUTH_SERVICE_URL}/api/users`
+  : 'https://resell-auth-service.onrender.com/api/users';
+
+const usersClient = axios.create({
+  baseURL: usersBaseUrl,
+  headers: {
+    'Content-Type': 'application/json',
+  }
+});
+
 const authApi = {
   register: async (userData) => {
     const response = await authClient.post('/register', userData);
@@ -68,6 +80,12 @@ const authApi = {
 
   me: async () => {
     const response = await apiClient.get('/me');
+    return response.data;
+  },
+
+  // Get public user info by ID
+  getUserById: async (userId) => {
+    const response = await usersClient.get(`/${userId}`);
     return response.data;
   },
 

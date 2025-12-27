@@ -65,6 +65,12 @@ const listingApi = {
     return response.data;
   },
 
+  // Get listings by user ID (public endpoint)
+  getByUserId: async (userId) => {
+    const response = await listingClient.get(`/user/${userId}`);
+    return response.data;
+  },
+
   // Get single listing using new microservice
   getById: async (id) => {
     const response = await listingClient.get(`/${id}`);

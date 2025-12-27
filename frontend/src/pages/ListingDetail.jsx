@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import listingApi from '../api/listingApi';
 import messagingApi from '../api/messagingApi';
+import authApi from '../api/authApi';
 import Navbar from '../components/Navbar';
 import { Container, Card, Badge, Avatar, Button } from '../components/ui';
 
@@ -18,6 +19,7 @@ const ListingDetail = () => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const [listing, setListing] = useState(null);
+  const [seller, setSeller] = useState(null);
   const [images, setImages] = useState([]);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [loading, setLoading] = useState(true);
@@ -34,13 +36,20 @@ const ListingDetail = () => {
     try {
       const data = await listingApi.getById(id);
       setListing(data);
-      
-      // Backend'den images gelirse kullan (şimdilik boş array)
-      // İleride ListingResponse'a images eklediğinde otomatik çalışacak
       setImages(data.images || []);
+
+      // Fetch seller info
+      const sellerId = data.sellerId || data.seller_id;
+      if (sellerId) {
+        try {
+          const sellerData = await authApi.getUserById(sellerId);
+          setSeller(sellerData);
+        } catch {
+          // Seller info not critical, continue without it
+        }
+      }
     } catch (err) {
       setError('İlan yüklenirken bir hata oluştu');
-      console.error(err);
     } finally {
       setLoading(false);
     }
@@ -301,14 +310,14 @@ const ListingDetail = () => {
                 className="flex items-center space-x-3 mb-4 cursor-pointer hover:bg-slate-50 -mx-2 px-2 py-2 rounded-lg transition-colors"
               >
                 <Avatar 
-                  name={listing.sellerName || listing.seller_name || `Satıcı ${listing.sellerId || listing.seller_id}`}
+                  name={seller?.name || listing.sellerName || listing.seller_name || `Satıcı ${listing.sellerId || listing.seller_id}`}
                   size="md"
                 />
                 <div className="flex-1 min-w-0">
                   <h3 className="font-semibold text-slate-800 truncate hover:text-primary-600 transition-colors">
-                    {listing.sellerName || listing.seller_name || `Satıcı #${listing.sellerId || listing.seller_id}`}
+                    {seller?.name || listing.sellerName || listing.seller_name || `Satıcı #${listing.sellerId || listing.seller_id}`}
                   </h3>
-                  <p className="text-xs text-slate-500">Satıcı ID: #{listing.sellerId || listing.seller_id}</p>
+                  <p className="text-xs text-slate-500">{seller?.email || `ID: #${listing.sellerId || listing.seller_id}`}</p>
                 </div>
                 <span className="text-slate-400">→</span>
               </div>
