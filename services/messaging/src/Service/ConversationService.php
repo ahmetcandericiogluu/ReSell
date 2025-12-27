@@ -44,7 +44,6 @@ class ConversationService
         }
 
         $sellerId = $listing['seller_id'];
-        $sellerName = $listing['seller_name'] ?? null;
 
         // Prevent buyer from messaging themselves
         if ($buyerId === $sellerId) {
@@ -59,6 +58,10 @@ class ConversationService
         );
 
         if ($conversation === null) {
+            // Fetch seller name from auth-service
+            $sellerInfo = $this->authClient->getUserById($sellerId);
+            $sellerName = $sellerInfo['name'] ?? null;
+
             // Create new conversation
             $conversation = new Conversation();
             $conversation->setListingId($request->listing_id);

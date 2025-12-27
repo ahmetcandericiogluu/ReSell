@@ -21,3 +21,5 @@ security:
     access_control:
         - { path: ^/auth/doc, roles: PUBLIC_ACCESS }
         - { path: ^/auth, roles: PUBLIC_ACCESS }
+        - { path: ^/api/users, roles: PUBLIC_ACCESS, methods: [GET] }
+        - { path: ^/health, roles: PUBLIC_ACCESS }

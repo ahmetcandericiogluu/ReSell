@@ -50,5 +50,39 @@ class AuthClient
             return null;
         }
     }
+
+    /**
+     * Get user info by ID from auth-service
+     * 
+     * @return array{id: int, email: string, name: ?string}|null
+     */
+    public function getUserById(int $userId): ?array
+    {
+        try {
+            $response = $this->httpClient->request('GET', $this->authServiceUrl . '/api/users/' . $userId, [
+                'headers' => [
+                    'Accept' => 'application/json',
+                ],
+                'timeout' => 5,
+            ]);
+
+            $data = $response->toArray();
+            
+            return [
+                'id' => (int) $data['id'],
+                'email' => $data['email'] ?? '',
+                'name' => $data['name'] ?? null,
+            ];
+        } catch (HttpExceptionInterface $e) {
+            $this->logger->warning('Auth service returned error for user ' . $userId . ': ' . $e->getMessage());
+            return null;
+        } catch (TransportExceptionInterface $e) {
+            $this->logger->error('Failed to connect to auth service: ' . $e->getMessage());
+            return null;
+        } catch (\Exception $e) {
+            $this->logger->error('Auth client error: ' . $e->getMessage());
+            return null;
+        }
+    }
 }
 
