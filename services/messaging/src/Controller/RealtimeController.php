@@ -78,10 +78,12 @@ class RealtimeController extends AbstractController
         }
 
         $conversationId = $matches[1];
-        $userId = $user->getUserIdentifier();
+        
+        // Get user ID from JwtUser
+        $userId = method_exists($user, 'getId') ? $user->getId() : (int) $user->getUserIdentifier();
 
         // Verify user is participant of this conversation
-        $participant = $this->participantRepository->findByConversationAndUser($conversationId, (int) $userId);
+        $participant = $this->participantRepository->findByConversationAndUser($conversationId, $userId);
 
         if (!$participant) {
             return new JsonResponse(['error' => 'Not authorized for this channel'], Response::HTTP_FORBIDDEN);
