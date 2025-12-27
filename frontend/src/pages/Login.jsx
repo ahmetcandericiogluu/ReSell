@@ -36,7 +36,7 @@ const Login = () => {
 
     try {
       await login(formData);
-      navigate('/dashboard');
+      navigate('/');
     } catch (err) {
       setError(err.response?.data?.error || 'Giriş başarısız');
     } finally {

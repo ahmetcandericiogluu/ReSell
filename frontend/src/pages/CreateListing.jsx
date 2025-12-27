@@ -63,7 +63,7 @@ const CreateListing = () => {
       };
 
       await listingApi.create(listingData);
-      navigate('/dashboard');
+      navigate('/');
     } catch (err) {
       setError(err.response?.data?.message || err.response?.data?.error || 'İlan oluşturulurken bir hata oluştu');
     } finally {

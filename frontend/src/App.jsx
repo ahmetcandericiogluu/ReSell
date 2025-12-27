@@ -4,7 +4,7 @@ import { ToastProvider } from './context/ToastContext';
 import ProtectedRoute from './components/ProtectedRoute';
 import Login from './pages/Login';
 import Register from './pages/Register';
-import Dashboard from './pages/Dashboard';
+import Home from './pages/Home';
 import CreateListing from './pages/CreateListing';
 import Listings from './pages/Listings';
 import ListingDetail from './pages/ListingDetail';
@@ -20,17 +20,10 @@ function App() {
       <AuthProvider>
         <ToastProvider>
         <Routes>
-          <Route path="/" element={<Navigate to="/dashboard" replace />} />
+          {/* Anasayfa - herkes görebilir */}
+          <Route path="/" element={<Home />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
-          <Route
-            path="/dashboard"
-            element={
-              <ProtectedRoute>
-                <Dashboard />
-              </ProtectedRoute>
-            }
-          />
           <Route
             path="/listings"
             element={
