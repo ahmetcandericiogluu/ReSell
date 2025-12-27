@@ -74,7 +74,7 @@ const Chat = () => {
 
   useEffect(() => {
     scrollToBottom();
-  }, [messages]);
+  }, [messages, isOtherTyping]);
 
   // Refocus input after sending completes
   useEffect(() => {
