@@ -1,47 +1,42 @@
 FROM php:8.3-apache
 
-# Install system dependencies
-RUN apt-get update && apt-get install -y \
-    git \
-    curl \
-    libpq-dev \
-    libzip-dev \
-    unzip \
-    && docker-php-ext-install pdo pdo_pgsql zip opcache \
-    && apt-get clean && rm -rf /var/lib/apt/lists/*
+# System deps + PHP extensions
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    git curl unzip libpq-dev libzip-dev \
+  && docker-php-ext-install pdo_pgsql zip opcache \
+  && rm -rf /var/lib/apt/lists/*
 
-# Install Composer
-COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
-
-# Enable Apache modules
+# Apache modules
 RUN a2enmod rewrite headers
 
-# Set working directory
-WORKDIR /var/www/html
+# Composer
+COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
-# Copy application files
+WORKDIR /var/www/html
 COPY . .
 
-# Install dependencies (skip auto-scripts to avoid DebugBundle issue)
-RUN composer install --no-dev --optimize-autoloader --no-interaction --no-scripts
+# Install PHP deps (prod)
+RUN composer install \
+    --no-dev \
+    --no-interaction \
+    --no-progress \
+    --optimize-autoloader
 
-# Set permissions
-RUN mkdir -p var/cache var/log && chown -R www-data:www-data var && chmod -R 775 var
+# ✅ Set Symfony public/ as DocumentRoot using existing Apache vhost (NO extra file)
+RUN sed -ri 's#DocumentRoot /var/www/html#DocumentRoot /var/www/html/public#g' /etc/apache2/sites-available/000-default.conf \
+ && printf '\n<Directory /var/www/html/public>\n    AllowOverride All\n    Require all granted\n    DirectoryIndex index.php index.html\n</Directory>\n' >> /etc/apache2/apache2.conf
 
-# Production PHP config
+# Symfony var/ permissions
+RUN mkdir -p var/cache var/log \
+ && chown -R www-data:www-data var \
+ && chmod -R 775 var
+
+# Production php.ini
 RUN mv "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php.ini"
 
-# Custom PHP settings
-RUN echo "opcache.enable=1" >> "$PHP_INI_DIR/conf.d/opcache.ini" \
-    && echo "opcache.memory_consumption=256" >> "$PHP_INI_DIR/conf.d/opcache.ini" \
-    && echo "opcache.max_accelerated_files=20000" >> "$PHP_INI_DIR/conf.d/opcache.ini" \
-    && echo "realpath_cache_size=4096K" >> "$PHP_INI_DIR/conf.d/opcache.ini" \
-    && echo "realpath_cache_ttl=600" >> "$PHP_INI_DIR/conf.d/opcache.ini"
 
-# Copy and set entrypoint
-COPY docker-entrypoint.sh /usr/local/bin/
+# Entrypoint (will set Render PORT at runtime)
+COPY docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
 RUN chmod +x /usr/local/bin/docker-entrypoint.sh
-
-EXPOSE 80
 
 ENTRYPOINT ["/usr/local/bin/docker-entrypoint.sh"]
