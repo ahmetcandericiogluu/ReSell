@@ -8,6 +8,7 @@ use App\DTO\ConversationResponse;
 use App\DTO\CreateConversationRequest;
 use App\Entity\Conversation;
 use App\Entity\ConversationParticipant;
+use App\Realtime\PusherClient;
 use App\Repository\ConversationParticipantRepository;
 use App\Repository\ConversationRepository;
 use App\Repository\MessageRepository;
@@ -21,7 +22,8 @@ class ConversationService
         private readonly ConversationRepository $conversationRepository,
         private readonly ConversationParticipantRepository $participantRepository,
         private readonly MessageRepository $messageRepository,
-        private readonly ListingClient $listingClient
+        private readonly ListingClient $listingClient,
+        private readonly PusherClient $pusherClient
     ) {
     }
 
@@ -139,6 +141,21 @@ class ConversationService
         if ($latestMessage !== null) {
             $participant->setLastReadMessage($latestMessage);
             $this->participantRepository->save($participant, true);
+
+            // Notify other participant that messages were read
+            $otherUserId = $conversation->getBuyerId() === $userId
+                ? $conversation->getSellerId()
+                : $conversation->getBuyerId();
+
+            $this->pusherClient->trigger(
+                "private-conversation.{$conversationId}",
+                'messages.read',
+                [
+                    'conversation_id' => $conversationId,
+                    'read_by' => $userId,
+                    'last_read_message_id' => (string) $latestMessage->getId(),
+                ]
+            );
         }
 
         return $this->buildConversationResponse($conversation, $userId);

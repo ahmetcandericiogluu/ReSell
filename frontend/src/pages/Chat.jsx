@@ -33,6 +33,9 @@ const Chat = () => {
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
+  
+  // Read status - ID of the last message read by the OTHER user
+  const [otherUserLastRead, setOtherUserLastRead] = useState(null);
 
   // Realtime message handler - only for messages from OTHER users
   const handleNewMessage = useCallback((message) => {
@@ -74,8 +77,16 @@ const Chat = () => {
     }, 3000);
   }, [user?.id]);
 
+  // Messages read handler
+  const handleMessagesRead = useCallback((data) => {
+    // Only update if the OTHER user read our messages
+    if (data.read_by !== user?.id) {
+      setOtherUserLastRead(data.last_read_message_id);
+    }
+  }, [user?.id]);
+
   // Subscribe to realtime channel
-  const { isConnected: realtimeConnected } = useConversationChannel(id, handleNewMessage, handleTyping);
+  const { isConnected: realtimeConnected } = useConversationChannel(id, handleNewMessage, handleTyping, handleMessagesRead);
 
   useEffect(() => {
     fetchConversation();
@@ -358,13 +369,23 @@ const Chat = () => {
                           }`}
                         >
                           <p className="break-words">{message.content}</p>
-                          <p
-                            className={`text-xs mt-1 ${
+                          <div
+                            className={`flex items-center gap-1 text-xs mt-1 ${
                               isMyMessage(message.sender_id) ? 'text-primary-200' : 'text-slate-400'
                             }`}
                           >
-                            {formatTime(message.created_at)}
-                          </p>
+                            <span>{formatTime(message.created_at)}</span>
+                            {/* Read status - only show for own messages */}
+                            {isMyMessage(message.sender_id) && (
+                              <span className="ml-1">
+                                {otherUserLastRead && message.id <= otherUserLastRead ? (
+                                  <span className="text-blue-300" title="Okundu">✓✓</span>
+                                ) : (
+                                  <span title="Gönderildi">✓</span>
+                                )}
+                              </span>
+                            )}
+                          </div>
                         </div>
                       </div>
                     ))}

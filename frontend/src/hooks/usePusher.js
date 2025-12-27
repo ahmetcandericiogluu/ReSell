@@ -89,8 +89,9 @@ export const usePusher = () => {
  * @param {string} conversationId - The conversation UUID
  * @param {function} onNewMessage - Callback when a new message arrives
  * @param {function} onTyping - Callback when someone starts typing
+ * @param {function} onMessagesRead - Callback when messages are read
  */
-export const useConversationChannel = (conversationId, onNewMessage, onTyping) => {
+export const useConversationChannel = (conversationId, onNewMessage, onTyping, onMessagesRead) => {
   const { pusher, isConnected } = usePusher();
   const channelRef = useRef(null);
 
@@ -128,6 +129,14 @@ export const useConversationChannel = (conversationId, onNewMessage, onTyping) =
       }
     });
 
+    // Bind to messages.read event
+    channelRef.current.bind('messages.read', (data) => {
+      console.log('Messages read:', data);
+      if (onMessagesRead) {
+        onMessagesRead(data);
+      }
+    });
+
     return () => {
       if (channelRef.current) {
         console.log('Unsubscribing from:', channelName);
@@ -136,7 +145,7 @@ export const useConversationChannel = (conversationId, onNewMessage, onTyping) =
         channelRef.current = null;
       }
     };
-  }, [pusher, conversationId, isConnected, onNewMessage, onTyping]);
+  }, [pusher, conversationId, isConnected, onNewMessage, onTyping, onMessagesRead]);
 
   return { isConnected };
 };
