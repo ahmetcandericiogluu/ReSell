@@ -22,13 +22,8 @@ WORKDIR /var/www/html
 # Copy application files
 COPY . .
 
-# Install dependencies
+# Install dependencies (skip auto-scripts to avoid DebugBundle issue)
 RUN composer install --no-dev --optimize-autoloader --no-interaction --no-scripts
-
-# Clear ALL cache and warm up production cache
-RUN rm -rf var/cache/* && \
-    APP_ENV=prod php bin/console cache:clear --no-warmup && \
-    APP_ENV=prod php bin/console cache:warmup
 
 # Set permissions
 RUN chown -R www-data:www-data var

@@ -5,9 +5,9 @@ echo "Starting Backend Service..."
 
 # Clear cache
 rm -rf var/cache/prod/*
-php bin/console cache:clear --env=prod --no-warmup 2>&1 || true
+php bin/console cache:clear --env=prod 2>&1 || true
 
-# Run migrations (fails gracefully if DB not ready)
+# Run migrations
 php bin/console doctrine:migrations:migrate --no-interaction --allow-no-migration 2>&1 || true
 
 echo "Starting web server..."
