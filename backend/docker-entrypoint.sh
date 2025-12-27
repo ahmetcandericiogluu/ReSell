@@ -11,5 +11,7 @@ php bin/console cache:warmup --env=prod 2>&1 || true
 # Run migrations
 php bin/console doctrine:migrations:migrate --no-interaction --allow-no-migration 2>&1 || true
 
+echo "Listen ${PORT}" > /etc/apache2/ports.conf
+
 echo "Starting web server..."
 exec apache2-foreground
