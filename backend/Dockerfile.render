@@ -25,8 +25,10 @@ COPY . .
 # Install dependencies
 RUN composer install --no-dev --optimize-autoloader --no-interaction --no-scripts
 
-# Clear cache manually for production
-RUN php bin/console cache:clear --env=prod --no-warmup || true
+# Clear ALL cache and warm up production cache
+RUN rm -rf var/cache/* && \
+    APP_ENV=prod php bin/console cache:clear --no-warmup && \
+    APP_ENV=prod php bin/console cache:warmup
 
 # Set permissions
 RUN chown -R www-data:www-data var
@@ -36,6 +38,10 @@ RUN chmod -R 775 var
 ENV APACHE_DOCUMENT_ROOT=/var/www/html/public
 RUN sed -ri -e 's!/var/www/html!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/sites-available/*.conf
 RUN sed -ri -e 's!/var/www/!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/apache2.conf /etc/apache2/conf-available/*.conf
+
+# Configure Apache to use PORT environment variable (for Render)
+RUN echo 'Listen ${PORT:-80}' > /etc/apache2/ports.conf && \
+    sed -ri -e 's/<VirtualHost \*:80>/<VirtualHost *:${PORT:-80}>/g' /etc/apache2/sites-available/*.conf
 
 # Production PHP config
 RUN mv "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php.ini"
