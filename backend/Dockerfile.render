@@ -26,8 +26,7 @@ COPY . .
 RUN composer install --no-dev --optimize-autoloader --no-interaction --no-scripts
 
 # Set permissions
-RUN chown -R www-data:www-data var
-RUN chmod -R 775 var
+RUN mkdir -p var/cache var/log && chown -R www-data:www-data var && chmod -R 775 var
 
 # Configure Apache document root
 ENV APACHE_DOCUMENT_ROOT=/var/www/html/public
