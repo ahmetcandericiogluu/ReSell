@@ -29,15 +29,23 @@ class ConversationParticipantRepository extends ServiceEntityRepository
     /**
      * Find participant record for user in conversation
      */
-    public function findByConversationAndUser(Conversation $conversation, int $userId): ?ConversationParticipant
+    public function findByConversationAndUser(Conversation|string $conversation, int $userId): ?ConversationParticipant
     {
-        return $this->createQueryBuilder('cp')
-            ->where('cp.conversation = :conversation')
+        $qb = $this->createQueryBuilder('cp')
             ->andWhere('cp.userId = :userId')
-            ->setParameter('conversation', $conversation)
-            ->setParameter('userId', $userId)
-            ->getQuery()
-            ->getOneOrNullResult();
+            ->setParameter('userId', $userId);
+
+        if ($conversation instanceof Conversation) {
+            $qb->where('cp.conversation = :conversation')
+               ->setParameter('conversation', $conversation);
+        } else {
+            // String UUID
+            $qb->join('cp.conversation', 'c')
+               ->where('c.id = :conversationId')
+               ->setParameter('conversationId', $conversation);
+        }
+
+        return $qb->getQuery()->getOneOrNullResult();
     }
 
     /**

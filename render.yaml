@@ -134,6 +134,15 @@ services:
         value: https://resell-auth-service.onrender.com
       - key: LISTING_SERVICE_URL
         value: https://resell-listing-service.onrender.com
+      # Pusher - set manually in Render Dashboard
+      - key: PUSHER_APP_ID
+        sync: false
+      - key: PUSHER_KEY
+        sync: false
+      - key: PUSHER_SECRET
+        sync: false
+      - key: PUSHER_CLUSTER
+        sync: false
     healthCheckPath: /health
 
   # Frontend
@@ -153,4 +162,9 @@ services:
         value: https://resell-listing-service.onrender.com
       - key: VITE_MESSAGING_SERVICE_URL
         value: https://resell-messaging-service.onrender.com
+      # Pusher - set manually in Render Dashboard
+      - key: VITE_PUSHER_KEY
+        sync: false
+      - key: VITE_PUSHER_CLUSTER
+        sync: false
     healthCheckPath: /

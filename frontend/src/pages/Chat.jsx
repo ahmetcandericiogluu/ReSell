@@ -1,12 +1,13 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import { Container, Card, Avatar } from '../components/ui';
 import { useAuth } from '../context/AuthContext';
 import messagingApi from '../api/messagingApi';
+import { useConversationChannel } from '../hooks/usePusher';
 
 /**
- * Chat Page - Conversation Detail
+ * Chat Page - Conversation Detail with Realtime Support
  */
 const Chat = () => {
   const { id } = useParams();
@@ -20,6 +21,21 @@ const Chat = () => {
   const [loading, setLoading] = useState(true);
   const [sending, setSending] = useState(false);
   const [error, setError] = useState('');
+
+  // Realtime message handler - dedupe by message ID
+  const handleNewMessage = useCallback((message) => {
+    setMessages((prev) => {
+      // Check if message already exists (dedupe)
+      const exists = prev.some((m) => m.id === message.id);
+      if (exists) {
+        return prev;
+      }
+      return [...prev, message];
+    });
+  }, []);
+
+  // Subscribe to realtime channel
+  const { isConnected: realtimeConnected } = useConversationChannel(id, handleNewMessage);
 
   useEffect(() => {
     fetchConversation();
@@ -155,8 +171,11 @@ const Chat = () => {
               <h1 className="font-semibold text-slate-800 truncate">
                 {conversation?.listing_title || 'Konuşma'}
               </h1>
-              <p className="text-sm text-slate-500">
+              <p className="text-sm text-slate-500 flex items-center">
                 {conversation?.other_user_name || 'Kullanıcı'}
+                {realtimeConnected && (
+                  <span className="ml-2 w-2 h-2 bg-green-500 rounded-full" title="Canlı bağlantı" />
+                )}
               </p>
             </div>
             {conversation?.listing_id && (

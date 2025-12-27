@@ -96,6 +96,11 @@ services:
       CORS_ALLOW_ORIGIN: "^https?://(localhost|127\\.0\\.0\\.1)(:[0-9]+)?$$"
       AUTH_SERVICE_URL: http://auth-service:8000
       LISTING_SERVICE_URL: http://listing-service:8000
+      # Pusher (optional - leave empty to disable realtime)
+      PUSHER_APP_ID: ""
+      PUSHER_KEY: ""
+      PUSHER_SECRET: ""
+      PUSHER_CLUSTER: "eu"
     ports:
       - "8083:8000"
     volumes:
@@ -125,6 +130,9 @@ services:
       VITE_AUTH_SERVICE_URL: http://localhost:8001
       VITE_LISTING_SERVICE_URL: http://localhost:8082
       VITE_MESSAGING_SERVICE_URL: http://localhost:8083
+      # Pusher (optional - leave empty to disable realtime)
+      VITE_PUSHER_KEY: ""
+      VITE_PUSHER_CLUSTER: "eu"
 
   # ========== INFRASTRUCTURE ==========
   

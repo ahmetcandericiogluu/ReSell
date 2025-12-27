@@ -22,6 +22,7 @@ security:
         - { path: ^/health, roles: PUBLIC_ACCESS }
         - { path: ^/api/doc, roles: PUBLIC_ACCESS }
         - { path: ^/api/doc.json, roles: PUBLIC_ACCESS }
+        - { path: ^/api/realtime/config, roles: PUBLIC_ACCESS }
         - { path: ^/api, roles: ROLE_USER }
 
 when@test:
