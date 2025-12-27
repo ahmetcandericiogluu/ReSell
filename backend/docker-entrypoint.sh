@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 
-APP_DIR="/var/www/html"
+    APP_DIR="/var/www/html"
 cd "$APP_DIR"
 
 echo "Starting service..."
@@ -12,7 +12,7 @@ export APP_DEBUG="${APP_DEBUG:-0}"
 PORT="${PORT:-80}"
 if ! echo "$PORT" | grep -Eq '^[0-9]+$'; then
   echo "Invalid PORT: '$PORT'"
-  exit 1
+    exit 1
 fi
 
 echo "Listen ${PORT}" > /etc/apache2/ports.conf
@@ -32,4 +32,4 @@ chown -R www-data:www-data var 2>/dev/null || true
 php bin/console doctrine:migrations:migrate --no-interaction --allow-no-migration 2>&1 || true
 
 echo "Starting Apache on port ${PORT} (APP_ENV=${APP_ENV}, APP_DEBUG=${APP_DEBUG})..."
-exec apache2-foreground
+    exec apache2-foreground

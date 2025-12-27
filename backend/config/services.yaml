@@ -25,6 +25,9 @@ services:
     
     # Exception Listener (auto-registered via #[AsEventListener])
     # Converts domain exceptions to JSON responses
+    App\Shared\EventListener\ExceptionListener:
+        arguments:
+            $environment: '%kernel.environment%'
     
     # Current User Provider
     App\Shared\Security\CurrentUserProvider: ~
