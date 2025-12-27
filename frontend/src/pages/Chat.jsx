@@ -16,6 +16,7 @@ const Chat = () => {
   const { user } = useAuth();
   const { showApiError } = useToast();
   const messagesEndRef = useRef(null);
+  const messagesContainerRef = useRef(null);
   const inputRef = useRef(null);
   const typingTimeoutRef = useRef(null);
   const lastTypingSentRef = useRef(0);
@@ -27,6 +28,11 @@ const Chat = () => {
   const [sending, setSending] = useState(false);
   const [error, setError] = useState('');
   const [isOtherTyping, setIsOtherTyping] = useState(false);
+  
+  // Pagination state
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
 
   // Realtime message handler - only for messages from OTHER users
   const handleNewMessage = useCallback((message) => {
@@ -88,9 +94,13 @@ const Chat = () => {
   const fetchConversation = async () => {
     try {
       setLoading(true);
-      const data = await messagingApi.getConversation(id);
-      setConversation(data.conversation);
+      const data = await messagingApi.getConversation(id, 1, 50);
+      setConversation(data);
       setMessages(data.messages || []);
+      setPage(1);
+      // Check if there are more messages (meta is in the response)
+      const totalPages = data.meta?.total_pages || 1;
+      setHasMore(totalPages > 1);
     } catch (err) {
       console.error('Failed to fetch conversation:', err);
       setError('Konuşma yüklenirken bir hata oluştu.');
@@ -99,6 +109,44 @@ const Chat = () => {
       setLoading(false);
     }
   };
+
+  // Load older messages when scrolling up
+  const loadOlderMessages = async () => {
+    if (loadingMore || !hasMore) return;
+    
+    try {
+      setLoadingMore(true);
+      const nextPage = page + 1;
+      const data = await messagingApi.getConversation(id, nextPage, 50);
+      
+      if (data.messages && data.messages.length > 0) {
+        // Prepend older messages
+        setMessages((prev) => [...data.messages, ...prev]);
+        setPage(nextPage);
+        
+        // Check if there are more
+        const totalPages = data.meta?.total_pages || 1;
+        setHasMore(nextPage < totalPages);
+      } else {
+        setHasMore(false);
+      }
+    } catch (err) {
+      console.error('Failed to load older messages:', err);
+    } finally {
+      setLoadingMore(false);
+    }
+  };
+
+  // Handle scroll to load older messages
+  const handleScroll = useCallback(() => {
+    const container = messagesContainerRef.current;
+    if (!container || loadingMore || !hasMore) return;
+    
+    // Load more when scrolled near top (within 100px)
+    if (container.scrollTop < 100) {
+      loadOlderMessages();
+    }
+  }, [loadingMore, hasMore, page]);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -251,8 +299,31 @@ const Chat = () => {
       </div>
 
       {/* Messages */}
-      <div className="flex-1 overflow-y-auto">
+      <div 
+        ref={messagesContainerRef}
+        onScroll={handleScroll}
+        className="flex-1 overflow-y-auto"
+      >
         <Container className="py-4">
+          {/* Load more indicator */}
+          {loadingMore && (
+            <div className="text-center py-2 mb-4">
+              <span className="text-sm text-slate-500">Eski mesajlar yükleniyor...</span>
+            </div>
+          )}
+          
+          {/* Load more button */}
+          {hasMore && !loadingMore && messages.length > 0 && (
+            <div className="text-center py-2 mb-4">
+              <button
+                onClick={loadOlderMessages}
+                className="text-sm text-primary-600 hover:text-primary-700"
+              >
+                ↑ Daha eski mesajları yükle
+              </button>
+            </div>
+          )}
+          
           {messages.length === 0 ? (
             <div className="text-center py-12">
               <div className="text-4xl mb-4">💬</div>

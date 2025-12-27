@@ -32,7 +32,7 @@ const messagingApi = {
     return response.data;
   },
 
-  // Get conversation with messages
+  // Get conversation with messages (paginated - newest first from API, reversed for display)
   getConversation: async (conversationId, page = 1, limit = 50) => {
     const response = await messagingClient.get(`/conversations/${conversationId}`, {
       params: { page, limit }

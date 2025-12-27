@@ -28,20 +28,24 @@ class MessageRepository extends ServiceEntityRepository
     }
 
     /**
-     * Get paginated messages for a conversation
+     * Get paginated messages for a conversation (newest first, reverse in frontend)
      */
     public function findByConversationPaginated(Conversation $conversation, int $page = 1, int $limit = 30): array
     {
         $offset = ($page - 1) * $limit;
 
-        return $this->createQueryBuilder('m')
+        // Get messages DESC (newest first) for proper pagination
+        $messages = $this->createQueryBuilder('m')
             ->where('m.conversation = :conversation')
             ->setParameter('conversation', $conversation)
-            ->orderBy('m.createdAt', 'ASC')
+            ->orderBy('m.createdAt', 'DESC')
             ->setFirstResult($offset)
             ->setMaxResults($limit)
             ->getQuery()
             ->getResult();
+
+        // Reverse to show oldest first in UI
+        return array_reverse($messages);
     }
 
     /**
