@@ -21,6 +21,14 @@ sed -ri "s/<VirtualHost \*:80>/<VirtualHost *:${PORT}>/g" /etc/apache2/sites-ava
 echo "ServerName localhost" > /etc/apache2/conf-available/servername.conf
 a2enconf servername >/dev/null 2>&1 || true
 
+# Clear and warmup cache for production
+rm -rf var/cache/prod/* 2>/dev/null || true
+php bin/console cache:clear --env=prod 2>&1 || true
+php bin/console cache:warmup --env=prod 2>&1 || true
+
+# Set permissions
+chown -R www-data:www-data var 2>/dev/null || true
+
 php bin/console doctrine:migrations:migrate --no-interaction --allow-no-migration 2>&1 || true
 
 echo "Starting Apache on port ${PORT} (APP_ENV=${APP_ENV}, APP_DEBUG=${APP_DEBUG})..."
