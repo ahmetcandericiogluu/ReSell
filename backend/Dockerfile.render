@@ -15,7 +15,6 @@ COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 WORKDIR /var/www/html
 COPY . .
 
-# Install PHP deps (prod) - auto-scripts kapalı (WebProfiler hatası için)
 RUN composer install \
     --no-dev \
     --no-interaction \
