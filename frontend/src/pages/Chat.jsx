@@ -299,8 +299,8 @@ const Chat = () => {
               {isOtherTyping && (
                 <div className="flex justify-start">
                   <div className="bg-white text-slate-500 border border-slate-200 px-4 py-2 rounded-2xl rounded-bl-md">
-                    <div className="flex items-center space-x-1">
-                      <span className="text-sm italic">{conversation?.other_user_name || 'Kullanıcı'} yazıyor</span>
+                    <div className="flex items-center space-x-2">
+                      <span className="text-sm italic text-slate-500">yazıyor</span>
                       <span className="flex space-x-1">
                         <span className="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></span>
                         <span className="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></span>
