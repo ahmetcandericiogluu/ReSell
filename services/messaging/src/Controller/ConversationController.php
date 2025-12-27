@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\DTO\CreateConversationRequest;
 use App\DTO\CreateMessageRequest;
 use App\DTO\MarkReadRequest;
+use App\Realtime\PusherClient;
 use App\Service\ConversationService;
 use App\Service\MessageService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -22,7 +23,8 @@ class ConversationController extends AbstractController
 {
     public function __construct(
         private readonly ConversationService $conversationService,
-        private readonly MessageService $messageService
+        private readonly MessageService $messageService,
+        private readonly PusherClient $pusherClient
     ) {
     }
 
@@ -135,6 +137,33 @@ class ConversationController extends AbstractController
         $response = $this->conversationService->markAsRead($id, $userId);
 
         return $this->json($response);
+    }
+
+    /**
+     * Send typing indicator to conversation
+     */
+    #[Route('/{id}/typing', name: 'conversations_typing', methods: ['POST'])]
+    #[IsGranted('ROLE_USER')]
+    #[OA\Post(summary: 'Send typing indicator', security: [['Bearer' => []]])]
+    #[OA\Parameter(name: 'id', in: 'path', required: true, schema: new OA\Schema(type: 'string', format: 'uuid'))]
+    #[OA\Response(response: 200, description: 'Typing indicator sent')]
+    #[OA\Response(response: 403, description: 'Not a participant')]
+    #[OA\Response(response: 404, description: 'Conversation not found')]
+    public function typing(string $id, Request $httpRequest): JsonResponse
+    {
+        $userId = (int) $httpRequest->attributes->get('user_id');
+
+        // Verify user is participant
+        $this->conversationService->getConversation($id, $userId);
+
+        // Broadcast typing event via Pusher
+        $this->pusherClient->trigger(
+            "private-conversation.{$id}",
+            'user.typing',
+            ['user_id' => $userId]
+        );
+
+        return $this->json(['success' => true]);
     }
 }
 

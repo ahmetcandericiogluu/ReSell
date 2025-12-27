@@ -15,6 +15,8 @@ const Chat = () => {
   const { user } = useAuth();
   const messagesEndRef = useRef(null);
   const inputRef = useRef(null);
+  const typingTimeoutRef = useRef(null);
+  const lastTypingSentRef = useRef(0);
   
   const [conversation, setConversation] = useState(null);
   const [messages, setMessages] = useState([]);
@@ -22,6 +24,7 @@ const Chat = () => {
   const [loading, setLoading] = useState(true);
   const [sending, setSending] = useState(false);
   const [error, setError] = useState('');
+  const [isOtherTyping, setIsOtherTyping] = useState(false);
 
   // Realtime message handler - only for messages from OTHER users
   const handleNewMessage = useCallback((message) => {
@@ -30,6 +33,9 @@ const Chat = () => {
       console.log('Skipping own message from Pusher');
       return;
     }
+    
+    // Clear typing indicator when message arrives
+    setIsOtherTyping(false);
     
     setMessages((prev) => {
       // Check if message already exists (dedupe)
@@ -41,8 +47,24 @@ const Chat = () => {
     });
   }, [user?.id]);
 
+  // Typing indicator handler
+  const handleTyping = useCallback((typingUserId) => {
+    // Ignore own typing events
+    if (typingUserId === user?.id) return;
+    
+    setIsOtherTyping(true);
+    
+    // Clear typing after 3 seconds of no activity
+    if (typingTimeoutRef.current) {
+      clearTimeout(typingTimeoutRef.current);
+    }
+    typingTimeoutRef.current = setTimeout(() => {
+      setIsOtherTyping(false);
+    }, 3000);
+  }, [user?.id]);
+
   // Subscribe to realtime channel
-  const { isConnected: realtimeConnected } = useConversationChannel(id, handleNewMessage);
+  const { isConnected: realtimeConnected } = useConversationChannel(id, handleNewMessage, handleTyping);
 
   useEffect(() => {
     fetchConversation();
@@ -70,6 +92,23 @@ const Chat = () => {
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  };
+
+  // Send typing indicator (throttled to once per 2 seconds)
+  const sendTypingIndicator = useCallback(() => {
+    const now = Date.now();
+    if (now - lastTypingSentRef.current > 2000) {
+      lastTypingSentRef.current = now;
+      messagingApi.sendTyping(id).catch(() => {});
+    }
+  }, [id]);
+
+  // Handle input change with typing indicator
+  const handleInputChange = (e) => {
+    setNewMessage(e.target.value);
+    if (e.target.value.trim()) {
+      sendTypingIndicator();
+    }
   };
 
   const handleSendMessage = async (e) => {
@@ -246,6 +285,23 @@ const Chat = () => {
                   </div>
                 </div>
               ))}
+              
+              {/* Typing Indicator */}
+              {isOtherTyping && (
+                <div className="flex justify-start">
+                  <div className="bg-white text-slate-500 border border-slate-200 px-4 py-2 rounded-2xl rounded-bl-md">
+                    <div className="flex items-center space-x-1">
+                      <span className="text-sm italic">{conversation?.other_user_name || 'Kullanıcı'} yazıyor</span>
+                      <span className="flex space-x-1">
+                        <span className="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></span>
+                        <span className="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></span>
+                        <span className="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></span>
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              )}
+              
               <div ref={messagesEndRef} />
             </div>
           )}
@@ -260,7 +316,7 @@ const Chat = () => {
               ref={inputRef}
               type="text"
               value={newMessage}
-              onChange={(e) => setNewMessage(e.target.value)}
+              onChange={handleInputChange}
               placeholder="Mesajınızı yazın..."
               className="flex-1 px-4 py-3 border border-slate-200 rounded-full focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
               disabled={sending}

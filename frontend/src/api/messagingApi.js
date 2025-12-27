@@ -50,6 +50,12 @@ const messagingApi = {
   markAsRead: async (conversationId) => {
     const response = await messagingClient.post(`/conversations/${conversationId}/read`);
     return response.data;
+  },
+
+  // Send typing indicator
+  sendTyping: async (conversationId) => {
+    const response = await messagingClient.post(`/conversations/${conversationId}/typing`);
+    return response.data;
   }
 };
 
