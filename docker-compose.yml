@@ -36,9 +36,16 @@ services:
     environment:
       APP_ENV: dev
       APP_SECRET: dev-secret-key-12345
-      DATABASE_URL: postgresql://neondb_owner:npg_71RIHzySfQEn@ep-wild-pine-agj19579-pooler.c-2.eu-central-1.aws.neon.tech/auth_service?sslmode=require&channel_binding=require
+      DATABASE_URL: postgresql://neondb_owner:npg_71RIHzySfQEn@ep-wild-pine-agj19579-pooler.c-2.eu-central-1.aws.neon.tech/listing_service?sslmode=require&channel_binding=require
       CORS_ALLOW_ORIGIN: "^https?://(localhost|127\\.0\\.0\\.1)(:[0-9]+)?$$"
       ELASTICSEARCH_URL: http://elasticsearch:9200
+      # Cloudflare R2 Storage
+      R2_ENDPOINT: https://56751b8361542d95b3c6aa19e5807694.r2.cloudflarestorage.com
+      R2_REGION: auto
+      R2_BUCKET: resell-uploads-dev
+      R2_ACCESS_KEY_ID: ad8fbcac1bc20e2be3f659d0678078ab
+      R2_SECRET_ACCESS_KEY: 054281a76b2b91d8ef736a332460b44932443b21b09c629019820141cff48c76
+      R2_PUBLIC_BASE_URL: https://pub-f04ef83f9e1f46f2a18b4f27db086b8e.r2.dev
     ports:
       - "8082:8000"
     volumes:

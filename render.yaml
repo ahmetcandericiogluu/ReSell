@@ -82,6 +82,19 @@ services:
         sync: false
       - key: FORCE_REINDEX
         sync: false
+      # Cloudflare R2 Storage - Set manually in Render Dashboard
+      - key: R2_ENDPOINT
+        sync: false
+      - key: R2_REGION
+        value: auto
+      - key: R2_BUCKET
+        sync: false
+      - key: R2_ACCESS_KEY_ID
+        sync: false
+      - key: R2_SECRET_ACCESS_KEY
+        sync: false
+      - key: R2_PUBLIC_BASE_URL
+        sync: false
       # Set to true to see detailed error messages in prod (for debugging)
       - key: SHOW_DETAILED_ERRORS
         value: true

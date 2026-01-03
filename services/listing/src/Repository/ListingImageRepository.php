@@ -31,5 +31,17 @@ class ListingImageRepository extends ServiceEntityRepository
             $this->getEntityManager()->flush();
         }
     }
+
+    public function findMaxPosition($listing): ?int
+    {
+        $result = $this->createQueryBuilder('i')
+            ->select('MAX(i.position)')
+            ->where('i.listing = :listing')
+            ->setParameter('listing', $listing)
+            ->getQuery()
+            ->getSingleScalarResult();
+
+        return $result !== null ? (int) $result : null;
+    }
 }
 

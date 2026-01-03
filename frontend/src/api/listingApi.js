@@ -4,11 +4,6 @@ import axios from 'axios';
 const LISTING_SERVICE_URL = import.meta.env.VITE_LISTING_SERVICE_URL 
   || 'https://resell-listing-service.onrender.com';
 
-// Fallback to monolith for backward compatibility
-const MONOLITH_URL = import.meta.env.VITE_API_URL 
-  ? `${import.meta.env.VITE_API_URL}/api/listings`
-  : 'https://resell-backend.onrender.com/api/listings';
-
 const listingClient = axios.create({
   baseURL: `${LISTING_SERVICE_URL}/api/listings`,
   headers: {
@@ -16,26 +11,14 @@ const listingClient = axios.create({
   }
 });
 
-const monolithClient = axios.create({
-  baseURL: MONOLITH_URL,
-  headers: {
-    'Content-Type': 'application/json',
-  }
-});
-
 // Add JWT token to requests
-const addAuthInterceptor = (client) => {
-  client.interceptors.request.use((config) => {
-    const token = localStorage.getItem('token');
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
-    return config;
-  });
-};
-
-addAuthInterceptor(listingClient);
-addAuthInterceptor(monolithClient);
+listingClient.interceptors.request.use((config) => {
+  const token = localStorage.getItem('token');
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
+});
 
 const listingApi = {
   // Create listing using new microservice
@@ -89,14 +72,14 @@ const listingApi = {
     return response.data;
   },
 
-  // Image operations - still use monolith (image upload not in microservice yet)
+  // Image operations - now using listing-service
   uploadImages: async (listingId, files) => {
     const formData = new FormData();
     files.forEach(file => {
       formData.append('images[]', file);
     });
 
-    const response = await monolithClient.post(`/${listingId}/images`, formData, {
+    const response = await listingClient.post(`/${listingId}/images`, formData, {
       headers: {
         'Content-Type': 'multipart/form-data',
       },
@@ -105,12 +88,12 @@ const listingApi = {
   },
 
   deleteImage: async (listingId, imageId) => {
-    const response = await monolithClient.delete(`/${listingId}/images/${imageId}`);
+    const response = await listingClient.delete(`/${listingId}/images/${imageId}`);
     return response.data;
   },
 
   getImages: async (listingId) => {
-    const response = await monolithClient.get(`/${listingId}/images`);
+    const response = await listingClient.get(`/${listingId}/images`);
     return response.data;
   }
 };

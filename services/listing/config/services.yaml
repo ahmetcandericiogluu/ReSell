@@ -63,3 +63,16 @@ services:
     App\Elasticsearch\ListingSearchService:
         arguments:
             $esClient: '@App\Elasticsearch\ElasticsearchClient'
+
+    # Storage Services
+    App\Storage\R2StorageService:
+        arguments:
+            $endpoint: '%env(R2_ENDPOINT)%'
+            $region: '%env(R2_REGION)%'
+            $bucket: '%env(R2_BUCKET)%'
+            $accessKeyId: '%env(R2_ACCESS_KEY_ID)%'
+            $secretAccessKey: '%env(R2_SECRET_ACCESS_KEY)%'
+            $publicBaseUrl: '%env(R2_PUBLIC_BASE_URL)%'
+
+    App\Storage\StorageInterface:
+        alias: App\Storage\R2StorageService
