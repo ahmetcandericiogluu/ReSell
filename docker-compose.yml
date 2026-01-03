@@ -14,7 +14,7 @@ services:
     environment:
       APP_ENV: dev
       APP_SECRET: dev-secret-key-12345
-      DATABASE_URL: postgresql://postgres:postgres@host.docker.internal:5432/resell?serverVersion=16&charset=utf8
+      DATABASE_URL: postgresql://neondb_owner:npg_71RIHzySfQEn@ep-wild-pine-agj19579-pooler.c-2.eu-central-1.aws.neon.tech/auth_service?sslmode=require&channel_binding=require
       CORS_ALLOW_ORIGIN: "^https?://(localhost|127\\.0\\.0\\.1)(:[0-9]+)?$$"
     ports:
       - "8001:8000"
@@ -36,7 +36,7 @@ services:
     environment:
       APP_ENV: dev
       APP_SECRET: dev-secret-key-12345
-      DATABASE_URL: postgresql://postgres:postgres@host.docker.internal:5432/resell?serverVersion=16&charset=utf8
+      DATABASE_URL: postgresql://neondb_owner:npg_71RIHzySfQEn@ep-wild-pine-agj19579-pooler.c-2.eu-central-1.aws.neon.tech/auth_service?sslmode=require&channel_binding=require
       CORS_ALLOW_ORIGIN: "^https?://(localhost|127\\.0\\.0\\.1)(:[0-9]+)?$$"
       ELASTICSEARCH_URL: http://elasticsearch:9200
     ports:
@@ -63,7 +63,7 @@ services:
       APP_DEBUG: "1"
       APP_SECRET: dev-secret-key-12345
       JWT_SECRET: dev-secret-key-12345
-      DATABASE_URL: postgresql://postgres:postgres@host.docker.internal:5432/resell?serverVersion=16&charset=utf8
+      DATABASE_URL: postgresql://neondb_owner:npg_71RIHzySfQEn@ep-wild-pine-agj19579-pooler.c-2.eu-central-1.aws.neon.tech/auth_service?sslmode=require&channel_binding=require
       CORS_ALLOW_ORIGIN: "^https?://(localhost|127\\.0\\.0\\.1)(:[0-9]+)?$$"
       FRONTEND_URL: http://localhost:3000
       LISTING_SERVICE_URL: http://listing-service:8000
